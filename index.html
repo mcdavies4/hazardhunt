@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Hazard Hunt — Fire Safety Inspection</title>
+<title>Hazard Hunt — Fire Safety Training</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -20,12 +20,19 @@
     color:var(--text);font-family:'Inter',system-ui,sans-serif;
     display:flex;justify-content:center;min-height:100%;overflow-x:hidden;
   }
-  #app{width:100%;max-width:760px;padding:14px 14px 28px;display:flex;flex-direction:column;min-height:100vh;}
+  #app{width:100%;max-width:760px;padding:12px 14px 28px;display:flex;flex-direction:column;min-height:100vh;}
+  .hidden{display:none!important;}
 
+  /* topbar */
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .icon-btn{font-family:'Inter';font-weight:600;font-size:14px;color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;transition:.15s;}
+  .icon-btn:hover{color:var(--text);border-color:#3a3f52;}
+
+  /* HUD */
   .hud{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:stretch;
     background:linear-gradient(180deg,var(--panel),#13151c);border:1px solid var(--line);border-radius:14px;padding:10px 12px;
     box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);}
-  .gauge{display:flex;flex-direction:column;justify-content:center;min-width:74px;}
+  .gauge{display:flex;flex-direction:column;justify-content:center;min-width:72px;}
   .gauge .lbl{font:600 10px/1 'Inter';letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
   .gauge .val{font-family:'Space Mono',monospace;font-weight:700;font-size:26px;line-height:1;}
   .timer.low .val{color:var(--red);animation:tick .8s steps(2) infinite;}
@@ -40,19 +47,53 @@
   .heart{font-size:18px;transition:opacity .3s, filter .3s, transform .3s;}
   .heart.gone{opacity:.18;filter:grayscale(1);transform:scale(.8);}
 
-  .signage{display:flex;align-items:center;gap:12px;margin:16px 2px 12px;}
-  .sign-plate{font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:.04em;text-transform:uppercase;
-    font-size:clamp(20px,5.5vw,30px);line-height:1;padding:8px 14px;border-radius:8px;border:2px solid var(--ember);
+  /* screens */
+  .screen{display:none;flex-direction:column;flex:1;}
+  .screen.active{display:flex;}
+
+  /* home */
+  .home-hero{text-align:center;margin:18px 0 22px;}
+  .eyebrow{font:600 11px/1 'Inter';letter-spacing:.22em;text-transform:uppercase;color:var(--ember);margin-bottom:10px;}
+  .home-hero h1{font-family:'Oswald';font-weight:700;text-transform:uppercase;letter-spacing:.02em;font-size:clamp(40px,12vw,62px);line-height:.9;margin:0;}
+  .home-hero p{color:var(--muted);font-size:14px;margin:8px 0 0;}
+  .menu{display:flex;flex-direction:column;gap:11px;margin-bottom:16px;}
+  .mode-card{display:flex;align-items:center;gap:15px;text-align:left;width:100%;cursor:pointer;color:var(--text);
+    background:linear-gradient(180deg,var(--panel-2),#15171f);border:1px solid var(--line);border-radius:16px;padding:16px 16px;transition:transform .14s,border-color .2s;}
+  .mode-card:hover{border-color:var(--ember);transform:translateY(-2px);}
+  .mode-card:focus-visible{outline:3px solid var(--amber);outline-offset:2px;}
+  .mode-card .mi{font-size:32px;flex-shrink:0;width:40px;text-align:center;}
+  .mode-card .mt{font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:20px;letter-spacing:.02em;line-height:1;display:block;}
+  .mode-card .md{font-size:12.5px;color:var(--muted);line-height:1.4;margin-top:4px;display:block;}
+  .mode-card.alt{border-style:dashed;}
+  .mode-card .badge{margin-left:auto;font:600 9px/1 'Inter';letter-spacing:.1em;text-transform:uppercase;color:var(--amber);background:rgba(255,176,46,.12);border:1px solid rgba(255,176,46,.35);padding:4px 7px;border-radius:20px;flex-shrink:0;}
+
+  /* buttons */
+  .btn{font-family:'Oswald',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:17px;color:#1a0e06;
+    background:linear-gradient(180deg,#ff7a3d,var(--ember));border:none;border-radius:12px;padding:14px 22px;width:100%;cursor:pointer;
+    box-shadow:0 8px 24px rgba(255,90,31,.32);transition:transform .1s,box-shadow .2s;}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(255,90,31,.42);}
+  .btn:active{transform:translateY(1px);}
+  .btn.ghost{background:var(--panel);color:var(--muted);border:1px solid var(--line);box-shadow:none;font-size:14px;}
+  .btn.ghost:hover{color:var(--text);border-color:#3a3f52;transform:none;}
+  .btn.sm{font-size:13px;padding:10px 14px;width:auto;}
+</style>
+</head>
+<body>
+<style>
+  /* signage (hazard hunt) */
+  .signage{display:flex;align-items:center;gap:12px;margin:14px 2px 12px;}
+  .sign-plate{font-family:'Oswald';font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+    font-size:clamp(19px,5.4vw,28px);line-height:1;padding:8px 14px;border-radius:8px;border:2px solid var(--ember);
     color:#fff;background:linear-gradient(180deg,rgba(255,90,31,.16),rgba(255,90,31,.04));box-shadow:0 0 0 4px rgba(255,90,31,.06);}
   .room-meta{font:500 12px/1.4 'Inter';color:var(--muted);}
   .room-meta b{color:var(--text);font-family:'Space Mono',monospace;}
   .room-meta .bname{color:var(--amber);font-family:'Oswald';font-weight:600;text-transform:uppercase;letter-spacing:.03em;font-size:13px;}
 
+  /* hazard grid */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:10px;margin-top:6px;}
   .card{position:relative;cursor:pointer;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel-2),#15171f);
     border-radius:14px;padding:14px 8px 10px;min-height:104px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
-    transition:transform .12s ease, border-color .2s, box-shadow .2s;box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
-    font-family:inherit;color:var(--text);text-align:center;}
+    transition:transform .12s ease, border-color .2s;box-shadow:inset 0 1px 0 rgba(255,255,255,.04);font-family:inherit;color:var(--text);text-align:center;}
   .card:hover{transform:translateY(-2px);border-color:#3a3f52;}
   .card:focus-visible{outline:3px solid var(--amber);outline-offset:2px;}
   .card .emoji{font-size:34px;line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4));}
@@ -66,56 +107,145 @@
   .card.cleared{cursor:default;}.card.cleared:hover{transform:none;}
   .card.wrong{animation:shake .4s;border-color:var(--red);}
   @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
-  .pop{position:absolute;left:50%;top:8px;transform:translateX(-50%);font-family:'Space Mono',monospace;font-weight:700;font-size:13px;pointer-events:none;animation:floatup .8s ease forwards;}
+  .pop{position:absolute;left:50%;top:8px;transform:translateX(-50%);font-family:'Space Mono',monospace;font-weight:700;font-size:13px;pointer-events:none;animation:floatup .8s ease forwards;z-index:5;}
   .pop.good{color:var(--green);}.pop.bad{color:var(--red);}
   @keyframes floatup{0%{opacity:0;transform:translate(-50%,4px)}15%{opacity:1}100%{opacity:0;transform:translate(-50%,-22px)}}
 
+  /* log */
   .log{margin-top:14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:11px 13px;min-height:54px;display:flex;gap:10px;align-items:flex-start;}
-  .log .tag{font-family:'Oswald',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:11px;padding:3px 8px;border-radius:5px;flex-shrink:0;margin-top:1px;}
+  .log .tag{font-family:'Oswald';font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:11px;padding:3px 8px;border-radius:5px;flex-shrink:0;margin-top:1px;}
   .tag.haz{background:rgba(255,90,31,.16);color:var(--ember);border:1px solid rgba(255,90,31,.4);}
   .tag.ok{background:rgba(54,211,153,.14);color:var(--green);border:1px solid rgba(54,211,153,.4);}
   .tag.idle{background:#23202b;color:var(--muted);border:1px solid var(--line);}
   .log p{margin:0;font:400 13px/1.45 'Inter';color:var(--text);}
   .log p .what{font-weight:600;}
 
-  .overlay{position:fixed;inset:0;background:rgba(8,9,12,.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20;overflow-y:auto;}
-  .modal{width:100%;max-width:460px;background:linear-gradient(180deg,var(--panel),#111219);border:1px solid var(--line);border-radius:20px;padding:26px 22px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.6);margin:auto;}
-  .eyebrow{font:600 11px/1 'Inter';letter-spacing:.22em;text-transform:uppercase;color:var(--ember);margin-bottom:10px;}
-  .modal h1{font-family:'Oswald',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.02em;font-size:clamp(30px,9vw,46px);line-height:.95;margin:0 0 6px;}
-  .modal h2{font-family:'Oswald',sans-serif;font-weight:600;text-transform:uppercase;font-size:26px;margin:0 0 10px;}
+  /* extinguisher mode */
+  .ext-head{display:flex;justify-content:space-between;align-items:center;margin:14px 2px 12px;}
+  .ext-head .n{font:500 13px/1 'Inter';color:var(--muted);}
+  .ext-head .n b{color:var(--text);font-family:'Space Mono';}
+  .ext-head .et{font-family:'Space Mono';font-weight:700;font-size:24px;}
+  .ext-head .et.low{color:var(--red);animation:tick .8s steps(2) infinite;}
+  .fire-card{position:relative;border:1px solid var(--line);border-radius:18px;padding:22px 16px;text-align:center;overflow:hidden;
+    background:radial-gradient(120% 100% at 50% 0%, rgba(255,90,31,.18), transparent 60%),linear-gradient(180deg,var(--panel-2),#15171f);}
+  .fire-card.bad{animation:flare .5s;}
+  @keyframes flare{0%,100%{box-shadow:0 0 0 0 rgba(255,77,77,0)}40%{box-shadow:0 0 0 4px rgba(255,77,77,.5)}}
+  .fire-emoji{font-size:60px;line-height:1;filter:drop-shadow(0 6px 14px rgba(255,90,31,.4));animation:flicker 1.4s ease-in-out infinite;}
+  @keyframes flicker{0%,100%{transform:scale(1) rotate(-1deg);opacity:1}50%{transform:scale(1.06) rotate(1deg);opacity:.92}}
+  .fire-title{font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:22px;margin-top:8px;letter-spacing:.01em;}
+  .fire-class{display:inline-block;margin-top:8px;font:600 11px/1 'Inter';letter-spacing:.1em;text-transform:uppercase;color:var(--amber);background:rgba(255,176,46,.12);border:1px solid rgba(255,176,46,.35);padding:5px 10px;border-radius:20px;}
+  .ext-prompt{text-align:center;font:600 11px/1 'Inter';letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:16px 0 11px;}
+  .ext-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+  .ext-opt{position:relative;cursor:pointer;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:linear-gradient(180deg,var(--panel-2),#15171f);color:var(--text);padding:0 0 10px;transition:transform .12s,border-color .2s;display:flex;flex-direction:column;align-items:center;}
+  .ext-opt:hover{transform:translateY(-2px);border-color:#3a3f52;}
+  .ext-opt:focus-visible{outline:3px solid var(--amber);outline-offset:2px;}
+  .ext-opt .band{height:8px;width:100%;}
+  .ext-opt .eimg{font-size:30px;margin-top:11px;}
+  .ext-opt .enm{font:600 11px/1.2 'Inter';margin-top:7px;text-align:center;padding:0 4px;}
+  .ext-opt.right{border-color:var(--green);background:linear-gradient(180deg,rgba(54,211,153,.16),rgba(54,211,153,.03));}
+  .ext-opt.wrongpick{border-color:var(--red);animation:shake .4s;}
+  .ext-opt.dim{opacity:.4;pointer-events:none;}
+
+  /* door mode */
+  .door-head{text-align:center;margin:14px 0 6px;}
+  .door-head h2{font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:22px;margin:0;}
+  .door-head p{color:var(--muted);font-size:12.5px;margin:5px 0 0;}
+  .door-stage{position:relative;width:100%;max-width:330px;margin:14px auto 0;aspect-ratio:9/16;}
+  .door-frame{position:absolute;inset:0;border-radius:10px 10px 0 0;background:linear-gradient(180deg,#2a2230,#241d29);border:3px solid #4a3a52;box-shadow:inset 0 0 30px rgba(0,0,0,.5);}
+  .door-leaf{position:absolute;inset:7% 6% 1% 6%;border-radius:6px 6px 0 0;background:linear-gradient(120deg,#5a4632,#6e5640);border:2px solid #3c2e20;box-shadow:inset 0 2px 10px rgba(255,255,255,.06),inset 0 -20px 40px rgba(0,0,0,.35);}
+  .vision-panel{position:absolute;top:14%;left:28%;width:44%;height:18%;border-radius:5px;background:linear-gradient(160deg,rgba(150,200,230,.35),rgba(90,130,160,.25));border:2px solid #3c2e20;}
+  .door-sign{position:absolute;top:40%;left:30%;width:40%;text-align:center;font:700 7px/1.15 'Inter';letter-spacing:.04em;color:#1c130b;background:#e9e4dc;border-radius:3px;padding:4px 2px;text-transform:uppercase;}
+  .door-handle{position:absolute;top:55%;right:11%;width:7%;height:6%;border-radius:8px;background:#d9c089;box-shadow:0 1px 3px rgba(0,0,0,.5);}
+  .door-closer{position:absolute;top:8.5%;right:9%;width:20%;height:3%;background:#2c3340;border-radius:4px;}
+  .hinge{position:absolute;left:5%;width:4%;height:5%;background:#cdb277;border-radius:2px;}
+  .door-wedge{position:absolute;bottom:1%;left:24%;width:0;height:0;border-left:18px solid transparent;border-right:18px solid transparent;border-bottom:14px solid #3a2a1c;}
+  .pin{position:absolute;width:30px;height:30px;border-radius:50%;transform:translate(-50%,-50%);cursor:pointer;border:2px solid #fff;
+    background:rgba(255,90,31,.9);color:#fff;font-family:'Space Mono';font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 3px 10px rgba(0,0,0,.5);animation:ping 2s ease-in-out infinite;z-index:3;}
+  @keyframes ping{0%,100%{box-shadow:0 0 0 0 rgba(255,90,31,.5),0 3px 10px rgba(0,0,0,.5)}50%{box-shadow:0 0 0 7px rgba(255,90,31,0),0 3px 10px rgba(0,0,0,.5)}}
+  .pin.done{animation:none;border-color:#fff;}
+  .pin.fault{background:var(--green);}
+  .pin.okrev{background:var(--red);}
+  .pin:focus-visible{outline:3px solid var(--amber);outline-offset:2px;}
+</style>
+<style>
+  /* overlays + modal */
+  .overlay{position:fixed;inset:0;background:rgba(8,9,12,.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:40;overflow-y:auto;}
+  .modal{width:100%;max-width:460px;background:linear-gradient(180deg,var(--panel),#111219);border:1px solid var(--line);border-radius:20px;padding:24px 22px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.6);margin:auto;}
+  .modal h1{font-family:'Oswald';font-weight:700;text-transform:uppercase;letter-spacing:.02em;font-size:clamp(28px,8vw,42px);line-height:.95;margin:0 0 6px;}
+  .modal h2{font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:26px;margin:0 0 10px;}
   .modal p{color:var(--muted);font-size:14px;line-height:1.55;margin:0 auto 16px;max-width:360px;}
-  .rules{text-align:left;background:#0d0e13;border:1px solid var(--line);border-radius:12px;padding:11px 15px;margin:0 0 18px;}
-  .rules li{font-size:12px;line-height:1.7;color:var(--text);list-style:none;display:flex;gap:9px;}
-  .rules li span{flex-shrink:0;}
   .pick-label{font:600 10px/1 'Inter';letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:4px 0 12px;}
   .builds{display:grid;gap:10px;}
-  .build-btn{display:flex;align-items:center;gap:14px;text-align:left;width:100%;background:linear-gradient(180deg,var(--panel-2),#15171f);border:1px solid var(--line);border-radius:14px;padding:13px 14px;cursor:pointer;color:var(--text);transition:transform .14s,border-color .2s;}
+  .build-btn{position:relative;display:flex;align-items:center;gap:14px;text-align:left;width:100%;background:linear-gradient(180deg,var(--panel-2),#15171f);border:1px solid var(--line);border-radius:14px;padding:13px 14px;cursor:pointer;color:var(--text);transition:transform .14s,border-color .2s;}
   .build-btn:hover{border-color:var(--ember);transform:translateY(-2px);}
-  .build-btn:focus-visible{outline:3px solid var(--amber);outline-offset:2px;}
   .build-btn .bi{font-size:30px;flex-shrink:0;}
   .build-btn .bt{font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:18px;letter-spacing:.02em;line-height:1;}
   .build-btn .bd{font-size:11.5px;color:var(--muted);line-height:1.4;margin-top:3px;}
+  .build-btn .cust{font:600 8px/1 'Inter';letter-spacing:.1em;text-transform:uppercase;color:var(--amber);border:1px solid rgba(255,176,46,.4);border-radius:10px;padding:3px 6px;margin-top:6px;display:inline-block;}
+  .build-del{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;line-height:1;}
+  .build-del:hover{color:var(--red);}
 
-  .stat-row{display:flex;justify-content:center;gap:26px;margin:6px 0 18px;}
+  .stat-row{display:flex;justify-content:center;gap:24px;margin:6px 0 18px;flex-wrap:wrap;}
   .stat{display:flex;flex-direction:column;gap:3px;}
-  .stat .n{font-family:'Space Mono',monospace;font-weight:700;font-size:26px;color:var(--amber);}
+  .stat .n{font-family:'Space Mono';font-weight:700;font-size:26px;color:var(--amber);}
   .stat .l{font:600 10px/1 'Inter';letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
   .rating{font-family:'Oswald';font-weight:700;text-transform:uppercase;font-size:22px;color:var(--green);margin-bottom:4px;letter-spacing:.02em;}
-  .btn{font-family:'Oswald',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-size:17px;color:#1a0e06;
-    background:linear-gradient(180deg,#ff7a3d,var(--ember));border:none;border-radius:12px;padding:14px 22px;width:100%;cursor:pointer;
-    box-shadow:0 8px 24px rgba(255,90,31,.32);transition:transform .1s,box-shadow .2s;}
-  .btn:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(255,90,31,.42);}
-  .btn:active{transform:translateY(1px);}
-  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--panel-2);border:1px solid var(--line);color:var(--text);padding:11px 18px;border-radius:30px;font:600 13px 'Inter';z-index:30;transition:.3s;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.4);}
+
+  /* certificate block */
+  .cert-box{border-top:1px solid var(--line);margin-top:6px;padding-top:16px;}
+  .cert-box input{width:100%;background:#0d0e13;border:1px solid var(--line);border-radius:10px;color:var(--text);font:500 15px 'Inter';padding:12px 13px;margin-bottom:10px;text-align:center;}
+  .cert-box input:focus{outline:2px solid var(--amber);border-color:var(--amber);}
+  .cert-note{font-size:10.5px;color:var(--muted);line-height:1.5;margin-top:10px;}
+
+  /* settings */
+  .set-row{display:flex;align-items:center;justify-content:space-between;padding:14px 2px;border-bottom:1px solid var(--line);}
+  .set-row:last-of-type{border-bottom:none;}
+  .set-row .sl{text-align:left;}
+  .set-row .sl .t{font:600 15px 'Inter';}
+  .set-row .sl .d{font-size:12px;color:var(--muted);margin-top:2px;}
+  .switch{position:relative;width:52px;height:30px;border-radius:30px;background:#0d0e13;border:1px solid var(--line);cursor:pointer;flex-shrink:0;transition:.2s;}
+  .switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--muted);transition:.2s;}
+  .switch.on{background:rgba(255,90,31,.25);border-color:var(--ember);}
+  .switch.on::after{left:27px;background:var(--ember);}
+
+  /* builder */
+  .builder h2{font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:24px;margin:6px 0 4px;}
+  .builder .sub{color:var(--muted);font-size:13px;margin:0 0 16px;}
+  .field{margin-bottom:13px;text-align:left;}
+  .field label{display:block;font:600 10px/1 'Inter';letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+  .field input,.field textarea{width:100%;background:#0d0e13;border:1px solid var(--line);border-radius:10px;color:var(--text);font:500 14px 'Inter';padding:11px 12px;}
+  .field input:focus,.field textarea:focus{outline:2px solid var(--amber);border-color:var(--amber);}
+  .icon-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .icon-pick{font-size:24px;width:46px;height:46px;border-radius:11px;border:1px solid var(--line);background:var(--panel-2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;}
+  .icon-pick.sel{border-color:var(--ember);background:rgba(255,90,31,.12);}
+  .room-edit{border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:13px;background:var(--panel);}
+  .room-edit .rhead{display:flex;gap:8px;align-items:center;margin-bottom:10px;}
+  .room-edit .rhead input{flex:1;}
+  .item-row{display:grid;grid-template-columns:46px 1fr auto auto;gap:7px;align-items:center;margin-bottom:7px;}
+  .item-row input.emo{text-align:center;padding:9px 4px;}
+  .item-row input.lbl{padding:9px 10px;}
+  .item-row textarea.rsn{grid-column:1/-1;min-height:38px;resize:vertical;font-size:13px;}
+  .haz-toggle{font:600 10px/1 'Inter';letter-spacing:.06em;text-transform:uppercase;border-radius:8px;padding:9px 8px;cursor:pointer;border:1px solid var(--line);background:var(--panel-2);color:var(--muted);white-space:nowrap;}
+  .haz-toggle.haz{border-color:var(--ember);color:var(--ember);background:rgba(255,90,31,.1);}
+  .haz-toggle.safe{border-color:var(--green);color:var(--green);background:rgba(54,211,153,.1);}
+  .row-del{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;}
+  .row-del:hover{color:var(--red);}
+  .builder-actions{display:flex;gap:10px;margin-top:8px;}
+
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--panel-2);border:1px solid var(--line);color:var(--text);padding:11px 18px;border-radius:30px;font:600 13px 'Inter';z-index:60;transition:.3s;pointer-events:none;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:90%;text-align:center;}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-  .hidden{display:none!important;}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
-  @media (max-width:380px){.grid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));}.card .emoji{font-size:30px;}}
+  @media (max-width:380px){.grid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));}.card .emoji{font-size:30px;}.ext-grid{gap:7px;}}
 </style>
-</head>
-<body>
 <div id="app">
-  <div class="hud">
+
+  <div class="topbar hidden" id="topbar">
+    <button class="icon-btn" id="backBtn">‹ Menu</button>
+    <button class="icon-btn" id="gearBtn">⚙</button>
+  </div>
+
+  <div class="hud hidden" id="hud">
     <div class="gauge timer" id="timerGauge"><span class="lbl">Time</span><span class="val" id="timeVal">30</span></div>
     <div class="center">
       <div class="combo-wrap">
@@ -124,74 +254,157 @@
       </div>
       <div class="gauge" style="min-width:0;text-align:center;"><span class="lbl" style="margin-bottom:2px;">Score</span><span class="val" id="scoreVal" style="font-size:22px;">0</span></div>
     </div>
-    <div class="gauge" style="align-items:flex-end;min-width:74px;"><span class="lbl">Lives</span><div class="lives" id="lives"></div></div>
+    <div class="gauge" style="align-items:flex-end;min-width:72px;"><span class="lbl">Lives</span><div class="lives" id="lives"></div></div>
   </div>
 
-  <div class="signage">
-    <div class="sign-plate" id="roomName">Kitchen</div>
-    <div class="room-meta"><span class="bname" id="bName">Care Home</span><br>Room <b id="roomNum">1</b>/<b id="roomTotal">4</b> · Hazards <b id="hazFound">0</b>/<b id="hazTotal">0</b></div>
-  </div>
+  <!-- HOME -->
+  <section class="screen active" id="screen-home">
+    <div class="home-hero">
+      <div class="eyebrow">Fire Safety Training</div>
+      <h1>Hazard<br>Hunt</h1>
+      <p>Pick a drill. Learn by doing, not by slides.</p>
+    </div>
+    <div class="menu" id="menu">
+      <button class="mode-card" data-mode="hazard"><span class="mi">🔍</span><span><span class="mt">Hazard Hunt</span><span class="md">Spot the fire hazards, room by room</span></span></button>
+      <button class="mode-card" data-mode="ext"><span class="mi">🧯</span><span><span class="mt">Extinguisher Match</span><span class="md">Pick the right one before it spreads</span></span></button>
+      <button class="mode-card" data-mode="door"><span class="mi">🚪</span><span><span class="mt">Fire Door Check</span><span class="md">Inspect a door, find every fault</span></span></button>
+      <button class="mode-card alt" data-mode="builder"><span class="mi">🏗️</span><span><span class="mt">Build Your Site</span><span class="md">Create your own building to drill on</span></span><span class="badge">New</span></button>
+    </div>
+    <button class="btn ghost" id="openSettings">⚙&nbsp; Sound &amp; haptics</button>
+  </section>
 
-  <div class="grid" id="grid"></div>
+  <!-- HAZARD HUNT -->
+  <section class="screen" id="screen-hazard">
+    <div class="signage">
+      <div class="sign-plate" id="roomName">Kitchen</div>
+      <div class="room-meta"><span class="bname" id="bName">Care Home</span><br>Room <b id="roomNum">1</b>/<b id="roomTotal">4</b> · Hazards <b id="hazFound">0</b>/<b id="hazTotal">0</b></div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="log" id="hazLog"><span class="tag idle" id="hazLogTag">Ready</span><p id="hazLogText">Tap every fire hazard. Leave the safe items alone.</p></div>
+  </section>
 
-  <div class="log" id="log">
-    <span class="tag idle" id="logTag">Ready</span>
-    <p id="logText">Tap every fire hazard you can spot. Leave the safe items alone.</p>
-  </div>
+  <!-- EXTINGUISHER -->
+  <section class="screen" id="screen-ext">
+    <div class="ext-head">
+      <div class="n">Fire <b id="extNum">1</b>/<b id="extTotal">8</b></div>
+      <div class="et" id="extTimer">12</div>
+    </div>
+    <div class="fire-card" id="fireCard">
+      <div class="fire-emoji" id="fireEmoji">🔥</div>
+      <div class="fire-title" id="fireTitle">—</div>
+      <div class="fire-class" id="fireClass">Class A</div>
+    </div>
+    <div class="ext-prompt">Which extinguisher?</div>
+    <div class="ext-grid" id="extGrid"></div>
+    <div class="log" id="extLog"><span class="tag idle" id="extLogTag">Ready</span><p id="extLogText">Match the extinguisher to the fire. Get it wrong and it gets worse.</p></div>
+  </section>
+
+  <!-- DOOR -->
+  <section class="screen" id="screen-door">
+    <div class="door-head">
+      <h2>Fire Door Inspection</h2>
+      <p>Tap the faults. Found <b id="doorFound">0</b>/<b id="doorTotal">0</b></p>
+    </div>
+    <div class="door-stage" id="doorStage">
+      <div class="door-frame"></div>
+      <div class="door-leaf">
+        <div class="vision-panel"></div>
+        <div class="door-sign">Fire door<br>keep shut</div>
+        <div class="door-handle"></div>
+      </div>
+      <div class="door-closer"></div>
+      <div class="hinge" style="top:18%"></div>
+      <div class="hinge" style="top:48%"></div>
+      <div class="hinge" style="top:78%"></div>
+      <div class="door-wedge"></div>
+    </div>
+    <div class="log" id="doorLog" style="margin-top:18px;"><span class="tag idle" id="doorLogTag">Ready</span><p id="doorLogText">Inspect the door. Tap anything that's a fault.</p></div>
+  </section>
+
+  <!-- BUILDER -->
+  <section class="screen builder" id="screen-builder">
+    <h2>Build Your Site</h2>
+    <p class="sub">Create a building, add rooms, and mark each item as a hazard or safe. It'll appear in Hazard Hunt.</p>
+    <div id="customList"></div>
+    <div class="field"><label>Building name</label><input id="bldName" placeholder="e.g. Maple Ward" maxlength="22"></div>
+    <div class="field"><label>Icon</label><div class="icon-row" id="iconRow"></div></div>
+    <div id="roomsEdit"></div>
+    <button class="btn ghost" id="addRoomBtn" style="margin-bottom:14px;">+ Add room</button>
+    <div class="builder-actions">
+      <button class="btn" id="saveBldBtn">Save building</button>
+    </div>
+  </section>
 </div>
 
-<!-- Start + building picker -->
-<div class="overlay" id="startOverlay">
+<!-- Building picker -->
+<div class="overlay hidden" id="pickOverlay">
   <div class="modal">
-    <div class="eyebrow">Fire Safety Inspection</div>
-    <h1>Hazard<br>Hunt</h1>
-    <p>Pick a building, then spot every fire hazard before the clock hits zero — without flagging the things that are perfectly safe.</p>
-    <ul class="rules">
-      <li><span>🔥</span><div>Tap the <b>hazards</b> — each explains why it's a risk.</div></li>
-      <li><span>✅</span><div>Tapping a <b>safe item</b> costs one of your three lives.</div></li>
-      <li><span>⚡</span><div>Back-to-back finds build a <b>combo</b> for more points.</div></li>
-    </ul>
-    <div class="pick-label">Choose your building</div>
+    <div class="eyebrow">Hazard Hunt</div>
+    <h2>Choose a building</h2>
     <div class="builds" id="builds"></div>
+    <button class="btn ghost" id="pickCancel" style="margin-top:14px;">Back</button>
   </div>
 </div>
 
 <!-- Room clear -->
 <div class="overlay hidden" id="clearOverlay">
   <div class="modal">
-    <div class="eyebrow">Room Secured</div>
-    <h2 id="clearTitle">Kitchen Cleared</h2>
+    <div class="eyebrow">Cleared</div>
+    <h2 id="clearTitle">Room Cleared</h2>
     <div class="stat-row">
-      <div class="stat"><span class="n" id="clearHaz">0</span><span class="l">Hazards</span></div>
+      <div class="stat"><span class="n" id="clearA">0</span><span class="l" id="clearAL">Found</span></div>
       <div class="stat"><span class="n" id="clearTime">0s</span><span class="l">Time left</span></div>
       <div class="stat"><span class="n" id="clearBonus">+0</span><span class="l">Bonus</span></div>
     </div>
-    <button class="btn" id="nextBtn">Next Room →</button>
+    <button class="btn" id="nextBtn">Next →</button>
   </div>
 </div>
 
-<!-- Game over -->
+<!-- End + certificate -->
 <div class="overlay hidden" id="endOverlay">
   <div class="modal">
-    <div class="eyebrow" id="endEyebrow">Inspection Complete</div>
+    <div class="eyebrow" id="endEyebrow">Complete</div>
     <h1 id="endTitle" style="font-size:clamp(26px,8vw,40px)">All Clear</h1>
     <div class="rating" id="endRating">Fire Marshal</div>
-    <p id="endBlurb">You cleared the building.</p>
+    <p id="endBlurb">You cleared it.</p>
     <div class="stat-row">
       <div class="stat"><span class="n" id="endScore">0</span><span class="l">Score</span></div>
-      <div class="stat"><span class="n" id="endRooms">0</span><span class="l">Rooms</span></div>
+      <div class="stat"><span class="n" id="endProg">0</span><span class="l" id="endProgL">Rooms</span></div>
       <div class="stat"><span class="n" id="endBest">×1</span><span class="l">Best combo</span></div>
     </div>
-    <button class="btn" id="againBtn">Choose Another Building</button>
+    <div class="cert-box">
+      <input id="certName" placeholder="Your name for the certificate" maxlength="40">
+      <button class="btn" id="certBtn">📄 Download certificate</button>
+      <p class="cert-note">A training engagement record — not a formal accredited qualification.</p>
+    </div>
+    <button class="btn ghost" id="againBtn" style="margin-top:12px;">Back to menu</button>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="overlay hidden" id="setOverlay">
+  <div class="modal">
+    <div class="eyebrow">Settings</div>
+    <h2>Sound &amp; Haptics</h2>
+    <div class="set-row">
+      <div class="sl"><div class="t">Sound effects</div><div class="d">Beeps, alarms and chimes</div></div>
+      <div class="switch" id="swSound"></div>
+    </div>
+    <div class="set-row">
+      <div class="sl"><div class="t">Haptics</div><div class="d">Vibration on phones</div></div>
+      <div class="switch" id="swHaptics"></div>
+    </div>
+    <button class="btn" id="setClose" style="margin-top:18px;">Done</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
-
 <script>
 (function(){
   "use strict";
+  const $ = id => document.getElementById(id);
 
+  /* ---------------- DATA ---------------- */
   const BUILDINGS = [
     { id:"care", name:"Care Home", icon:"🏥", tagline:"Sleeping residents, limited mobility — evacuation is everything.", rooms:[
       { name:"Bedroom", time:30, items:[
@@ -235,7 +448,6 @@
         {e:"🚨",n:"Detector",h:false, why:"Working alarm. Keep it."},
       ]},
     ]},
-
     { id:"office", name:"Office", icon:"🏢", tagline:"Electrics, e-waste and storage — fires here start small and quiet.", rooms:[
       { name:"Open Plan", time:30, items:[
         {e:"🔌",n:"Overloaded socket",h:true, why:"Too many high-draw devices on one floor socket overheats the wiring."},
@@ -278,7 +490,6 @@
         {e:"🗄️",n:"Shelving",h:false, why:"No risk."},
       ]},
     ]},
-
     { id:"workshop", name:"Workshop", icon:"🔧", tagline:"Hot works, flammables and dust — ignition sources everywhere.", rooms:[
       { name:"Welding Bay", time:30, items:[
         {e:"🔥",n:"Hot works, no watch",h:true, why:"Cutting and welding with no fire watch posted to catch smouldering ignition."},
@@ -323,138 +534,483 @@
     ]},
   ];
 
-  const RATINGS = [
-    {min:0,    name:"Trainee",          blurb:"A few hazards slipped past. Every inspector starts here — go again."},
-    {min:1200, name:"Competent Person", blurb:"Solid eye for risk. You'd pass a basic walkthrough."},
-    {min:2600, name:"Fire Marshal",     blurb:"Sharp and quick. You spot the things most people walk straight past."},
-    {min:4200, name:"Fire Chief",       blurb:"Outstanding. Nothing got past you — that's a textbook inspection."},
+  const EXT = {
+    water:  {n:"Water",        band:"#E5352B", ic:"💧"},
+    foam:   {n:"Foam",         band:"#EBD9B4", ic:"🧴"},
+    co2:    {n:"CO₂",          band:"#111316", ic:"💨"},
+    powder: {n:"Dry Powder",   band:"#2B6CB0", ic:"🌨️"},
+    wet:    {n:"Wet Chemical", band:"#F2C200", ic:"🟡"},
+    blanket:{n:"Fire Blanket", band:"#9B1C1C", ic:"🧯"},
+  };
+  const EXT_ORDER = ["water","foam","co2","powder","wet","blanket"];
+
+  const SCEN = [
+    {fire:"🗑️", t:"Waste-paper bin alight", cls:"Class A · solids", correct:["water","foam"],
+     win:"Class A — paper and wood. Water or foam cools and soaks it out.",
+     deadly:{}},
+    {fire:"🍳", t:"Chip pan fire", cls:"Class F · cooking oil", correct:["wet","blanket"],
+     win:"Class F — cooking oil. Wet chemical, or smother it with a fire blanket.",
+     deadly:{water:"Water on burning oil flashes to steam and throws a fireball. Never.",co2:"The blast can throw burning oil out of the pan."}},
+    {fire:"⛽", t:"Petrol spill ignited", cls:"Class B · flammable liquid", correct:["foam","co2","powder"],
+     win:"Class B liquid — foam, CO₂ or dry powder. Never water.",
+     deadly:{water:"Water spreads the burning fuel and makes it worse."}},
+    {fire:"💻", t:"Laptop / server alight", cls:"Electrical", correct:["co2","powder"],
+     win:"Electrical — CO₂ is the clean choice. Isolate the power if you safely can.",
+     deadly:{water:"Water on live electrics risks a lethal shock.",foam:"Foam conducts — shock risk on live equipment."}},
+    {fire:"🔌", t:"Fuse board sparking", cls:"Electrical", correct:["co2","powder"],
+     win:"Electrical — CO₂. It won't conduct and leaves no residue.",
+     deadly:{water:"Never put water on live electrics.",foam:"Foam conducts electricity."}},
+    {fire:"🪣", t:"Solvent drum fire", cls:"Class B · flammable liquid", correct:["foam","powder","co2"],
+     win:"Class B liquid — foam, powder or CO₂.",
+     deadly:{water:"Water spreads the burning solvent."}},
+    {fire:"🔥", t:"Stacked pallets ablaze", cls:"Class A · solids", correct:["water","foam"],
+     win:"Class A solid — water or foam to cool and soak.",
+     deadly:{}},
+    {fire:"🧍", t:"Person's clothing on fire", cls:"Person", correct:["blanket"],
+     win:"A fire blanket smothers it. Stop, drop and roll; wrap them up.",
+     deadly:{co2:"CO₂ on bare skin causes cold burns.",powder:"Powder in the face and airways is dangerous to a person."}},
   ];
 
-  const $ = id => document.getElementById(id);
-  const state = { building:0, room:0, score:0, lives:3, combo:0, bestCombo:1, found:0, hazTotal:0, time:30, timerId:null, locked:false, roomsCleared:0 };
+  const DOOR_POINTS = [
+    {x:78,y:9,  fault:true,  n:"Damaged door closer", why:"The self-closing device is broken, so the door won't shut on its own. A fire door that doesn't close isn't doing its job."},
+    {x:90,y:20, fault:true,  n:"Missing intumescent strip", why:"The seal in the frame that expands in heat is missing. Without it, smoke and fire pass straight through the gap."},
+    {x:40,y:60, fault:true,  n:"Hole in the door leaf", why:"A breach in the leaf destroys its fire resistance. Damaged leaves must be repaired or replaced, never patched over."},
+    {x:24,y:95, fault:true,  n:"Wedged open", why:"A wedged fire door does nothing. It must be kept shut, or held on a device that releases on the alarm."},
+    {x:62,y:97, fault:true,  n:"Gap under door too wide", why:"The threshold gap is too large. Around 3mm is typical; a big gap lets smoke flood through early."},
+    {x:50,y:24, fault:false, n:"Vision panel intact", why:"Fire-rated glazing, undamaged. No fault here."},
+    {x:50,y:44, fault:false, n:"'Keep shut' signage", why:"Correct mandatory signage present. Compliant — leave it."},
+    {x:7, y:48, fault:false, n:"Three rated hinges", why:"Three correctly-fitted fire-rated hinges. Good."},
+  ];
 
-  const rooms = () => BUILDINGS[state.building].rooms;
-  function shuffle(a){const r=a.slice();for(let i=r.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[r[i],r[j]]=[r[j],r[i]];}return r;}
+  const RATINGS = [
+    {min:0,    name:"Trainee",          blurb:"A few slipped past. Every inspector starts here — go again."},
+    {min:1200, name:"Competent Person", blurb:"Solid eye for risk. You'd pass a basic walkthrough."},
+    {min:2600, name:"Fire Marshal",     blurb:"Sharp and quick. You spot what most people walk past."},
+    {min:4200, name:"Fire Chief",       blurb:"Outstanding — a textbook inspection. Nothing got past you."},
+  ];
+  /* ---------------- CORE ---------------- */
+  const store = (()=>{ let mem={},ok=true;
+    try{localStorage.setItem("__t","1");localStorage.removeItem("__t");}catch(e){ok=false;}
+    return {
+      get(k){try{return ok?localStorage.getItem(k):mem[k];}catch(e){return mem[k];}},
+      set(k,v){try{ok?localStorage.setItem(k,v):(mem[k]=v);}catch(e){mem[k]=v;}}
+    };
+  })();
 
-  function renderBuildPicker(){
-    const box=$("builds");box.innerHTML="";
-    BUILDINGS.forEach((b,i)=>{
-      const btn=document.createElement("button");
-      btn.className="build-btn";btn.type="button";
-      btn.innerHTML='<span class="bi">'+b.icon+'</span><span><span class="bt">'+b.name+'</span><span class="bd">'+b.tagline+'</span></span>';
-      btn.addEventListener("click",()=>newGame(i));
-      box.appendChild(btn);
-    });
-  }
+  const settings = { sound:true, haptics:true };
+  try{ const s=JSON.parse(store.get("hh_set")||"{}"); if(typeof s.sound==="boolean")settings.sound=s.sound; if(typeof s.haptics==="boolean")settings.haptics=s.haptics; }catch(e){}
+  function saveSettings(){ store.set("hh_set",JSON.stringify(settings)); }
 
-  function renderLives(){
-    const box=$("lives");box.innerHTML="";
-    for(let i=0;i<3;i++){const s=document.createElement("span");s.className="heart"+(i<state.lives?"":" gone");s.textContent="🔥";box.appendChild(s);}
-  }
+  const Sound = (()=>{ let ctx=null;
+    function ac(){ if(!ctx){ try{ctx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } return ctx; }
+    function tone(f,dur,type,when,gain){ const c=ac(); if(!c)return;
+      const o=c.createOscillator(),g=c.createGain(); o.type=type||"sine"; o.frequency.value=f;
+      const t=c.currentTime+(when||0); g.gain.setValueAtTime(gain||0.05,t); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+      o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur); }
+    return {
+      resume(){ const c=ac(); if(c&&c.state==="suspended")c.resume(); },
+      correct(){ if(!settings.sound)return; tone(660,0.12,"sine"); tone(880,0.14,"sine",0.07); },
+      wrong(){ if(!settings.sound)return; tone(170,0.28,"sawtooth",0,0.05); },
+      combo(n){ if(!settings.sound)return; tone(520+Math.min(n,6)*70,0.1,"triangle"); },
+      clear(){ if(!settings.sound)return; [523,659,784,1046].forEach((f,i)=>tone(f,0.18,"sine",i*0.09)); },
+      alarm(){ if(!settings.sound)return; tone(880,0.16,"square",0,0.04); tone(680,0.16,"square",0.17,0.04); },
+    };
+  })();
+  function buzz(p){ if(settings.haptics && navigator.vibrate){ try{navigator.vibrate(p);}catch(e){} } }
+
+  // shared run state
+  const run = { mode:null, score:0, lives:3, combo:0, bestCombo:1, timerId:null, time:0, locked:false };
+
+  function renderLives(){ const b=$("lives"); b.innerHTML="";
+    for(let i=0;i<3;i++){ const s=document.createElement("span"); s.className="heart"+(i<run.lives?"":" gone"); s.textContent="🔥"; b.appendChild(s); } }
   function updateHUD(){
-    $("scoreVal").textContent=state.score;
-    $("comboX").textContent="×"+Math.max(1,state.combo);
-    $("comboFill").style.width=Math.min(100,(state.combo/6)*100)+"%";
-    $("hazFound").textContent=state.found;$("hazTotal").textContent=state.hazTotal;
+    $("scoreVal").textContent=run.score;
+    $("comboX").textContent="×"+Math.max(1,run.combo);
+    $("comboFill").style.width=Math.min(100,(run.combo/6)*100)+"%";
   }
-  function setLog(kind,what,why){
-    const tag=$("logTag");
-    tag.className="tag "+(kind==="haz"?"haz":kind==="ok"?"ok":"idle");
-    tag.textContent=kind==="haz"?"Hazard":kind==="ok"?"Safe":"Ready";
-    $("logText").innerHTML = what?('<span class="what">'+what+'</span> — '+why):why;
-  }
-  function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),1400);}
-
-  function startTimer(){
-    clearInterval(state.timerId);
-    const g=$("timerGauge");
-    state.timerId=setInterval(()=>{
-      state.time--;$("timeVal").textContent=state.time;
-      g.classList.toggle("low",state.time<=10);
-      if(state.time<=0){clearInterval(state.timerId);endGame(false,"Time ran out before you cleared the room.");}
-    },1000);
+  function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),1500); }
+  function setLog(tagId,txtId,kind,what,why){
+    const tag=$(tagId); tag.className="tag "+(kind==="haz"?"haz":kind==="ok"?"ok":"idle");
+    tag.textContent = kind==="haz"?"Hazard":kind==="ok"?"Safe":kind==="fault"?"Fault":kind==="okp"?"OK":"Ready";
+    $(txtId).innerHTML = what?('<span class="what">'+what+'</span> — '+why):why;
   }
 
-  function loadRoom(i){
-    const room=rooms()[i];
-    state.found=0;state.locked=false;
-    state.hazTotal=room.items.filter(x=>x.h).length;
-    state.time=room.time;
-    $("timeVal").textContent=state.time;$("timerGauge").classList.remove("low");
-    $("bName").textContent=BUILDINGS[state.building].name;
-    $("roomName").textContent=room.name;
-    $("roomNum").textContent=i+1;$("roomTotal").textContent=rooms().length;
-    setLog("idle",null,"Inspecting the "+room.name.toLowerCase()+". Tap what doesn't belong.");
-    updateHUD();
-    const grid=$("grid");grid.innerHTML="";
-    shuffle(room.items).forEach(item=>{
-      const c=document.createElement("button");
-      c.className="card";c.type="button";c.setAttribute("aria-label",item.n);
-      c.innerHTML='<span class="stamp"></span><span class="emoji">'+item.e+'</span><span class="name">'+item.n+'</span>';
-      c.addEventListener("click",()=>tap(c,item));
-      grid.appendChild(c);
-    });
-    startTimer();
+  function showScreen(id, hud){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+    $("screen-"+id).classList.add("active");
+    $("hud").classList.toggle("hidden", !hud);
+    $("topbar").classList.toggle("hidden", id==="home");
+    window.scrollTo(0,0);
   }
+  function stopTimer(){ clearInterval(run.timerId); run.timerId=null; }
 
-  function tap(card,item){
-    if(state.locked||card.classList.contains("found")||card.classList.contains("safe-rev"))return;
-    if(item.h){
-      const mult=Math.max(1,state.combo+1),pts=100*mult;
-      state.score+=pts;state.combo++;state.bestCombo=Math.max(state.bestCombo,state.combo);state.found++;
-      card.classList.add("found");card.querySelector(".stamp").textContent="✓";
-      floatPop(card,"+"+pts,"good");setLog("haz",item.n,item.why);updateHUD();
-      if(state.found===state.hazTotal) roomComplete();
-    } else {
-      state.combo=0;state.lives--;
-      card.classList.add("wrong","safe-rev");card.querySelector(".stamp").textContent="✓";
-      floatPop(card,"−1 life","bad");setLog("ok",item.n,item.why);renderLives();updateHUD();
-      setTimeout(()=>card.classList.remove("wrong"),420);
-      if(state.lives<=0) endGame(false,"You ran out of lives — flagging safe items costs you.");
-      else toast("That one was safe ("+state.lives+" lives left)");
-    }
-  }
-  function floatPop(card,text,cls){const p=document.createElement("span");p.className="pop "+cls;p.textContent=text;card.appendChild(p);setTimeout(()=>p.remove(),800);}
+  // award helpers (shared)
+  function award(){ const mult=Math.max(1,run.combo+1), pts=100*mult; run.score+=pts; run.combo++; run.bestCombo=Math.max(run.bestCombo,run.combo); Sound.correct(); Sound.combo(run.combo); buzz(15); updateHUD(); return pts; }
+  function penalise(){ run.combo=0; run.lives--; Sound.wrong(); buzz([35,30,45]); renderLives(); updateHUD(); }
 
-  function roomComplete(){
-    state.locked=true;clearInterval(state.timerId);state.roomsCleared++;
-    const bonus=state.time*15;state.score+=bonus;
-    document.querySelectorAll(".card").forEach(c=>c.classList.add("cleared"));updateHUD();
-    $("clearTitle").textContent=rooms()[state.room].name+" Cleared";
-    $("clearHaz").textContent=state.hazTotal;$("clearTime").textContent=state.time+"s";$("clearBonus").textContent="+"+bonus;
-    $("nextBtn").textContent = state.room>=rooms().length-1 ? "See Results →" : "Next Room →";
-    setTimeout(()=>$("clearOverlay").classList.remove("hidden"),550);
-  }
-  function nextRoom(){
-    $("clearOverlay").classList.add("hidden");state.room++;
-    if(state.room>=rooms().length){endGame(true);return;}
-    loadRoom(state.room);
-  }
-  function ratingFor(score){let r=RATINGS[0];for(const t of RATINGS) if(score>=t.min) r=t;return r;}
-
-  function endGame(won,reason){
-    clearInterval(state.timerId);state.locked=true;
-    const r=ratingFor(state.score);
-    $("endEyebrow").textContent = won ? "Inspection Complete" : "Inspection Halted";
-    $("endTitle").textContent = won ? "Building Cleared" : "Cut Short";
+  /* ---------------- RATING + END ---------------- */
+  function ratingFor(s){ let r=RATINGS[0]; for(const t of RATINGS) if(s>=t.min) r=t; return r; }
+  let lastResult = {mode:"", rating:"", score:0};
+  function endGame(opts){
+    stopTimer(); run.locked=true;
+    const r=ratingFor(run.score);
+    lastResult={ mode:opts.modeLabel, rating:r.name, score:run.score };
+    if(window.HHCloud&&window.HHCloud.record) window.HHCloud.record({ mode:run.mode, modeLabel:opts.modeLabel, score:run.score, rating:r.name, prog:opts.progValue, won:!!opts.won, buildingName:(run.mode==="hazard"&&hz.building?hz.building.name:null), buildingId:(run.mode==="hazard"&&hz.building&&hz.building.cloudId?hz.building.cloudId:null) });
+    $("endEyebrow").textContent = opts.won ? "Complete" : "Halted";
+    $("endTitle").textContent = opts.title || (opts.won?"Well done":"Cut short");
     $("endRating").textContent = r.name;
-    $("endBlurb").textContent = won ? r.blurb : reason+" Final rating: "+r.name+".";
-    $("endScore").textContent = state.score;
-    $("endRooms").textContent = state.roomsCleared+"/"+rooms().length;
-    $("endBest").textContent = "×"+state.bestCombo;
+    $("endBlurb").textContent = opts.won ? r.blurb : (opts.reason+" Final rating: "+r.name+".");
+    $("endScore").textContent = run.score;
+    $("endProg").textContent = opts.progValue;
+    $("endProgL").textContent = opts.progLabel;
+    $("endBest").textContent = "×"+run.bestCombo;
+    Sound.clear();
     $("endOverlay").classList.remove("hidden");
   }
+  /* ---------------- HAZARD HUNT ---------------- */
+  const hz = { building:null, room:0, found:0, hazTotal:0, roomsCleared:0 };
+  const allBuildings = () => BUILDINGS.concat(getCustoms()).concat((window.HHCloud&&window.HHCloud.buildings)||[]);
+  function shuffle(a){const r=a.slice();for(let i=r.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[r[i],r[j]]=[r[j],r[i]];}return r;}
 
-  function newGame(buildingIdx){
-    Object.assign(state,{building:buildingIdx,room:0,score:0,lives:3,combo:0,bestCombo:1,found:0,roomsCleared:0,locked:false});
-    $("startOverlay").classList.add("hidden");$("endOverlay").classList.add("hidden");$("clearOverlay").classList.add("hidden");
-    renderLives();updateHUD();loadRoom(0);
+  function startHazard(building){
+    run.mode="hazard"; run.score=0; run.lives=3; run.combo=0; run.bestCombo=1; hz.building=building; hz.room=0; hz.roomsCleared=0;
+    renderLives(); updateHUD(); showScreen("hazard", true); loadRoom(0);
+  }
+  function loadRoom(i){
+    const room=hz.building.rooms[i];
+    hz.found=0; run.locked=false; hz.hazTotal=room.items.filter(x=>x.h).length; run.time=room.time||30;
+    $("timeVal").textContent=run.time; $("timerGauge").classList.remove("low");
+    $("bName").textContent=hz.building.name; $("roomName").textContent=room.name;
+    $("roomNum").textContent=i+1; $("roomTotal").textContent=hz.building.rooms.length;
+    $("hazFound").textContent=0; $("hazTotal").textContent=hz.hazTotal;
+    setLog("hazLogTag","hazLogText","idle",null,"Inspecting the "+room.name.toLowerCase()+". Tap what doesn't belong.");
+    const grid=$("grid"); grid.innerHTML="";
+    shuffle(room.items).forEach(item=>{
+      const c=document.createElement("button"); c.className="card"; c.type="button"; c.setAttribute("aria-label",item.n);
+      c.innerHTML='<span class="stamp"></span><span class="emoji">'+item.e+'</span><span class="name">'+item.n+'</span>';
+      c.addEventListener("click",()=>tapHazard(c,item)); grid.appendChild(c);
+    });
+    startRoomTimer();
+  }
+  function startRoomTimer(){ stopTimer(); const g=$("timerGauge");
+    run.timerId=setInterval(()=>{ run.time--; $("timeVal").textContent=run.time; g.classList.toggle("low",run.time<=10);
+      if(run.time===10)Sound.alarm();
+      if(run.time<=0){ stopTimer(); endGame({modeLabel:"Hazard Hunt",won:false,title:"Out of time",reason:"The clock beat you to it.",progLabel:"Rooms",progValue:hz.roomsCleared+"/"+hz.building.rooms.length}); }
+    },1000);
+  }
+  function tapHazard(card,item){
+    if(run.locked||card.classList.contains("found")||card.classList.contains("safe-rev"))return;
+    if(item.h){
+      const pts=award(); hz.found++; card.classList.add("found"); card.querySelector(".stamp").textContent="✓";
+      floatPop(card,"+"+pts,"good"); setLog("hazLogTag","hazLogText","haz",item.n,item.why); $("hazFound").textContent=hz.found;
+      if(hz.found===hz.hazTotal) roomComplete();
+    } else {
+      penalise(); card.classList.add("wrong","safe-rev"); card.querySelector(".stamp").textContent="✓";
+      floatPop(card,"−1 life","bad"); setLog("hazLogTag","hazLogText","ok",item.n,item.why);
+      setTimeout(()=>card.classList.remove("wrong"),420);
+      if(run.lives<=0) endGame({modeLabel:"Hazard Hunt",won:false,title:"Cut short",reason:"You ran out of lives.",progLabel:"Rooms",progValue:hz.roomsCleared+"/"+hz.building.rooms.length});
+      else toast("That one's safe — "+run.lives+" lives left");
+    }
+  }
+  function floatPop(el,text,cls){ const p=document.createElement("span"); p.className="pop "+cls; p.textContent=text; el.appendChild(p); setTimeout(()=>p.remove(),800); }
+  function roomComplete(){
+    run.locked=true; stopTimer(); hz.roomsCleared++; const bonus=run.time*15; run.score+=bonus; updateHUD();
+    document.querySelectorAll("#grid .card").forEach(c=>c.classList.add("cleared"));
+    $("clearTitle").textContent=hz.building.rooms[hz.room].name+" Cleared";
+    $("clearAL").textContent="Hazards"; $("clearA").textContent=hz.hazTotal;
+    $("clearTime").textContent=run.time+"s"; $("clearBonus").textContent="+"+bonus;
+    $("nextBtn").textContent = hz.room>=hz.building.rooms.length-1 ? "See results →" : "Next room →";
+    Sound.clear(); setTimeout(()=>$("clearOverlay").classList.remove("hidden"),520);
+  }
+  function nextRoom(){
+    $("clearOverlay").classList.add("hidden"); hz.room++;
+    if(hz.room>=hz.building.rooms.length){ endGame({modeLabel:"Hazard Hunt — "+hz.building.name,won:true,title:"Building cleared",progLabel:"Rooms",progValue:hz.roomsCleared+"/"+hz.building.rooms.length}); return; }
+    loadRoom(hz.room);
   }
 
-  $("againBtn").addEventListener("click",()=>{$("endOverlay").classList.add("hidden");$("startOverlay").classList.remove("hidden");});
+  /* ---------------- EXTINGUISHER MATCH ---------------- */
+  const ex = { i:0, order:[], answered:false };
+  function startExt(){
+    run.mode="ext"; run.score=0; run.lives=3; run.combo=0; run.bestCombo=1; ex.i=0; ex.order=shuffle(SCEN.slice());
+    renderLives(); updateHUD(); showScreen("ext", true);
+    $("extTotal").textContent=ex.order.length;
+    buildExtOptions(); loadScenario();
+  }
+  function buildExtOptions(){
+    const g=$("extGrid"); g.innerHTML="";
+    EXT_ORDER.forEach(id=>{
+      const e=EXT[id]; const b=document.createElement("button"); b.className="ext-opt"; b.type="button"; b.dataset.id=id; b.setAttribute("aria-label",e.n);
+      b.innerHTML='<span class="band" style="background:'+e.band+'"></span><span class="eimg">'+e.ic+'</span><span class="enm">'+e.n+'</span>';
+      b.addEventListener("click",()=>pickExt(id,b)); g.appendChild(b);
+    });
+  }
+  function loadScenario(){
+    ex.answered=false; run.locked=false; run.time=12;
+    const s=ex.order[ex.i];
+    $("extNum").textContent=ex.i+1; $("extTimer").textContent=run.time; $("extTimer").classList.remove("low");
+    $("fireEmoji").textContent=s.fire; $("fireTitle").textContent=s.t; $("fireClass").textContent=s.cls;
+    document.querySelectorAll(".ext-opt").forEach(o=>{o.classList.remove("right","wrongpick","dim");});
+    setLog("extLogTag","extLogText","idle",null,"Read the fire, then choose. Speed earns bonus points.");
+    stopTimer();
+    run.timerId=setInterval(()=>{ run.time--; $("extTimer").textContent=run.time; $("extTimer").classList.toggle("low",run.time<=4);
+      if(run.time<=0){ stopTimer(); if(!ex.answered) extTimeout(); }
+    },1000);
+  }
+  function pickExt(id,btn){
+    if(ex.answered||run.locked)return; ex.answered=true; stopTimer();
+    const s=ex.order[ex.i];
+    if(s.correct.indexOf(id)>=0){
+      const bonus=run.time*10; const pts=award()+bonus; run.score+=bonus; updateHUD();
+      btn.classList.add("right"); setLog("extLogTag","extLogText","haz","Correct",s.win+" (+"+pts+")");
+    } else {
+      penalise(); btn.classList.add("wrongpick"); $("fireCard").classList.add("bad"); setTimeout(()=>$("fireCard").classList.remove("bad"),500);
+      const deadly = s.deadly[id];
+      setLog("extLogTag","extLogText","ok", deadly?"It gets worse":"Not the right choice", (deadly?deadly+" ":"")+s.win);
+      // highlight a correct option
+      const right=document.querySelector('.ext-opt[data-id="'+s.correct[0]+'"]'); if(right)right.classList.add("right");
+      if(run.lives<=0){ setTimeout(()=>endGame({modeLabel:"Extinguisher Match",won:false,title:"Cut short",reason:"You ran out of lives.",progLabel:"Fires",progValue:ex.i+"/"+ex.order.length}),900); return; }
+    }
+    document.querySelectorAll(".ext-opt").forEach(o=>{ if(!o.classList.contains("right")&&!o.classList.contains("wrongpick"))o.classList.add("dim"); });
+    setTimeout(nextScenario,1500);
+  }
+  function extTimeout(){ ex.answered=true; penalise(); setLog("extLogTag","extLogText","ok","Too slow","On a real fire, hesitation lets it grow. "+ex.order[ex.i].win);
+    const right=document.querySelector('.ext-opt[data-id="'+ex.order[ex.i].correct[0]+'"]'); if(right)right.classList.add("right");
+    if(run.lives<=0){ setTimeout(()=>endGame({modeLabel:"Extinguisher Match",won:false,title:"Cut short",reason:"You ran out of lives.",progLabel:"Fires",progValue:ex.i+"/"+ex.order.length}),900); return; }
+    setTimeout(nextScenario,1500);
+  }
+  function nextScenario(){ ex.i++; if(ex.i>=ex.order.length){ endGame({modeLabel:"Extinguisher Match",won:true,title:"All fires handled",progLabel:"Fires",progValue:ex.order.length+"/"+ex.order.length}); return; } loadScenario(); }
+  /* ---------------- FIRE DOOR ---------------- */
+  const dr = { found:0, total:0 };
+  function startDoor(){
+    run.mode="door"; run.score=0; run.lives=3; run.combo=0; run.bestCombo=1; dr.found=0;
+    dr.total=DOOR_POINTS.filter(p=>p.fault).length;
+    renderLives(); updateHUD(); showScreen("door", true);
+    run.locked=false; run.time=45; $("timeVal").textContent=run.time; $("timerGauge").classList.remove("low");
+    $("doorFound").textContent=0; $("doorTotal").textContent=dr.total;
+    setLog("doorLogTag","doorLogText","idle",null,"Inspect the door. Tap anything that's a fault — leave what's compliant.");
+    // remove old pins
+    document.querySelectorAll("#doorStage .pin").forEach(p=>p.remove());
+    DOOR_POINTS.forEach((p,idx)=>{
+      const pin=document.createElement("button"); pin.className="pin"; pin.type="button"; pin.textContent="?"; pin.setAttribute("aria-label","Inspection point "+(idx+1));
+      pin.style.left=p.x+"%"; pin.style.top=p.y+"%";
+      pin.addEventListener("click",()=>tapPin(pin,p)); $("doorStage").appendChild(pin);
+    });
+    stopTimer(); const g=$("timerGauge");
+    run.timerId=setInterval(()=>{ run.time--; $("timeVal").textContent=run.time; g.classList.toggle("low",run.time<=10);
+      if(run.time===10)Sound.alarm();
+      if(run.time<=0){ stopTimer(); endGame({modeLabel:"Fire Door Check",won:false,title:"Out of time",reason:"Inspection not finished in time.",progLabel:"Faults",progValue:dr.found+"/"+dr.total}); }
+    },1000);
+  }
+  function tapPin(pin,p){
+    if(run.locked||pin.classList.contains("done"))return;
+    pin.classList.add("done");
+    if(p.fault){
+      const pts=award(); dr.found++; pin.classList.add("fault"); pin.textContent="✓"; $("doorFound").textContent=dr.found;
+      setLog("doorLogTag","doorLogText","fault",p.n,p.why);
+      if(dr.found===dr.total){ run.locked=true; stopTimer();
+        setTimeout(()=>endGame({modeLabel:"Fire Door Check",won:true,title:"Door inspected",progLabel:"Faults",progValue:dr.found+"/"+dr.total}),600); }
+    } else {
+      penalise(); pin.classList.add("okrev"); pin.textContent="✓";
+      setLog("doorLogTag","doorLogText","okp",p.n,p.why);
+      if(run.lives<=0) endGame({modeLabel:"Fire Door Check",won:false,title:"Cut short",reason:"You ran out of lives.",progLabel:"Faults",progValue:dr.found+"/"+dr.total});
+      else toast("That part's compliant — "+run.lives+" lives left");
+    }
+  }
+
+  /* ---------------- CUSTOM SITE BUILDER ---------------- */
+  const ICONS=["🏥","🏢","🔧","🏠","🏬","🏭","🏫","⛪","🏨","🚧"];
+  let builderState = { icon:"🏠", rooms:[] };
+  function getCustoms(){ try{ return JSON.parse(store.get("hh_custom")||"[]"); }catch(e){ return []; } }
+  function saveCustoms(list){ store.set("hh_custom",JSON.stringify(list)); }
+
+  function renderBuilder(){
+    builderState={ icon:"🏠", rooms:[ blankRoom() ] };
+    $("bldName").value="";
+    const ir=$("iconRow"); ir.innerHTML="";
+    ICONS.forEach(ic=>{ const b=document.createElement("button"); b.type="button"; b.className="icon-pick"+(ic===builderState.icon?" sel":""); b.textContent=ic;
+      b.addEventListener("click",()=>{ builderState.icon=ic; ir.querySelectorAll(".icon-pick").forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); }); ir.appendChild(b); });
+    renderRoomsEdit(); renderCustomList();
+  }
+  function blankRoom(){ return { name:"", items:[ blankItem(true), blankItem(false) ] }; }
+  function blankItem(h){ return { e:h?"🔥":"✅", n:"", h:h, why:"" }; }
+  function renderRoomsEdit(){
+    const wrap=$("roomsEdit"); wrap.innerHTML="";
+    builderState.rooms.forEach((room,ri)=>{
+      const div=document.createElement("div"); div.className="room-edit";
+      const head=document.createElement("div"); head.className="rhead";
+      const rn=document.createElement("input"); rn.placeholder="Room name (e.g. Kitchen)"; rn.value=room.name; rn.maxLength=22;
+      rn.addEventListener("input",()=>room.name=rn.value);
+      const del=document.createElement("button"); del.className="row-del"; del.textContent="🗑"; del.title="Remove room";
+      del.addEventListener("click",()=>{ builderState.rooms.splice(ri,1); if(!builderState.rooms.length)builderState.rooms.push(blankRoom()); renderRoomsEdit(); });
+      head.appendChild(rn); head.appendChild(del); div.appendChild(head);
+      room.items.forEach((it,ii)=>{
+        const row=document.createElement("div"); row.className="item-row";
+        const emo=document.createElement("input"); emo.className="emo"; emo.value=it.e; emo.maxLength=4; emo.addEventListener("input",()=>it.e=emo.value);
+        const lbl=document.createElement("input"); lbl.className="lbl"; lbl.placeholder="Label"; lbl.value=it.n; lbl.maxLength=22; lbl.addEventListener("input",()=>it.n=lbl.value);
+        const tg=document.createElement("button"); tg.className="haz-toggle "+(it.h?"haz":"safe"); tg.textContent=it.h?"Hazard":"Safe";
+        tg.addEventListener("click",()=>{ it.h=!it.h; tg.className="haz-toggle "+(it.h?"haz":"safe"); tg.textContent=it.h?"Hazard":"Safe"; });
+        const rd=document.createElement("button"); rd.className="row-del"; rd.textContent="✕";
+        rd.addEventListener("click",()=>{ room.items.splice(ii,1); renderRoomsEdit(); });
+        const rsn=document.createElement("textarea"); rsn.className="rsn"; rsn.placeholder="Why is it a hazard / why is it safe? (shown after tapping)"; rsn.value=it.why; rsn.addEventListener("input",()=>it.why=rsn.value);
+        row.appendChild(emo); row.appendChild(lbl); row.appendChild(tg); row.appendChild(rd); row.appendChild(rsn);
+        div.appendChild(row);
+      });
+      const add=document.createElement("button"); add.className="btn ghost sm"; add.textContent="+ Add item"; add.style.marginTop="4px";
+      add.addEventListener("click",()=>{ room.items.push(blankItem(true)); renderRoomsEdit(); });
+      div.appendChild(add); wrap.appendChild(div);
+    });
+  }
+  function renderCustomList(){
+    const list=getCustoms(); const box=$("customList"); box.innerHTML="";
+    if(!list.length)return;
+    const lbl=document.createElement("div"); lbl.className="pick-label"; lbl.style.textAlign="left"; lbl.textContent="Your saved buildings"; box.appendChild(lbl);
+    const builds=document.createElement("div"); builds.className="builds"; builds.style.marginBottom="20px";
+    list.forEach((b,i)=>{
+      const btn=document.createElement("div"); btn.className="build-btn";
+      btn.innerHTML='<span class="bi">'+b.icon+'</span><span><span class="bt">'+escapeHtml(b.name)+'</span><span class="bd">'+b.rooms.length+' room(s)</span><span class="cust">Custom</span></span>';
+      const del=document.createElement("button"); del.className="build-del"; del.textContent="🗑"; del.title="Delete";
+      del.addEventListener("click",()=>{ const l=getCustoms(); l.splice(i,1); saveCustoms(l); renderCustomList(); });
+      btn.addEventListener("click",()=>startHazard(b)); btn.appendChild(del); builds.appendChild(btn);
+    });
+    box.appendChild(builds);
+  }
+  function escapeHtml(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+  function saveBuilding(){
+    const name=$("bldName").value.trim();
+    if(!name){ toast("Give the building a name"); return; }
+    const rooms=[];
+    for(const r of builderState.rooms){
+      const items=r.items.filter(it=>it.n.trim());
+      const hz=items.filter(it=>it.h).length, sf=items.filter(it=>!it.h).length;
+      if(!r.name.trim()||!hz||!sf) continue;
+      rooms.push({ name:r.name.trim(), time:30, items:items.map(it=>({e:it.e||"❓",n:it.n.trim(),h:it.h,why:(it.why||"").trim()||(it.h?"Marked as a hazard.":"Marked as safe.")})) });
+    }
+    if(!rooms.length){ toast("Each room needs a name plus at least one hazard and one safe item"); return; }
+    const bld={ id:"custom_"+Date.now(), name, icon:builderState.icon, custom:true, tagline:"Your custom site.", rooms };
+    const list=getCustoms(); list.push(bld);
+    saveCustoms(list);
+    if(window.HHCloud&&window.HHCloud.publish){ window.HHCloud.publish(bld); toast("Saved & synced to your team."); }
+    else toast("Saved! Find it in Hazard Hunt.");
+    renderBuilder();
+  }
+  /* ---------------- CERTIFICATE ---------------- */
+  function makeCertificate(){
+    const name=($("certName").value.trim())||"Trainee";
+    const cv=document.createElement("canvas"); cv.width=1200; cv.height=850; const x=cv.getContext("2d");
+    x.fillStyle="#0E0F13"; x.fillRect(0,0,1200,850);
+    const grd=x.createRadialGradient(600,80,40,600,80,700); grd.addColorStop(0,"rgba(255,90,31,0.16)"); grd.addColorStop(1,"rgba(255,90,31,0)");
+    x.fillStyle=grd; x.fillRect(0,0,1200,850);
+    x.strokeStyle="#FF5A1F"; x.lineWidth=10; x.strokeRect(30,30,1140,790);
+    x.strokeStyle="#FFB02E"; x.lineWidth=2; x.strokeRect(52,52,1096,746);
+    x.textAlign="center";
+    x.font="64px serif"; x.fillText("🔥",600,170);
+    x.fillStyle="#FFB02E"; x.font="600 22px Oswald, sans-serif"; x.fillText("CERTIFICATE OF COMPLETION",600,235);
+    x.fillStyle="#8B90A3"; x.font="500 16px Inter, sans-serif"; x.fillText("Fire Safety Hazard Recognition Training",600,268);
+    x.fillStyle="#8B90A3"; x.font="500 15px Inter, sans-serif"; x.fillText("This certifies that",600,345);
+    x.fillStyle="#E7E9F0"; x.font="700 52px Oswald, sans-serif"; x.fillText(name.toUpperCase().slice(0,28),600,410);
+    x.strokeStyle="#2A2E3D"; x.lineWidth=1; x.beginPath(); x.moveTo(380,432); x.lineTo(820,432); x.stroke();
+    x.fillStyle="#8B90A3"; x.font="500 15px Inter, sans-serif"; x.fillText("completed the "+lastResult.mode+" drill",600,475);
+    x.fillStyle="#FF5A1F"; x.font="700 40px Oswald, sans-serif"; x.fillText(lastResult.rating.toUpperCase(),600,545);
+    x.fillStyle="#36D399"; x.font="700 30px Space Mono, monospace"; x.fillText("Score "+lastResult.score,600,595);
+    const date=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
+    x.fillStyle="#8B90A3"; x.font="500 16px Inter, sans-serif"; x.fillText(date,600,660);
+    x.fillStyle="#6b7080"; x.font="400 12px Inter, sans-serif";
+    x.fillText("A training engagement record — not a formal accredited qualification.",600,720);
+    x.fillStyle="#6b7080"; x.font="600 13px Oswald, sans-serif"; x.fillText("HAZARD HUNT",600,752);
+    const url=cv.toDataURL("image/png");
+    const a=document.createElement("a"); a.href=url; a.download="fire-safety-certificate-"+name.replace(/[^a-z0-9]+/gi,"-").toLowerCase()+".png"; a.click();
+    toast("Certificate downloaded");
+  }
+
+  /* ---------------- SETTINGS UI ---------------- */
+  function syncSwitches(){ $("swSound").classList.toggle("on",settings.sound); $("swHaptics").classList.toggle("on",settings.haptics); }
+  $("swSound").addEventListener("click",()=>{ settings.sound=!settings.sound; saveSettings(); syncSwitches(); if(settings.sound)Sound.correct(); });
+  $("swHaptics").addEventListener("click",()=>{ settings.haptics=!settings.haptics; saveSettings(); syncSwitches(); if(settings.haptics)buzz(20); });
+  $("openSettings").addEventListener("click",()=>{ syncSwitches(); $("setOverlay").classList.remove("hidden"); });
+  $("gearBtn").addEventListener("click",()=>{ syncSwitches(); $("setOverlay").classList.remove("hidden"); });
+  $("setClose").addEventListener("click",()=>$("setOverlay").classList.add("hidden"));
+
+  /* ---------------- BUILDING PICKER ---------------- */
+  function openPicker(){
+    const box=$("builds"); box.innerHTML="";
+    allBuildings().forEach((b)=>{
+      const btn=document.createElement("div"); btn.className="build-btn";
+      const cust=b.custom?'<span class="cust">Custom</span>':"";
+      btn.innerHTML='<span class="bi">'+b.icon+'</span><span><span class="bt">'+escapeHtml(b.name)+'</span><span class="bd">'+escapeHtml(b.tagline||"")+'</span>'+cust+'</span>';
+      btn.addEventListener("click",()=>{ $("pickOverlay").classList.add("hidden"); startHazard(b); });
+      box.appendChild(btn);
+    });
+    $("pickOverlay").classList.remove("hidden");
+  }
+  $("pickCancel").addEventListener("click",()=>$("pickOverlay").classList.add("hidden"));
+
+  /* ---------------- MENU + NAV WIRING ---------------- */
+  document.querySelectorAll(".mode-card").forEach(card=>{
+    card.addEventListener("click",()=>{
+      Sound.resume(); const m=card.dataset.mode;
+      if(m==="hazard") openPicker();
+      else if(m==="ext") startExt();
+      else if(m==="door") startDoor();
+      else if(m==="builder"){ renderBuilder(); showScreen("builder", false); }
+    });
+  });
+  function goHome(){ stopTimer(); run.locked=true; showScreen("home", false); }
+  $("backBtn").addEventListener("click",goHome);
   $("nextBtn").addEventListener("click",nextRoom);
-  renderBuildPicker();renderLives();
+  $("certBtn").addEventListener("click",()=>{ if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(makeCertificate); } else { makeCertificate(); } });
+  $("againBtn").addEventListener("click",()=>{ $("endOverlay").classList.add("hidden"); goHome(); });
+  $("addRoomBtn").addEventListener("click",()=>{ builderState.rooms.push(blankRoom()); renderRoomsEdit(); });
+  $("saveBldBtn").addEventListener("click",saveBuilding);
+  document.addEventListener("pointerdown",function once(){ Sound.resume(); document.removeEventListener("pointerdown",once); });
+
+  renderLives(); syncSwitches(); showScreen("home", false);
 })();
 </script>
+
+<!-- ====================== CLOUD LAYER (Supabase) ====================== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  "use strict";
+  /* ============================================================
+     CONFIG — paste your Supabase project values between the quotes.
+     Leave them as-is to keep the game fully offline.
+     (Project Settings > API:  URL  and  anon/public key)
+     ============================================================ */
+  const SB_URL = "YOUR_SUPABASE_URL";
+  const SB_KEY = "YOUR_SUPABASE_ANON_KEY";
+  /* ============================================================ */
+
+  if(!SB_URL || SB_URL.indexOf("YOUR_")===0 || !window.supabase){ return; } // not configured -> offline
+  const supa = window.supabase.createClient(SB_URL, SB_KEY);
+  const $ = id => document.getElementById(id);
+  const HH = window.HHCloud = { buildings:[], assignments:[], user:null, profile:null, org:null };
+
+  function toastC(m){ const t=$("toast"); if(!t)return; t.textContent=m; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),1800); }
+  function node(html){ const d=document.createElement("div"); d.innerHTML=html.trim(); return d.firstElementChild; }
+  function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+
+  /* ---------- inject home button + overlays ---------- */
+  const cloudBtn = node('<button class="btn ghost" id="cloudBtn" style="margin-top:10px;">☁️ Sign in to sync &amp; track</button>');
+  function placeBtn(){ const home=$("screen-home"), set=$("openSettings"); if(home&&set&&!$("cloudBtn")) set.insertAdjacentElement("afterend",cloudBtn); }
+  cloudBtn.addEventListener("click",onCloudBtn);
+
+  const authO = node('<div class="overlay hidden" id="cAuth"><div class="modal"><div class="eyebrow">Cloud Sync</div><h2>Sign in</h2><p>Get a one-tap sign-in link by email. Your custom sites and results sync to your team.</p><div class="field"><label>Email</label><input id="cEmail" type="email" placeholder="you@work.com"></div><button class="btn" id="cSend">Send sign-in link</button><button class="btn ghost" id="cAuthClose" style="margin-top:10px;">Close</button></div></div>');
+  const orgO = node('<div class="overlay hidden" id="cOrg"><div class="modal"><div class="eyebrow">Your Team</div><h2>Join or create a team</h2><p>Staff: enter the code your manager shared. Manager: create a team and share its code.</p><div class="field"><label>Join with a team code</label><input id="cJoinCode" placeholder="e.g. 7K2P9A" maxlength="6"></div><button class="btn" id="cJoinBtn">Join team</button><div class="pick-label" style="margin:18px 0 10px;">— or —</div><div class="field"><label>Create a new team</label><input id="cOrgName" placeholder="e.g. Maple Care Group" maxlength="40"></div><button class="btn ghost" id="cCreateBtn">Create team</button><button class="btn ghost" id="cOrgClose" style="margin-top:10px;">Close</button></div></div>');
+  const teamO = node('<div class="overlay hidden" id="cTeam"><div class="modal" style="max-width:520px;"><div class="eyebrow" id="cTeamEye">Team</div><h2 id="cTeamName">Team</h2><div id="cTeamBody"></div><button class="btn ghost" id="cTeamClose" style="margin-top:14px;">Close</button></div></div>');
+  document.body.appendChild(authO); document.body.appendChild(orgO); document.body.appendChild(teamO);
+
+  $("cAuthClose").addEventListener("click",()=>authO.classList.add("hidden"));
+  $("cOrgClose").addEventListener("click",()=>orgO.classList.add("hidden"));
+  $("cTeamClose").addEventListener("click",()=>teamO.classList.add("hidden"));
+  $("cSend").addEventListener("click",async()=>{ const em=$("cEmail").value.trim(); if(!em){toastC("Enter your email");return;}
+    const { error } = await supa.auth.signInWithOtp({ email:em, options:{ emailRedirectTo: location.href.split("#")[0] } });
+    if(error) toastC(error.message); else { toastC("Check your email for the link."); authO.classList.add("hidden"); } });
+  $("cJoinBtn").addEventListener("click",async()=>{ const c=$("cJoinCode").value.trim(); if(!c){toastC("Enter a team code");return;}
+    const { error } = await supa.rpc("join_org",{ p_code:c }); if(error){toastC(error.message);return;} toastC("Joined!"); orgO.classList.add("hidden"); await loadProfile(); renderBtn(); });
+  $("cCreateBtn").addEventListener("click",async()=>{ const n=$("cOrgName").value.trim(); if(!n){toastC("Name your team");return;}
+    const { error } = await supa.rpc("create_org",{ p_name:n }); if(error){toastC(error.message);return;} toastC("Team created!"); orgO.classList.add("hidden"); await loadProfile(); renderBtn(); });
+
+__PART2__
 </body>
 </html>
