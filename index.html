@@ -305,6 +305,27 @@
   .sign-opt.wrongpick{border-color:var(--red);animation:shake .4s;}
   .sign-opt.dim{opacity:.4;pointer-events:none;}
   .cstat{display:inline-block;font:600 11px/1 'Inter';letter-spacing:.02em;border:1px solid var(--muted);color:var(--muted);border-radius:20px;padding:6px 11px;margin:0 0 4px;}
+  .sp-head{margin:8px 0 8px;}
+  .sp-head h2{font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:22px;margin:0 0 6px;}
+  .sp-stats{display:flex;gap:16px;font-size:13px;color:var(--muted);}
+  .sp-stats b{color:var(--text);font-family:'Space Mono';}
+  .sp-wrap{display:flex;justify-content:center;margin:6px 0;}
+  .sp-stage{position:relative;}
+  .sp-room{position:absolute;border:1px solid var(--line);border-radius:10px;background:linear-gradient(180deg,var(--panel-2),#15171f);color:var(--text);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:3px;overflow:hidden;transition:background .3s,border-color .3s;}
+  .sp-room .sp-name{font:600 9px/1.05 'Inter';color:var(--muted);text-align:center;}
+  .sp-room .sp-icon{font-size:19px;line-height:1;}
+  .sp-room .sp-people{font-size:12px;line-height:1;}
+  .sp-room.exit{border-color:var(--green);background:linear-gradient(180deg,rgba(54,211,153,.18),rgba(54,211,153,.05));}
+  .sp-room.exit .sp-name{color:var(--green);}
+  .sp-room.st-smoke{border-color:var(--amber);background:linear-gradient(180deg,rgba(255,176,46,.16),rgba(255,176,46,.04));}
+  .sp-room.st-fire{border-color:var(--red);background:linear-gradient(180deg,rgba(255,77,77,.28),rgba(255,90,31,.1));animation:spfire .8s ease-in-out infinite;}
+  .sp-room.st-burnt{border-color:#333;background:#0b0b0d;color:#555;}
+  .sp-room.evac{box-shadow:inset 0 0 0 2px rgba(54,211,153,.5);}
+  @keyframes spfire{50%{box-shadow:0 0 14px rgba(255,90,31,.55);}}
+  .sp-door{position:absolute;width:26px;height:26px;border-radius:7px;border:2px solid #4a3f52;background:#241d29;cursor:pointer;z-index:4;padding:0;transition:.2s;}
+  .sp-door.open{background:#12241c;border-color:var(--green);}
+  .sp-door.closed{background:#2e1414;border-color:var(--red);}
+  .sp-door.perm{background:#20242e;border-color:var(--line);cursor:default;opacity:.5;}
 </style>
 <div id="app">
 
@@ -346,6 +367,7 @@
       <button class="mode-card" data-mode="evac"><span class="mi">🏃</span><span><span class="mt">Evacuation Sequence</span><span class="md">Put the steps in the right order</span></span></button>
       <button class="mode-card" data-mode="alarm"><span class="mi">🚨</span><span><span class="mt">Alarm Panel</span><span class="md">Fire or fault? Choose the response</span></span><span class="badge">New</span></button>
       <button class="mode-card" data-mode="peep"><span class="mi">♿</span><span><span class="mt">PEEP Builder</span><span class="md">Match the evacuation plan to the person</span></span><span class="badge">New</span></button>
+      <button class="mode-card" data-mode="spread"><span class="mi">🔥</span><span><span class="mt">Fire Spread</span><span class="md">Contain it and get everyone out</span></span><span class="badge">New</span></button>
       <div class="menu-label">Your sites</div>
       <button class="mode-card alt" data-mode="builder"><span class="mi">🏗️</span><span><span class="mt">Build Your Site</span><span class="md">Create your own building to drill on</span></span></button>
     </div>
@@ -468,6 +490,16 @@
     <div class="sign-ask" id="signAsk">—</div>
     <div class="sign-grid" id="signOpts"></div>
     <div class="log" id="signLog"><span class="tag idle" id="signLogTag">Ready</span><p id="signLogText">Pick the correct sign.</p></div>
+  </section>
+
+  <!-- FIRE SPREAD -->
+  <section class="screen" id="screen-spread">
+    <div class="sp-head">
+      <h2>Fire Spread</h2>
+      <div class="sp-stats"><span>🏃 <b id="spSaved">0</b>/<b id="spTotal">0</b> out</span><span>💀 <b id="spCas">0</b></span><span>🧯 <b id="spCharges">2</b></span></div>
+    </div>
+    <div class="sp-wrap"><div class="sp-stage" id="spStage"></div></div>
+    <div class="log" id="spLog"><span class="tag idle" id="spLogTag">Live</span><p id="spLogText">Tap a room to evacuate its people. Tap a door to open/close it. Tap a small fire to knock it down.</p></div>
   </section>
 </div>
 
@@ -1338,6 +1370,115 @@
     renderPrompt:(it)=>{ $("signAsk").textContent=it.ask; },
     getOptions:(it)=>it.opts.map((o,idx)=>({html:'<span class="sign-emoji">'+o.e+'</span><span class="sign-l">'+o.l+'</span>',correct:idx===it.correct})), mistakeLabel:(it)=>"Sign: "+it.ask }); }
 
+  /* ---------------- SPREAD SIMULATION ---------------- */
+  const SPREAD_LEVELS = [
+    { name:"Office Floor", cols:4, rows:3, cell:80,
+      rooms:[
+        {id:"exit",name:"Stairwell",x:0,y:1,fuel:0,exit:true},
+        {id:"p1",name:"Corridor",x:1,y:1,fuel:0.7},
+        {id:"p2",name:"Corridor",x:2,y:1,fuel:0.7},
+        {id:"p3",name:"Corridor",x:3,y:1,fuel:0.7},
+        {id:"sA",name:"Office",x:1,y:0,fuel:1.2,people:2},
+        {id:"sB",name:"Meeting",x:2,y:0,fuel:1.0,people:1},
+        {id:"sC",name:"Kitchen",x:3,y:0,fuel:1.6,origin:true},
+        {id:"sD",name:"Reception",x:1,y:2,fuel:1.0,people:1},
+        {id:"sE",name:"Store",x:3,y:2,fuel:1.4,people:1},
+      ],
+      doors:[
+        {a:"exit",b:"p1",type:"open"},
+        {a:"p1",b:"p2",type:"fire"},{a:"p2",b:"p3",type:"fire"},
+        {a:"p1",b:"sA",type:"fire"},{a:"p2",b:"sB",type:"fire"},{a:"p3",b:"sC",type:"fire"},
+        {a:"p1",b:"sD",type:"fire"},{a:"p3",b:"sE",type:"fire"},
+      ] }
+  ];
+  const SP_SMOKE=35, SP_FIRE=100, SP_SPREAD=30, SP_MAXTICK=70, SP_CHARGES=2;
+  const sp = { lvl:null, rooms:{}, doors:[], saved:0, casualties:0, total:0, tick:0, charges:SP_CHARGES, over:false };
+
+  function startSpread(){
+    run.mode="spread"; run.score=0; run.combo=0; run.bestCombo=1; run.mistakes=[]; run.locked=false;
+    const L=SPREAD_LEVELS[0]; sp.lvl=L; sp.rooms={}; sp.doors=[]; sp.saved=0; sp.casualties=0; sp.tick=0; sp.charges=SP_CHARGES; sp.over=false;
+    let total=0;
+    L.rooms.forEach(r=>{ sp.rooms[r.id]={ id:r.id,name:r.name,x:r.x,y:r.y,fuel:r.fuel,exit:!!r.exit,origin:!!r.origin,
+      people:r.people||0, evac:false, heat:r.origin?120:0, state:r.origin?"fire":"ok", burn:0 }; total+=(r.people||0); });
+    sp.total=total;
+    L.doors.forEach((d,i)=>sp.doors.push({ id:i, a:d.a, b:d.b, type:d.type, open:true }));
+    showScreen("spread", false);
+    buildSpreadDOM(); updateSpread();
+    setLog("spLogTag","spLogText","haz","Fire in the "+sp.rooms.sC.name,"Get people out (tap a room), close the door on the fire, knock down anything small.");
+    stopTimer(); run.timerId=setInterval(spreadTick, 1000);
+  }
+  function buildSpreadDOM(){
+    const L=sp.lvl, cell=L.cell, stage=$("spStage");
+    stage.innerHTML=""; stage.style.width=(L.cols*cell)+"px"; stage.style.height=(L.rows*cell)+"px";
+    Object.values(sp.rooms).forEach(r=>{
+      const el=document.createElement("button"); el.type="button"; el.className="sp-room"; el.id="sp-room-"+r.id;
+      el.style.left=(r.x*cell+5)+"px"; el.style.top=(r.y*cell+5)+"px"; el.style.width=(cell-10)+"px"; el.style.height=(cell-10)+"px";
+      el.innerHTML='<span class="sp-name">'+esc2(r.name)+'</span><span class="sp-icon"></span><span class="sp-people"></span>';
+      el.addEventListener("click",()=>tapRoom(r.id)); stage.appendChild(el);
+    });
+    sp.doors.forEach(d=>{
+      const A=sp.rooms[d.a],B=sp.rooms[d.b];
+      const cx=((A.x+B.x)/2)*cell+cell/2, cy=((A.y+B.y)/2)*cell+cell/2;
+      const el=document.createElement("button"); el.type="button"; el.className="sp-door"; el.id="sp-door-"+d.id;
+      el.style.left=(cx-13)+"px"; el.style.top=(cy-13)+"px";
+      if(d.type!=="open") el.addEventListener("click",()=>toggleDoor(d.id)); else el.classList.add("perm");
+      stage.appendChild(el);
+    });
+  }
+  function updateSpread(){
+    $("spSaved").textContent=sp.saved; $("spTotal").textContent=sp.total; $("spCas").textContent=sp.casualties; $("spCharges").textContent=sp.charges;
+    Object.values(sp.rooms).forEach(r=>{ const el=$("sp-room-"+r.id); if(!el)return;
+      el.className="sp-room "+(r.exit?"exit ":"")+"st-"+r.state+(r.people>0&&r.evac?" evac":"");
+      el.querySelector(".sp-icon").textContent = r.exit?"🚪": r.state==="fire"?"🔥": r.state==="smoke"?"💨": r.state==="burnt"?"⬛":"";
+      el.querySelector(".sp-people").textContent = r.people>0?((r.evac?"🏃":"🧍")+(r.people>1?("×"+r.people):"")):"";
+    });
+    sp.doors.forEach(d=>{ const el=$("sp-door-"+d.id); if(!el)return; el.className="sp-door "+(d.type==="open"?"perm ":"")+(d.open?"open":"closed"); });
+  }
+  function openNeighbors(id){ const out=[]; sp.doors.forEach(d=>{ if(d.open){ if(d.a===id)out.push(d.b); else if(d.b===id)out.push(d.a); } }); return out; }
+  function bfsDist(){ const dist={exit:0}, q=["exit"];
+    const passable=(rid)=>{ const r=sp.rooms[rid]; return r.exit||(r.state!=="fire"&&r.state!=="burnt"); };
+    while(q.length){ const cur=q.shift();
+      sp.doors.forEach(d=>{ if(!d.open)return; let nb=null; if(d.a===cur)nb=d.b; else if(d.b===cur)nb=d.a; if(nb==null)return;
+        if(dist[nb]==null && passable(nb)){ dist[nb]=dist[cur]+1; q.push(nb); } }); }
+    return dist;
+  }
+  function toggleDoor(id){ if(sp.over)return; const d=sp.doors[id]; if(d.type==="open")return; d.open=!d.open; buzz(10);
+    setLog("spLogTag","spLogText","idle",null, d.open?"Door opened — people can pass, and so can fire.":"Door closed — fire and people are both blocked here."); updateSpread(); }
+  function tapRoom(id){ if(sp.over)return; const r=sp.rooms[id]; if(r.exit)return;
+    if((r.state==="smoke"||r.state==="fire") && r.heat<80 && sp.charges>0){ sp.charges--; r.heat=0; r.state="ok"; r.burn=0; Sound.correct(); buzz(15);
+      setLog("spLogTag","spLogText","haz","Knocked it down","Caught early — that's the way. Small fires only."); updateSpread(); return; }
+    if((r.state==="fire") && r.heat>=80){ toast("Too developed for an extinguisher — close doors to contain it."); return; }
+    if(sp.charges<=0 && (r.state==="smoke"||r.state==="fire")){ toast("No extinguisher charges left."); return; }
+    if(r.people>0 && !r.evac){ r.evac=true; Sound.combo(1); buzz(12); setLog("spLogTag","spLogText","haz","Evacuating "+r.name,"They'll head for the stairwell. Keep their route clear."); updateSpread(); }
+  }
+  function spreadTick(){
+    if(sp.over)return; sp.tick++;
+    const add={};
+    Object.values(sp.rooms).forEach(r=>{ if(r.state==="fire"){ openNeighbors(r.id).forEach(nid=>{ const n=sp.rooms[nid]; if(n.state==="burnt")return; add[nid]=(add[nid]||0)+SP_SPREAD*(n.fuel||1); }); } });
+    for(const nid in add){ const n=sp.rooms[nid]; n.heat=Math.min(240,(n.heat||0)+add[nid]); }
+    Object.values(sp.rooms).forEach(r=>{ if(r.state!=="fire"&&r.state!=="burnt"){ r.state=r.heat>=SP_FIRE?"fire":r.heat>=SP_SMOKE?"smoke":"ok"; } else if(r.state==="fire"){ r.burn++; if(r.burn>16)r.state="burnt"; } });
+    const dist=bfsDist(), moves=[];
+    Object.values(sp.rooms).forEach(r=>{ if(r.exit||r.people<=0||!r.evac)return;
+      let best=null, bd=dist[r.id]==null?Infinity:dist[r.id];
+      openNeighbors(r.id).forEach(nid=>{ const n=sp.rooms[nid]; if(n.state==="fire"||n.state==="burnt")return; const nd=dist[nid]; if(nd!=null&&nd<bd){bd=nd;best=nid;} });
+      if(best!=null) moves.push({from:r.id,to:best,n:r.people}); });
+    moves.forEach(m=>{ sp.rooms[m.from].people-=m.n; const to=sp.rooms[m.to]; if(to.exit){ sp.saved+=m.n; Sound.correct(); } else { to.people+=m.n; to.evac=true; } });
+    Object.values(sp.rooms).forEach(r=>{ if(!r.exit && r.people>0 && (r.state==="fire"||r.state==="burnt")){ sp.casualties+=r.people; noteMistake("Lost "+r.people+" in the "+r.name, "They were caught before getting out — evacuate rooms near the fire first and keep a route open.", "spread"); r.people=0; } });
+    updateSpread();
+    const exit=sp.rooms.exit;
+    if(exit.state==="fire"||exit.state==="burnt"){ Object.values(sp.rooms).forEach(r=>{ if(!r.exit&&r.people>0){ sp.casualties+=r.people; r.people=0; } }); return endSpread(); }
+    if(sp.saved+sp.casualties>=sp.total) return endSpread();
+    if(sp.tick>=SP_MAXTICK){ Object.values(sp.rooms).forEach(r=>{ if(!r.exit&&r.people>0){ sp.casualties+=r.people; r.people=0; } }); return endSpread(); }
+  }
+  function endSpread(){
+    if(sp.over)return; sp.over=true; stopTimer();
+    const timeLeft=Math.max(0,SP_MAXTICK-sp.tick);
+    run.score=Math.max(0, sp.saved*400 + timeLeft*5 - sp.casualties*300); run.bestCombo=1;
+    const won = sp.casualties===0 && sp.saved===sp.total;
+    endGame({ modeLabel:"Spread Sim", won:won, title: won?"Everyone out":"Casualties",
+      reason: sp.casualties?("You lost "+sp.casualties+" of "+sp.total+"."):"", progLabel:"Saved", progValue:sp.saved+"/"+sp.total });
+  }
+
   /* ---------------- CUSTOM SITE BUILDER ---------------- */
   const ICONS=["🏥","🏢","🔧","🏠","🏬","🏭","🏫","⛪","🏨","🚧"];
   let builderState = { icon:"🏠", rooms:[] };
@@ -1531,6 +1672,7 @@
       else if(m==="alarm") startAlarm();
       else if(m==="peep") startPeep();
       else if(m==="sign") startSign();
+      else if(m==="spread") startSpread();
       else if(m==="builder"){ renderBuilder(); showScreen("builder", false); }
     });
   });
