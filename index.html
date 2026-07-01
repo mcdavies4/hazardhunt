@@ -304,6 +304,7 @@
   .sign-opt.right{border-color:var(--green);} .sign-opt.right .sign-l{color:var(--green);}
   .sign-opt.wrongpick{border-color:var(--red);animation:shake .4s;}
   .sign-opt.dim{opacity:.4;pointer-events:none;}
+  .cstat{display:inline-block;font:600 11px/1 'Inter';letter-spacing:.02em;border:1px solid var(--muted);color:var(--muted);border-radius:20px;padding:6px 11px;margin:0 0 4px;}
 </style>
 <div id="app">
 
@@ -1561,8 +1562,8 @@
        SB_KEY = anon / public key
      Run hazard-hunt-supabase.sql in the SQL editor first.
      ============================================================ */
-  const SB_URL = "YOUR_SUPABASE_URL";
-  const SB_KEY = "YOUR_SUPABASE_ANON_KEY";
+  const SB_URL = "https://dovgayzvytwffmwmnvry.supabase.co";
+  const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvdmdheXp2eXR3ZmZtd21udnJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MTY4MjgsImV4cCI6MjA5ODQ5MjgyOH0.EiMGC2gn64DOqpmXTg9ctfJtZyrQDvx1ECZ6TpieE5Q";
   /* ============================================================ */
   if(!SB_URL || SB_URL.indexOf("YOUR_")===0){ return; } // not configured -> game stays fully offline
 
@@ -1584,6 +1585,29 @@
     return d;
   }
 
+  /* ---------- connection self-test ---------- */
+  let cloudStatus = { state:"unknown", msg:"" };
+  async function checkConnection(){
+    try{
+      await rpc("hh_team_name",{p_code:"__ping__"}); // returns null if not found; throws if fn missing / keys bad
+      cloudStatus={ state:"ok", msg:"Connected to Supabase and the database is ready." };
+    }catch(e){
+      const m=(e.message||"").toLowerCase();
+      if(m.indexOf("could not find the function")>=0||m.indexOf("pgrst202")>=0||m.indexOf("does not exist")>=0||m.indexOf("schema cache")>=0){
+        cloudStatus={ state:"nosql", msg:"Reached Supabase, but the database isn't set up. Run hazard-hunt-supabase.sql in the SQL editor." };
+      } else if(m.indexOf("jwt")>=0||m.indexOf("api key")>=0||m.indexOf("apikey")>=0||m.indexOf("invalid")>=0||m.indexOf("401")>=0){
+        cloudStatus={ state:"badkey", msg:"Reached Supabase but the anon key looks wrong. Re-copy it from Project Settings → API." };
+      } else {
+        cloudStatus={ state:"unreachable", msg:"Can't reach Supabase — check the project URL (and your connection)." };
+      }
+    }
+    paintStatus(); return cloudStatus;
+  }
+  function paintStatus(){
+    const el=$("cStatus"); if(!el) return; const s=cloudStatus;
+    const map={ ok:["#36D399","☁️ Connected — ready"], nosql:["#FFB02E","⚠️ Run the SQL migration"], badkey:["#FF4D4D","✕ Anon key looks wrong"], unreachable:["#FF4D4D","✕ Can't reach Supabase"], unknown:["#8B90A3","Checking connection…"] };
+    const v=map[s.state]||map.unknown; el.style.color=v[0]; el.style.borderColor=v[0]; el.textContent=v[1]; el.title=s.msg;
+  }
   const team = { code:lget("hh_team_code")||"", name:lget("hh_team_name")||"", player:lget("hh_player")||"", pin:"" };
   function persist(){ lset("hh_team_code",team.code); lset("hh_team_name",team.name); lset("hh_player",team.player); }
 
@@ -1624,10 +1648,10 @@
   const cloudBtn = node('<button class="btn ghost" id="cloudBtn" style="margin-top:10px;">☁️ Team &amp; tracking</button>');
   function renderBtn(){ cloudBtn.innerHTML = team.code ? ("☁️ Team: "+esc(team.name)) : "☁️ Team &amp; tracking"; }
   function placeBtn(){ const set=$("openSettings"); if(set && !$("cloudBtn")) set.insertAdjacentElement("afterend",cloudBtn); }
-  cloudBtn.addEventListener("click",()=>{ renderHub(); hub.classList.remove("hidden"); });
+  cloudBtn.addEventListener("click",()=>{ renderHub(); hub.classList.remove("hidden"); checkConnection(); });
 
   /* ---------- overlays ---------- */
-  const hub = node('<div class="overlay hidden" id="cHub"><div class="modal" style="max-width:500px;"><div class="eyebrow">Team &amp; Tracking</div><h2 id="cHubTitle">Your Team</h2><div id="cHubBody"></div><button class="btn ghost" id="cHubClose" style="margin-top:14px;">Close</button></div></div>');
+  const hub = node('<div class="overlay hidden" id="cHub"><div class="modal" style="max-width:500px;"><div class="eyebrow">Team &amp; Tracking</div><h2 id="cHubTitle">Your Team</h2><div id="cStatus" class="cstat">Checking connection…</div><div id="cHubBody"></div><button class="btn ghost" id="cHubClose" style="margin-top:14px;">Close</button></div></div>');
   const dash = node('<div class="overlay hidden" id="cDash"><div class="modal" style="max-width:560px;"><div class="eyebrow">Manager</div><h2 id="cDashTitle">Dashboard</h2><div id="cDashBody"></div><button class="btn ghost" id="cDashClose" style="margin-top:14px;">Close</button></div></div>');
   document.body.appendChild(hub); document.body.appendChild(dash);
   $("cHubClose").addEventListener("click",()=>hub.classList.add("hidden"));
@@ -1758,7 +1782,7 @@
   }
 
   /* ---------- init ---------- */
-  placeBtn(); renderBtn(); track("app_open",{});
+  placeBtn(); renderBtn(); track("app_open",{}); checkConnection();
   if(team.code){ loadSites(); loadAssignments(); const cn=$("certName"); if(cn&&team.player)cn.value=team.player; }
 })();
 </script>
