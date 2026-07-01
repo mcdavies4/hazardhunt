@@ -265,6 +265,7 @@
       <p>Pick a drill. Learn by doing, not by slides.</p>
     </div>
     <div class="menu" id="menu">
+      <button class="mode-card" data-mode="daily"><span class="mi">📅</span><span><span class="mt">Daily Drill</span><span class="md" id="dailyDesc">Today's challenge — same for everyone</span></span><span class="badge">Daily</span></button>
       <button class="mode-card" data-mode="hazard"><span class="mi">🔍</span><span><span class="mt">Hazard Hunt</span><span class="md">Spot the fire hazards, room by room</span></span></button>
       <button class="mode-card" data-mode="ext"><span class="mi">🧯</span><span><span class="mt">Extinguisher Match</span><span class="md">Pick the right one before it spreads</span></span></button>
       <button class="mode-card" data-mode="door"><span class="mi">🚪</span><span><span class="mt">Fire Door Check</span><span class="md">Inspect a door, find every fault</span></span></button>
@@ -374,7 +375,8 @@
     </div>
     <div class="cert-box">
       <input id="certName" placeholder="Your name for the certificate" maxlength="40">
-      <button class="btn" id="certBtn">📄 Download certificate</button>
+      <button class="btn" id="shareBtn" style="margin-bottom:10px;">📲 Share my score</button>
+      <button class="btn ghost" id="certBtn">📄 Download certificate</button>
       <p class="cert-note">A training engagement record — not a formal accredited qualification.</p>
     </div>
     <button class="btn ghost" id="againBtn" style="margin-top:12px;">Back to menu</button>
@@ -650,13 +652,16 @@
 
   /* ---------------- RATING + END ---------------- */
   function ratingFor(s){ let r=RATINGS[0]; for(const t of RATINGS) if(s>=t.min) r=t; return r; }
-  let lastResult = {mode:"", rating:"", score:0};
+  let lastResult = {mode:"", rating:"", score:0, prog:"", won:false};
+  let isDaily = false;
   function endGame(opts){
     stopTimer(); run.locked=true;
     const r=ratingFor(run.score);
-    lastResult={ mode:opts.modeLabel, rating:r.name, score:run.score };
-    if(window.HHCloud&&window.HHCloud.record) window.HHCloud.record({ mode:run.mode, modeLabel:opts.modeLabel, score:run.score, rating:r.name, prog:opts.progValue, won:!!opts.won, buildingName:(run.mode==="hazard"&&hz.building?hz.building.name:null), buildingId:(run.mode==="hazard"&&hz.building&&hz.building.cloudId?hz.building.cloudId:null) });
-    $("endEyebrow").textContent = opts.won ? "Complete" : "Halted";
+    const modeLabel = isDaily ? ("Daily Drill · "+opts.modeLabel) : opts.modeLabel;
+    lastResult={ mode:modeLabel, rating:r.name, score:run.score, prog:((opts.progValue||"")+" "+(opts.progLabel||"")).trim(), won:!!opts.won };
+    if(window.HHCloud&&window.HHCloud.record) window.HHCloud.record({ mode:run.mode, modeLabel:modeLabel, score:run.score, rating:r.name, prog:opts.progValue, won:!!opts.won, buildingName:(run.mode==="hazard"&&hz.building?hz.building.name:null), buildingId:(run.mode==="hazard"&&hz.building&&hz.building.cloudId?hz.building.cloudId:null) });
+    if(isDaily && window.hhTrack) window.hhTrack("daily_complete",{mode:run.mode,score:run.score,won:!!opts.won});
+    $("endEyebrow").textContent = isDaily ? "Daily Drill" : (opts.won ? "Complete" : "Halted");
     $("endTitle").textContent = opts.title || (opts.won?"Well done":"Cut short");
     $("endRating").textContent = r.name;
     $("endBlurb").textContent = opts.won ? r.blurb : (opts.reason+" Final rating: "+r.name+".");
@@ -889,6 +894,7 @@
     const bld={ id:"custom_"+Date.now(), name, icon:builderState.icon, custom:true, tagline:"Your custom site.", rooms };
     const list=getCustoms(); list.push(bld);
     saveCustoms(list);
+    if(window.hhTrack) window.hhTrack("site_built",{rooms:bld.rooms.length});
     if(window.HHCloud&&window.HHCloud.publish){ window.HHCloud.publish(bld); toast("Saved & synced to your team."); }
     else toast("Saved! Find it in Hazard Hunt.");
     renderBuilder();
@@ -944,10 +950,63 @@
   }
   $("pickCancel").addEventListener("click",()=>$("pickOverlay").classList.add("hidden"));
 
+  /* ---------------- DAILY DRILL ---------------- */
+  const DAILY = [
+    {kind:"hazard", b:"care",     label:"Care Home hazard sweep"},
+    {kind:"ext",                  label:"Extinguisher match"},
+    {kind:"hazard", b:"office",   label:"Office hazard sweep"},
+    {kind:"door",                 label:"Fire door inspection"},
+    {kind:"hazard", b:"workshop", label:"Workshop hazard sweep"},
+  ];
+  function dateSeed(){ const d=new Date(); return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate(); }
+  function todaysDaily(){ return DAILY[ dateSeed() % DAILY.length ]; }
+  function setDailyDesc(){ const el=$("dailyDesc"); if(!el)return; const d=todaysDaily();
+    const ds=new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"}); el.textContent=ds+" · "+d.label; }
+  function startDaily(){
+    isDaily=true; if(window.hhTrack) window.hhTrack("daily_start",{});
+    const d=todaysDaily();
+    if(d.kind==="hazard"){ const b=BUILDINGS.find(x=>x.id===d.b)||BUILDINGS[0]; startHazard(b); }
+    else if(d.kind==="ext"){ startExt(); }
+    else { startDoor(); }
+  }
+
+  /* ---------------- SHARE CARD ---------------- */
+  async function makeShareCard(){
+    if(window.hhTrack) window.hhTrack("share_tapped",{mode:run.mode,score:lastResult.score});
+    const S=1080; const cv=document.createElement("canvas"); cv.width=S; cv.height=S; const x=cv.getContext("2d");
+    x.fillStyle="#0E0F13"; x.fillRect(0,0,S,S);
+    const g=x.createRadialGradient(S/2,180,60,S/2,180,900); g.addColorStop(0,"rgba(255,90,31,0.22)"); g.addColorStop(1,"rgba(255,90,31,0)");
+    x.fillStyle=g; x.fillRect(0,0,S,S);
+    x.strokeStyle="#FF5A1F"; x.lineWidth=12; x.strokeRect(40,40,S-80,S-80);
+    x.textAlign="center";
+    x.font="120px serif"; x.fillText("🔥",S/2,235);
+    x.fillStyle="#FFB02E"; x.font="700 46px Oswald, sans-serif"; x.fillText("HAZARD HUNT",S/2,330);
+    x.fillStyle="#8B90A3"; x.font="500 26px Inter, sans-serif"; x.fillText((lastResult.mode||"").toUpperCase(),S/2,383);
+    x.fillStyle="#E7E9F0"; x.font="700 210px 'Space Mono', monospace"; x.fillText(String(lastResult.score),S/2,640);
+    x.fillStyle="#8B90A3"; x.font="600 24px Inter, sans-serif"; x.fillText("SCORE",S/2,690);
+    x.fillStyle="#36D399"; x.font="700 62px Oswald, sans-serif"; x.fillText((lastResult.rating||"").toUpperCase(),S/2,800);
+    if(lastResult.prog){ x.fillStyle="#8B90A3"; x.font="500 26px Inter, sans-serif"; x.fillText(lastResult.prog,S/2,850); }
+    x.fillStyle="#6b7080"; x.font="500 26px Inter, sans-serif"; x.fillText("Can you spot the fire hazards?",S/2,965);
+    x.fillStyle="#FF5A1F"; x.font="600 28px Oswald, sans-serif"; x.fillText("Take the drill →",S/2,1008);
+    const blob=await new Promise(res=>cv.toBlob(res,"image/png"));
+    const file=new File([blob],"hazard-hunt-score.png",{type:"image/png"});
+    try{
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({ files:[file], title:"Hazard Hunt", text:"I scored "+lastResult.score+" — "+lastResult.rating+" on Hazard Hunt 🔥 Can you beat it?" });
+        return;
+      }
+    }catch(e){}
+    const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="hazard-hunt-score.png"; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),2000); toast("Score card saved");
+  }
+
   /* ---------------- MENU + NAV WIRING ---------------- */
   document.querySelectorAll(".mode-card").forEach(card=>{
     card.addEventListener("click",()=>{
       Sound.resume(); const m=card.dataset.mode;
+      if(m==="daily"){ startDaily(); return; }
+      isDaily=false;
+      if(window.hhTrack && m!=="builder") window.hhTrack("drill_start",{mode:m});
       if(m==="hazard") openPicker();
       else if(m==="ext") startExt();
       else if(m==="door") startDoor();
@@ -957,60 +1016,229 @@
   function goHome(){ stopTimer(); run.locked=true; showScreen("home", false); }
   $("backBtn").addEventListener("click",goHome);
   $("nextBtn").addEventListener("click",nextRoom);
+  $("shareBtn").addEventListener("click",()=>{ if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(makeShareCard); } else { makeShareCard(); } });
   $("certBtn").addEventListener("click",()=>{ if(document.fonts&&document.fonts.ready){ document.fonts.ready.then(makeCertificate); } else { makeCertificate(); } });
   $("againBtn").addEventListener("click",()=>{ $("endOverlay").classList.add("hidden"); goHome(); });
   $("addRoomBtn").addEventListener("click",()=>{ builderState.rooms.push(blankRoom()); renderRoomsEdit(); });
   $("saveBldBtn").addEventListener("click",saveBuilding);
   document.addEventListener("pointerdown",function once(){ Sound.resume(); document.removeEventListener("pointerdown",once); });
 
-  renderLives(); syncSwitches(); showScreen("home", false);
+  renderLives(); syncSwitches(); setDailyDesc(); showScreen("home", false);
 })();
 </script>
 
-<!-- ====================== CLOUD LAYER (Supabase) ====================== -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- ====================== CLOUD LAYER (Supabase, optional) ====================== -->
 <script>
 (function(){
   "use strict";
   /* ============================================================
      CONFIG — paste your Supabase project values between the quotes.
      Leave them as-is to keep the game fully offline.
-     (Project Settings > API:  URL  and  anon/public key)
+     (Supabase dashboard > Project Settings > API)
+       SB_URL = Project URL        e.g. https://abcd.supabase.co
+       SB_KEY = anon / public key
+     Run hazard-hunt-supabase.sql in the SQL editor first.
      ============================================================ */
   const SB_URL = "YOUR_SUPABASE_URL";
   const SB_KEY = "YOUR_SUPABASE_ANON_KEY";
   /* ============================================================ */
+  if(!SB_URL || SB_URL.indexOf("YOUR_")===0){ return; } // not configured -> game stays fully offline
 
-  if(!SB_URL || SB_URL.indexOf("YOUR_")===0 || !window.supabase){ return; } // not configured -> offline
-  const supa = window.supabase.createClient(SB_URL, SB_KEY);
   const $ = id => document.getElementById(id);
-  const HH = window.HHCloud = { buildings:[], assignments:[], user:null, profile:null, org:null };
+  const HH = window.HHCloud = { buildings:[], assignments:[], record:null, publish:null };
 
-  function toastC(m){ const t=$("toast"); if(!t)return; t.textContent=m; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),1800); }
+  function toastC(m){ const t=$("toast"); if(!t){alert(m);return;} t.textContent=m; t.classList.add("show"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("show"),2000); }
   function node(html){ const d=document.createElement("div"); d.innerHTML=html.trim(); return d.firstElementChild; }
   function esc(s){ return (s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+  function lget(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
+  function lset(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
 
-  /* ---------- inject home button + overlays ---------- */
-  const cloudBtn = node('<button class="btn ghost" id="cloudBtn" style="margin-top:10px;">☁️ Sign in to sync &amp; track</button>');
-  function placeBtn(){ const home=$("screen-home"), set=$("openSettings"); if(home&&set&&!$("cloudBtn")) set.insertAdjacentElement("afterend",cloudBtn); }
-  cloudBtn.addEventListener("click",onCloudBtn);
+  async function rpc(fn,args){
+    const r=await fetch(SB_URL.replace(/\/+$/,"")+"/rest/v1/rpc/"+fn,{method:"POST",
+      headers:{ apikey:SB_KEY, Authorization:"Bearer "+SB_KEY, "Content-Type":"application/json" },
+      body:JSON.stringify(args||{}) });
+    const t=await r.text(); let d=null; try{ d=t?JSON.parse(t):null; }catch(e){}
+    if(!r.ok){ throw new Error((d&&(d.message||d.hint||d.error))||t||("Request failed ("+r.status+")")); }
+    return d;
+  }
 
-  const authO = node('<div class="overlay hidden" id="cAuth"><div class="modal"><div class="eyebrow">Cloud Sync</div><h2>Sign in</h2><p>Get a one-tap sign-in link by email. Your custom sites and results sync to your team.</p><div class="field"><label>Email</label><input id="cEmail" type="email" placeholder="you@work.com"></div><button class="btn" id="cSend">Send sign-in link</button><button class="btn ghost" id="cAuthClose" style="margin-top:10px;">Close</button></div></div>');
-  const orgO = node('<div class="overlay hidden" id="cOrg"><div class="modal"><div class="eyebrow">Your Team</div><h2>Join or create a team</h2><p>Staff: enter the code your manager shared. Manager: create a team and share its code.</p><div class="field"><label>Join with a team code</label><input id="cJoinCode" placeholder="e.g. 7K2P9A" maxlength="6"></div><button class="btn" id="cJoinBtn">Join team</button><div class="pick-label" style="margin:18px 0 10px;">— or —</div><div class="field"><label>Create a new team</label><input id="cOrgName" placeholder="e.g. Maple Care Group" maxlength="40"></div><button class="btn ghost" id="cCreateBtn">Create team</button><button class="btn ghost" id="cOrgClose" style="margin-top:10px;">Close</button></div></div>');
-  const teamO = node('<div class="overlay hidden" id="cTeam"><div class="modal" style="max-width:520px;"><div class="eyebrow" id="cTeamEye">Team</div><h2 id="cTeamName">Team</h2><div id="cTeamBody"></div><button class="btn ghost" id="cTeamClose" style="margin-top:14px;">Close</button></div></div>');
-  document.body.appendChild(authO); document.body.appendChild(orgO); document.body.appendChild(teamO);
+  const team = { code:lget("hh_team_code")||"", name:lget("hh_team_name")||"", player:lget("hh_player")||"", pin:"" };
+  function persist(){ lset("hh_team_code",team.code); lset("hh_team_name",team.name); lset("hh_player",team.player); }
 
-  $("cAuthClose").addEventListener("click",()=>authO.classList.add("hidden"));
-  $("cOrgClose").addEventListener("click",()=>orgO.classList.add("hidden"));
-  $("cTeamClose").addEventListener("click",()=>teamO.classList.add("hidden"));
-  $("cSend").addEventListener("click",async()=>{ const em=$("cEmail").value.trim(); if(!em){toastC("Enter your email");return;}
-    const { error } = await supa.auth.signInWithOtp({ email:em, options:{ emailRedirectTo: location.href.split("#")[0] } });
-    if(error) toastC(error.message); else { toastC("Check your email for the link."); authO.classList.add("hidden"); } });
-  $("cJoinBtn").addEventListener("click",async()=>{ const c=$("cJoinCode").value.trim(); if(!c){toastC("Enter a team code");return;}
-    const { error } = await supa.rpc("join_org",{ p_code:c }); if(error){toastC(error.message);return;} toastC("Joined!"); orgO.classList.add("hidden"); await loadProfile(); renderBtn(); });
-  $("cCreateBtn").addEventListener("click",async()=>{ const n=$("cOrgName").value.trim(); if(!n){toastC("Name your team");return;}
-    const { error } = await supa.rpc("create_org",{ p_name:n }); if(error){toastC(error.message);return;} toastC("Team created!"); orgO.classList.add("hidden"); await loadProfile(); renderBtn(); });
+  /* ---------- anonymous analytics ---------- */
+  function anonId(){ let id=lget("hh_anon"); if(!id){ id=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():("a"+Date.now()+Math.random().toString(36).slice(2)); lset("hh_anon",id); } return id; }
+  const ANON = anonId();
+  function track(event, meta){
+    try{ rpc("hh_track",{ p_anon:ANON, p_event:event, p_mode:(meta&&meta.mode)||null, p_score:(meta&&typeof meta.score==="number")?meta.score:null, p_meta:meta||{}, p_team:team.code||null }).catch(()=>{}); }catch(e){}
+  }
+  window.hhTrack = track;
 
-__PART2__
+  /* ---------- data loaders ---------- */
+  async function loadSites(){
+    if(!team.code){ HH.buildings=[]; return; }
+    try{ const rows=await rpc("hh_list_sites",{p_code:team.code})||[];
+      HH.buildings = rows.map(r=>({ name:r.name, icon:r.icon||"🏥", custom:true, cloud:true, cloudId:r.id, tagline:"Team site", rooms:(r.data&&r.data.rooms)||[] })); }
+    catch(e){ HH.buildings=[]; }
+  }
+  async function loadAssignments(){
+    if(!team.code){ HH.assignments=[]; return; }
+    try{ HH.assignments = await rpc("hh_list_assignments",{p_code:team.code})||[]; }catch(e){ HH.assignments=[]; }
+  }
+
+  /* ---------- integration hooks used by the main game ---------- */
+  HH.record = function(o){
+    track("drill_complete",{ mode:o.mode||o.modeLabel, score:o.score|0, won:!!o.won, rating:o.rating });
+    if(!team.code || !team.player) return;
+    rpc("hh_log_completion",{ p_code:team.code, p_player:team.player,
+      p_mode:o.modeLabel||o.mode||"Drill", p_score:o.score|0, p_rating:o.rating||null, p_progress:o.prog||null }).catch(()=>{});
+  };
+  HH.publish = function(bld){
+    if(!team.code || !team.pin){ toastC("Open Team ▸ Manager to sync sites to your team."); return; }
+    rpc("hh_save_site",{ p_code:team.code, p_pin:team.pin, p_name:bld.name, p_icon:bld.icon, p_data:{ rooms:bld.rooms } })
+      .then(()=>{ toastC("Synced to your team."); return loadSites(); }).catch(e=>toastC(e.message));
+  };
+
+  /* ---------- home button ---------- */
+  const cloudBtn = node('<button class="btn ghost" id="cloudBtn" style="margin-top:10px;">☁️ Team &amp; tracking</button>');
+  function renderBtn(){ cloudBtn.innerHTML = team.code ? ("☁️ Team: "+esc(team.name)) : "☁️ Team &amp; tracking"; }
+  function placeBtn(){ const set=$("openSettings"); if(set && !$("cloudBtn")) set.insertAdjacentElement("afterend",cloudBtn); }
+  cloudBtn.addEventListener("click",()=>{ renderHub(); hub.classList.remove("hidden"); });
+
+  /* ---------- overlays ---------- */
+  const hub = node('<div class="overlay hidden" id="cHub"><div class="modal" style="max-width:500px;"><div class="eyebrow">Team &amp; Tracking</div><h2 id="cHubTitle">Your Team</h2><div id="cHubBody"></div><button class="btn ghost" id="cHubClose" style="margin-top:14px;">Close</button></div></div>');
+  const dash = node('<div class="overlay hidden" id="cDash"><div class="modal" style="max-width:560px;"><div class="eyebrow">Manager</div><h2 id="cDashTitle">Dashboard</h2><div id="cDashBody"></div><button class="btn ghost" id="cDashClose" style="margin-top:14px;">Close</button></div></div>');
+  document.body.appendChild(hub); document.body.appendChild(dash);
+  $("cHubClose").addEventListener("click",()=>hub.classList.add("hidden"));
+  $("cDashClose").addEventListener("click",()=>dash.classList.add("hidden"));
+
+  /* ---------- hub render ---------- */
+  function renderHub(){
+    const b=$("cHubBody");
+    if(team.code){
+      let al = HH.assignments.length
+        ? HH.assignments.map(a=>'<div class="build-btn" style="cursor:default"><span class="bi">📋</span><span><span class="bt" style="font-size:15px">'+esc(a.title)+'</span><span class="bd">'+esc(a.mode||"Any drill")+(a.due_date?(" · due "+esc(a.due_date)):"")+'</span></span></div>').join("")
+        : '<p style="color:var(--muted);font-size:13px;margin:4px 0 0">No assignments set yet.</p>';
+      b.innerHTML =
+        '<p>Signed in as <b>'+esc(team.player||"—")+'</b> on <b>'+esc(team.name)+'</b> (<span style="font-family:Space Mono">'+esc(team.code)+'</span>).<br>Your drill results are being recorded for this team.</p>'+
+        '<div class="pick-label" style="text-align:left;margin:14px 0 8px">Assignments</div>'+al+
+        '<button class="btn" id="cMgrBtn" style="margin-top:16px">Manager tools</button>'+
+        '<button class="btn ghost" id="cLeaveBtn" style="margin-top:10px">Leave team</button>';
+      $("cMgrBtn").addEventListener("click",openDash);
+      $("cLeaveBtn").addEventListener("click",()=>{ team.code="";team.name="";team.player="";team.pin=""; persist(); HH.buildings=[];HH.assignments=[]; renderBtn(); renderHub(); toastC("Left the team."); });
+    } else {
+      b.innerHTML =
+        '<p>Staff: enter the code your manager shared. Manager: create a team, or sign in to see results.</p>'+
+        '<div class="field"><label>Join with a team code</label><input id="cJoin" placeholder="e.g. 7K2P9A" maxlength="6" autocapitalize="characters"></div>'+
+        '<div class="field"><label>Your name</label><input id="cName" placeholder="e.g. Sam O." maxlength="40"></div>'+
+        '<button class="btn" id="cJoinBtn">Join team</button>'+
+        '<div class="pick-label" style="margin:20px 0 10px">— manager —</div>'+
+        '<div class="field"><label>Team code</label><input id="cMCode" placeholder="Existing code" maxlength="6" autocapitalize="characters"></div>'+
+        '<div class="field"><label>Manager PIN</label><input id="cMPin" type="password" placeholder="Your PIN"></div>'+
+        '<button class="btn ghost" id="cMgrLoginBtn">Manager sign-in</button>'+
+        '<div class="pick-label" style="margin:20px 0 10px">— or create a new team —</div>'+
+        '<div class="field"><label>Team name</label><input id="cNewName" placeholder="e.g. Maple Care Group" maxlength="40"></div>'+
+        '<div class="field"><label>Set a manager PIN (8+ chars)</label><input id="cNewPin" type="password" placeholder="Choose a PIN"></div>'+
+        '<button class="btn ghost" id="cCreateBtn">Create team</button>';
+      $("cJoinBtn").addEventListener("click",doJoin);
+      $("cMgrLoginBtn").addEventListener("click",doManagerLogin);
+      $("cCreateBtn").addEventListener("click",doCreate);
+    }
+  }
+
+  async function doJoin(){
+    const code=($("cJoin").value||"").trim().toUpperCase(); const nm=($("cName").value||"").trim();
+    if(!code){ toastC("Enter a team code"); return; }
+    if(!nm){ toastC("Enter your name"); return; }
+    try{
+      const name=await rpc("hh_team_name",{p_code:code});
+      if(!name){ toastC("No team with that code"); return; }
+      team.code=code; team.name=name; team.player=nm; team.pin=""; persist();
+      await loadSites(); await loadAssignments();
+      const cn=$("certName"); if(cn && !cn.value) cn.value=nm;
+      renderBtn(); renderHub(); toastC("Joined "+name+"!");
+    }catch(e){ toastC(e.message); }
+  }
+  async function doManagerLogin(){
+    const code=($("cMCode").value||"").trim().toUpperCase(); const pin=($("cMPin").value||"").trim();
+    if(!code||!pin){ toastC("Enter code and PIN"); return; }
+    try{
+      const name=await rpc("hh_manager_login",{p_code:code,p_pin:pin});
+      team.code=code; team.name=name||"My Team"; team.pin=pin; if(!team.player)team.player="Manager"; persist();
+      await loadSites(); await loadAssignments();
+      renderBtn(); hub.classList.add("hidden"); openDash(); toastC("Signed in as manager");
+    }catch(e){ toastC(e.message); }
+  }
+  async function doCreate(){
+    const nm=($("cNewName").value||"").trim(); const pin=($("cNewPin").value||"").trim();
+    if(!nm){ toastC("Name your team"); return; }
+    if(pin.length<4){ toastC("PIN must be at least 4 characters"); return; }
+    try{
+      const code=await rpc("hh_create_team",{p_name:nm,p_pin:pin});
+      team.code=code; team.name=nm; team.pin=pin; if(!team.player)team.player="Manager"; persist();
+      await loadSites(); await loadAssignments(); renderBtn();
+      $("cHubBody").innerHTML='<p>Team created. Share this code with your staff so they can join:</p>'+
+        '<div style="font-family:Space Mono;font-weight:700;font-size:34px;letter-spacing:.12em;color:var(--amber);text-align:center;margin:10px 0 6px">'+esc(code)+'</div>'+
+        '<p style="font-size:12px">Keep your PIN safe — it unlocks the manager dashboard.</p>'+
+        '<button class="btn" id="cGoDash" style="margin-top:12px">Open dashboard</button>';
+      $("cGoDash").addEventListener("click",()=>{ hub.classList.add("hidden"); openDash(); });
+    }catch(e){ toastC(e.message); }
+  }
+
+  /* ---------- manager dashboard ---------- */
+  async function openDash(){
+    if(!team.pin){
+      const b=$("cDashBody");
+      b.innerHTML='<p>Enter your manager PIN to view results.</p><div class="field"><label>Manager PIN</label><input id="cDPin" type="password"></div><button class="btn" id="cDPinBtn">Unlock</button>';
+      dash.classList.remove("hidden");
+      $("cDPinBtn").addEventListener("click",async()=>{ const p=($("cDPin").value||"").trim();
+        try{ const name=await rpc("hh_manager_login",{p_code:team.code,p_pin:p}); team.pin=p; team.name=name||team.name; persist(); renderDash(); }
+        catch(e){ toastC(e.message); } });
+      return;
+    }
+    dash.classList.remove("hidden"); renderDash();
+  }
+  async function renderDash(){
+    const b=$("cDashBody"); b.innerHTML='<p style="color:var(--muted)">Loading…</p>';
+    let rows=[];
+    try{ rows=await rpc("hh_dashboard",{p_code:team.code,p_pin:team.pin})||[]; }
+    catch(e){ b.innerHTML='<p style="color:var(--red)">'+esc(e.message)+'</p>'; return; }
+    await loadAssignments(); await loadSites();
+
+    let list = rows.length
+      ? rows.map(r=>{ const d=new Date(r.created_at); const ds=isNaN(d)?"":(d.toLocaleDateString()+" "+d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}));
+          return '<div style="display:flex;justify-content:space-between;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line)"><div style="text-align:left"><div style="font-weight:600;font-size:14px">'+esc(r.player_name)+'</div><div style="font-size:11.5px;color:var(--muted)">'+esc(r.mode)+' · '+esc(r.rating||"")+' · '+esc(r.progress||"")+'</div></div><div style="text-align:right"><div style="font-family:Space Mono;font-weight:700;color:var(--amber)">'+(r.score|0)+'</div><div style="font-size:10px;color:var(--muted)">'+esc(ds)+'</div></div></div>'; }).join("")
+      : '<p style="color:var(--muted);font-size:13px">No results logged yet.</p>';
+
+    let sites = HH.buildings.length
+      ? HH.buildings.map(s=>'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 2px;border-bottom:1px solid var(--line)"><span style="font-size:13px">'+esc(s.icon)+' '+esc(s.name)+'</span><button class="row-del" data-sid="'+esc(s.cloudId)+'">🗑</button></div>').join("")
+      : '<p style="color:var(--muted);font-size:13px">No cloud sites yet. Build one in “Build Your Site”, then Save — it syncs here.</p>';
+
+    b.innerHTML =
+      '<div class="pick-label" style="text-align:left;margin:2px 0 6px">Completions ('+rows.length+')</div>'+
+      '<div style="max-height:230px;overflow:auto;margin-bottom:16px">'+list+'</div>'+
+      '<div class="pick-label" style="text-align:left;margin:2px 0 8px">Set an assignment</div>'+
+      '<div class="field"><input id="cAsgTitle" placeholder="e.g. Complete the Care Home drill this week" maxlength="80"></div>'+
+      '<div class="field" style="display:flex;gap:8px"><select id="cAsgMode" style="flex:1;background:#0d0e13;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:11px 10px;font:500 14px Inter"><option value="">Any drill</option><option>Hazard Hunt</option><option>Extinguisher Match</option><option>Fire Door Check</option></select><input id="cAsgDue" type="date" style="flex:1;background:#0d0e13;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px;font:500 13px Inter"></div>'+
+      '<button class="btn" id="cAsgBtn">Add assignment</button>'+
+      '<div class="pick-label" style="text-align:left;margin:18px 0 6px">Team cloud sites</div>'+sites+
+      '<div style="margin-top:14px;font-size:11px;color:var(--muted);text-align:left">Team code <b style="font-family:Space Mono">'+esc(team.code)+'</b> — share it with staff to join.</div>';
+
+    $("cAsgBtn").addEventListener("click",async()=>{
+      const t=($("cAsgTitle").value||"").trim(); if(!t){ toastC("Enter an assignment"); return; }
+      const md=$("cAsgMode").value||null; const due=$("cAsgDue").value||null;
+      try{ await rpc("hh_create_assignment",{p_code:team.code,p_pin:team.pin,p_title:t,p_mode:md,p_due:due}); toastC("Assignment added"); renderDash(); }
+      catch(e){ toastC(e.message); }
+    });
+    b.querySelectorAll(".row-del[data-sid]").forEach(btn=>btn.addEventListener("click",async()=>{
+      try{ await rpc("hh_delete_site",{p_code:team.code,p_pin:team.pin,p_id:btn.dataset.sid}); await loadSites(); renderDash(); toastC("Site deleted"); }
+      catch(e){ toastC(e.message); }
+    }));
+  }
+
+  /* ---------- init ---------- */
+  placeBtn(); renderBtn(); track("app_open",{});
+  if(team.code){ loadSites(); loadAssignments(); const cn=$("certName"); if(cn&&team.player)cn.value=team.player; }
+})();
+</script>
 </body>
 </html>
