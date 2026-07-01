@@ -272,6 +272,38 @@
   .debrief-row{display:flex;gap:9px;font-size:12.5px;line-height:1.45;margin-bottom:9px;}
   .debrief-row .db-x{color:var(--red);flex-shrink:0;font-weight:700;}
   .debrief-clean{color:var(--green);font-size:13px;font-weight:600;text-align:center;}
+  .menu-label{font:600 10px/1 'Inter';letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:10px 2px 0;}
+  .quiz-opts{display:flex;flex-direction:column;gap:9px;}
+  .quiz-opt{text-align:left;font:500 14px 'Inter';padding:14px 15px;border-radius:12px;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel-2),#15171f);color:var(--text);cursor:pointer;transition:transform .12s,border-color .2s;}
+  .quiz-opt:hover{transform:translateY(-1px);border-color:#3a3f52;}
+  .quiz-opt.right{border-color:var(--green);background:linear-gradient(180deg,rgba(54,211,153,.16),rgba(54,211,153,.03));color:var(--green);}
+  .quiz-opt.wrongpick{border-color:var(--red);background:linear-gradient(180deg,rgba(255,77,77,.14),rgba(255,77,77,.03));animation:shake .4s;}
+  .quiz-opt.dim{opacity:.4;pointer-events:none;}
+  .alarm-panel{border:2px solid var(--line);border-radius:16px;padding:20px;margin-top:6px;background:linear-gradient(180deg,#0c1016,#0a0d12);box-shadow:inset 0 0 30px rgba(0,0,0,.6);}
+  .ap-top{display:flex;align-items:center;gap:11px;margin-bottom:8px;}
+  .ap-dot{width:16px;height:16px;border-radius:50%;background:#444;box-shadow:0 0 12px currentColor;}
+  .led-amber .ap-dot{background:var(--amber);color:var(--amber);}
+  .led-red .ap-dot,.led-red-slow .ap-dot,.led-red-dim .ap-dot{background:var(--red);color:var(--red);}
+  .led-red .ap-dot{animation:blink .7s steps(2) infinite;}
+  .led-red-slow .ap-dot{animation:blink 1.6s steps(2) infinite;}
+  .led-red-dim .ap-dot{opacity:.55;}
+  @keyframes blink{50%{opacity:.2;}}
+  .ap-state{font-family:'Space Mono';font-weight:700;font-size:22px;letter-spacing:.06em;}
+  .led-amber .ap-state{color:var(--amber);} .led-red .ap-state,.led-red-slow .ap-state,.led-red-dim .ap-state{color:var(--red);}
+  .ap-zone{font-family:'Oswald';text-transform:uppercase;letter-spacing:.05em;color:var(--text);font-size:15px;margin-bottom:8px;}
+  .ap-desc{font-size:13px;color:var(--muted);line-height:1.45;}
+  .peep-card{display:flex;align-items:center;gap:16px;border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:6px;background:linear-gradient(180deg,var(--panel-2),#15171f);}
+  .peep-who{font-size:52px;line-height:1;flex-shrink:0;}
+  .peep-need{font-family:'Oswald';font-weight:500;font-size:19px;line-height:1.3;}
+  .sign-ask{text-align:center;font-family:'Oswald';font-weight:500;font-size:22px;line-height:1.3;margin:14px 0;}
+  .sign-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .sign-opt{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 10px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel-2),#15171f);color:var(--text);cursor:pointer;transition:transform .12s,border-color .2s;}
+  .sign-opt:hover{transform:translateY(-2px);border-color:#3a3f52;}
+  .sign-opt .sign-emoji{font-size:40px;}
+  .sign-opt .sign-l{font:500 12px 'Inter';color:var(--muted);}
+  .sign-opt.right{border-color:var(--green);} .sign-opt.right .sign-l{color:var(--green);}
+  .sign-opt.wrongpick{border-color:var(--red);animation:shake .4s;}
+  .sign-opt.dim{opacity:.4;pointer-events:none;}
 </style>
 <div id="app">
 
@@ -301,13 +333,20 @@
     </div>
     <div id="profileStrip" class="profile-strip hidden"></div>
     <div class="menu" id="menu">
+      <div class="menu-label">Today</div>
       <button class="mode-card" data-mode="daily"><span class="mi">📅</span><span><span class="mt">Daily Drill</span><span class="md" id="dailyDesc">Today's challenge — same for everyone</span></span><span class="badge">Daily</span></button>
+      <div class="menu-label">Spot &amp; act</div>
       <button class="mode-card" data-mode="hazard"><span class="mi">🔍</span><span><span class="mt">Hazard Hunt</span><span class="md">Spot the fire hazards, room by room</span></span></button>
       <button class="mode-card" data-mode="ext"><span class="mi">🧯</span><span><span class="mt">Extinguisher Match</span><span class="md">Pick the right one before it spreads</span></span></button>
       <button class="mode-card" data-mode="door"><span class="mi">🚪</span><span><span class="mt">Fire Door Check</span><span class="md">Inspect a door, find every fault</span></span></button>
+      <button class="mode-card" data-mode="sign"><span class="mi">🪧</span><span><span class="mt">Signage &amp; Wayfinding</span><span class="md">Know your fire-safety signs</span></span></button>
+      <div class="menu-label">Know-how</div>
       <button class="mode-card" data-mode="myth"><span class="mi">⚡</span><span><span class="mt">Myth-Buster</span><span class="md">True or false, against the clock</span></span></button>
       <button class="mode-card" data-mode="evac"><span class="mi">🏃</span><span><span class="mt">Evacuation Sequence</span><span class="md">Put the steps in the right order</span></span></button>
-      <button class="mode-card alt" data-mode="builder"><span class="mi">🏗️</span><span><span class="mt">Build Your Site</span><span class="md">Create your own building to drill on</span></span><span class="badge">New</span></button>
+      <button class="mode-card" data-mode="alarm"><span class="mi">🚨</span><span><span class="mt">Alarm Panel</span><span class="md">Fire or fault? Choose the response</span></span><span class="badge">New</span></button>
+      <button class="mode-card" data-mode="peep"><span class="mi">♿</span><span><span class="mt">PEEP Builder</span><span class="md">Match the evacuation plan to the person</span></span><span class="badge">New</span></button>
+      <div class="menu-label">Your sites</div>
+      <button class="mode-card alt" data-mode="builder"><span class="mi">🏗️</span><span><span class="mt">Build Your Site</span><span class="md">Create your own building to drill on</span></span></button>
     </div>
     <button class="btn ghost" id="openSettings">⚙&nbsp; Sound &amp; haptics</button>
   </section>
@@ -398,6 +437,36 @@
     <div class="ext-prompt">Tap the steps in order</div>
     <div class="evac-opts" id="evacOpts"></div>
     <div class="log" id="evacLog"><span class="tag idle" id="evacLogTag">Ready</span><p id="evacLogText">Tap the steps in the correct order.</p></div>
+  </section>
+
+  <!-- ALARM PANEL -->
+  <section class="screen" id="screen-alarm">
+    <div class="ext-head"><div class="n">Panel <b id="alarmNum">1</b>/<b id="alarmTotal">6</b></div><div class="et" id="alarmTimer">12</div></div>
+    <div class="alarm-panel led-amber" id="alarmPanel">
+      <div class="ap-top"><span class="ap-dot"></span><span class="ap-state" id="alarmState">FAULT</span></div>
+      <div class="ap-zone" id="alarmZone">Zone 3</div>
+      <div class="ap-desc" id="alarmDesc">—</div>
+    </div>
+    <div class="ext-prompt">What do you do?</div>
+    <div class="quiz-opts" id="alarmOpts"></div>
+    <div class="log" id="alarmLog"><span class="tag idle" id="alarmLogTag">Ready</span><p id="alarmLogText">Fire or fault?</p></div>
+  </section>
+
+  <!-- PEEP BUILDER -->
+  <section class="screen" id="screen-peep">
+    <div class="ext-head"><div class="n">Person <b id="peepNum">1</b>/<b id="peepTotal">6</b></div><div class="et" id="peepTimer">15</div></div>
+    <div class="peep-card"><div class="peep-who" id="peepWho">♿</div><div class="peep-need" id="peepNeed">—</div></div>
+    <div class="ext-prompt">What's the right plan?</div>
+    <div class="quiz-opts" id="peepOpts"></div>
+    <div class="log" id="peepLog"><span class="tag idle" id="peepLogTag">Ready</span><p id="peepLogText">Match the plan to the person.</p></div>
+  </section>
+
+  <!-- SIGNAGE -->
+  <section class="screen" id="screen-sign">
+    <div class="ext-head"><div class="n">Sign <b id="signNum">1</b>/<b id="signTotal">6</b></div><div class="et" id="signTimer">10</div></div>
+    <div class="sign-ask" id="signAsk">—</div>
+    <div class="sign-grid" id="signOpts"></div>
+    <div class="log" id="signLog"><span class="tag idle" id="signLogTag">Ready</span><p id="signLogText">Pick the correct sign.</p></div>
   </section>
 </div>
 
@@ -600,6 +669,166 @@
         {e:"🧰",n:"Toolbox",h:false, why:"No risk."},
       ]},
     ]},
+    { id:"kitchen", name:"Commercial Kitchen", icon:"🍳", tagline:"Grease, gas and heat — the highest fire-risk workplace there is.", rooms:[
+      { name:"Cooking Line", time:30, items:[
+        {e:"🔥",n:"Unattended pans",h:true, why:"Unattended cooking is the number-one cause of commercial kitchen fires."},
+        {e:"🛢️",n:"Grease on the canopy",h:true, why:"Grease build-up in the extraction canopy and ducting ignites and carries fire through the system."},
+        {e:"🧴",n:"Oil beside the flame",h:true, why:"Cooking oil stored next to an open flame can flash over."},
+        {e:"🔌",n:"Lead across a wet floor",h:true, why:"An electrical lead in a wet area is both a shock and a fire risk."},
+        {e:"🧯",n:"Wet chemical unit",h:false, why:"The correct Class F extinguisher for cooking oil."},
+        {e:"🧣",n:"Fire blanket sited",h:false, why:"Ready for a quick pan-fire response. Good."},
+        {e:"🌬️",n:"Clean extraction on",h:false, why:"Ductwork clear and drawing properly."},
+        {e:"🚪",n:"Clear exit",h:false, why:"Kept clear. Good."},
+      ]},
+      { name:"Fryer Station", time:28, items:[
+        {e:"🍟",n:"Overfilled fryer",h:true, why:"Too much oil can boil over onto the burner."},
+        {e:"🌡️",n:"Faulty thermostat",h:true, why:"With no working cut-out, the oil overheats to its ignition point."},
+        {e:"🧻",n:"Paper by the fryer",h:true, why:"Combustibles right beside hot oil."},
+        {e:"🚬",n:"Smoking on the line",h:true, why:"A naked flame among grease and oil vapour."},
+        {e:"🧯",n:"Wet chemical unit",h:false, why:"Right for the fryer risk. Good."},
+        {e:"🧤",n:"Heat-proof gloves",h:false, why:"Correct PPE, no hazard."},
+        {e:"🧹",n:"Degreased floor",h:false, why:"No grease build-up. Good."},
+        {e:"🚨",n:"Heat detector",h:false, why:"Correct detector type for a kitchen."},
+      ]},
+      { name:"Store & Prep", time:26, items:[
+        {e:"🛢️",n:"LPG cylinder indoors",h:true, why:"Bottled gas needs correct ventilated storage — a leak indoors pools and ignites."},
+        {e:"📦",n:"Boxes at the exit",h:true, why:"Combustible stock blocking the way out."},
+        {e:"🔌",n:"Socket behind the fridge",h:true, why:"Overloaded and hidden where overheating goes unseen."},
+        {e:"🧴",n:"Chemicals by heat",h:true, why:"Flammable cleaning products stored next to a heat source."},
+        {e:"🧯",n:"Extinguisher",h:false, why:"In place. Good."},
+        {e:"🚪",n:"Clear fire exit",h:false, why:"Unobstructed. Good."},
+        {e:"🧊",n:"Walk-in fridge",h:false, why:"No fire risk."},
+        {e:"🧺",n:"Tidy dry store",h:false, why:"Well kept, no hazard."},
+      ]},
+    ]},
+    { id:"school", name:"School", icon:"🏫", tagline:"Lots of people, fixed routines — evacuation has to be flawless.", rooms:[
+      { name:"Classroom", time:30, items:[
+        {e:"🔌",n:"Overloaded smartboard lead",h:true, why:"Too many devices on one extension overheats the wiring."},
+        {e:"🎨",n:"Wall-to-wall display paper",h:true, why:"Excess combustible display material lets flame race across a room."},
+        {e:"🔥",n:"Heater by coats and bags",h:true, why:"A heat source against piled combustibles."},
+        {e:"🚪",n:"Fire door propped with a bin",h:true, why:"Defeats the door that protects the corridor."},
+        {e:"🚨",n:"Smoke detector",h:false, why:"Working early warning."},
+        {e:"🧯",n:"Extinguisher",h:false, why:"In place. Good."},
+        {e:"🪧",n:"Fire action notice",h:false, why:"Clear instructions on the wall. Good."},
+        {e:"🪟",n:"Window",h:false, why:"No hazard."},
+      ]},
+      { name:"Science Lab", time:28, items:[
+        {e:"🔥",n:"Bunsen left burning",h:true, why:"An unattended naked flame in a room full of chemicals."},
+        {e:"🧪",n:"Flammables left out",h:true, why:"Solvents and reagents should be locked away, not on the bench."},
+        {e:"🔧",n:"Gas taps left on",h:true, why:"Open bench gas taps leak into the room."},
+        {e:"🧻",n:"Cluttered benches",h:true, why:"Combustible clutter around ignition sources."},
+        {e:"🧯",n:"Extinguisher & blanket",h:false, why:"Correct kit for the room."},
+        {e:"🥽",n:"Goggles / PPE",h:false, why:"Correct protection, no hazard."},
+        {e:"🚿",n:"Safety station",h:false, why:"Emergency wash on hand. Good."},
+        {e:"🚪",n:"Clear exit",h:false, why:"Unobstructed. Good."},
+      ]},
+      { name:"Corridor & Hall", time:26, items:[
+        {e:"🚪",n:"Wedged fire door",h:true, why:"Lets smoke into the escape route used by hundreds of children."},
+        {e:"📦",n:"PE kit in the route",h:true, why:"Stored equipment obstructing the corridor."},
+        {e:"🪑",n:"Stacked chairs at an exit",h:true, why:"Blocking a fire exit in an assembly space."},
+        {e:"🔗",n:"Chained exit while occupied",h:true, why:"A locked or chained exit during the day is a death trap and unlawful."},
+        {e:"🪧",n:"Lit exit sign",h:false, why:"Visible and correct."},
+        {e:"💡",n:"Emergency light",h:false, why:"Lights the route if power fails."},
+        {e:"🧯",n:"Extinguisher",h:false, why:"In place. Good."},
+        {e:"📢",n:"Call point",h:false, why:"Manual alarm available. Good."},
+      ]},
+    ]},
+    { id:"hmo", name:"HMO / Flats", icon:"🏠", tagline:"Homes stacked together — compartmentation and the stay-put policy are everything.", rooms:[
+      { name:"Flat Entrance", time:30, items:[
+        {e:"🚪",n:"Front door propped open",h:true, why:"The flat's front door is a fire door protecting the escape route — it must self-close."},
+        {e:"🚲",n:"Bike in the shared hall",h:true, why:"Obstruction and fuel in the communal escape route."},
+        {e:"🔋",n:"E-bike charging in the hall",h:true, why:"A lithium battery fire in the only way out traps everyone above."},
+        {e:"🔧",n:"Missing door closer",h:true, why:"Without a self-closer the fire door won't shut behind you."},
+        {e:"🚨",n:"Working smoke alarm",h:false, why:"Early warning inside the flat. Good."},
+        {e:"🪧",n:"Fire action notice",h:false, why:"Tells residents the stay-put / evacuate policy. Good."},
+        {e:"💡",n:"Emergency light",h:false, why:"Lights the shared route. Good."},
+        {e:"🧯",n:"Serviced extinguisher",h:false, why:"Provided and in date."},
+      ]},
+      { name:"Communal Stair", time:28, items:[
+        {e:"🗄️",n:"Items stored on the landing",h:true, why:"Nothing should be stored in a protected stairway — it adds fuel and obstruction."},
+        {e:"🚪",n:"Fire door hooked open",h:true, why:"Defeats the compartmentation protecting the whole block."},
+        {e:"🔥",n:"Exposed combustible cladding",h:true, why:"Combustible external material dramatically speeds vertical fire spread."},
+        {e:"📦",n:"Rubbish dumped in the stair",h:true, why:"Fuel load in the one escape route."},
+        {e:"🪧",n:"'Keep shut' sign intact",h:false, why:"Correct signage on the fire door."},
+        {e:"🚨",n:"Communal detector",h:false, why:"Working alarm. Good."},
+        {e:"💡",n:"Emergency lighting",h:false, why:"Lights the stair if power fails."},
+        {e:"🪜",n:"Clear, open stair",h:false, why:"Unobstructed. Exactly right."},
+      ]},
+      { name:"Bin Store & Plant", time:26, items:[
+        {e:"🗑️",n:"Overflowing bins on the wall",h:true, why:"Bin fires (accidental or arson) spread straight into the structure."},
+        {e:"🔌",n:"Meter cupboard used for storage",h:true, why:"Combustibles inside an electrical intake cupboard."},
+        {e:"🚪",n:"Plant room left open",h:true, why:"Opens a fire in the plant room to the rest of the block."},
+        {e:"🛢️",n:"Stored paint and solvents",h:true, why:"Flammable liquids in a shared building."},
+        {e:"🧯",n:"Extinguisher",h:false, why:"In place. Good."},
+        {e:"🚪",n:"Bin store clear of windows",h:false, why:"Sited away from windows and openings so a bin fire can't spread inside — good practice."},
+        {e:"🚨",n:"Detector",h:false, why:"Working alarm. Good."},
+        {e:"🔒",n:"Locked plant room",h:false, why:"Secured against interference. Good."},
+      ]},
+    ]},
+    { id:"warehouse", name:"Warehouse", icon:"🏭", tagline:"High racking and big fuel loads — fire goes vertical fast.", rooms:[
+      { name:"Racking Aisle", time:30, items:[
+        {e:"📦",n:"Stock above the sprinklers",h:true, why:"Stacked over the heads, sprinklers can't wet the seat of the fire."},
+        {e:"🚪",n:"Exit blocked by pallets",h:true, why:"Stored goods across the fire exit."},
+        {e:"🔥",n:"Shrink-wrap gun by stock",h:true, why:"A heat tool left next to combustible packaging."},
+        {e:"🚬",n:"Smoking in the aisle",h:true, why:"Ignition source among a huge fuel load."},
+        {e:"💦",n:"Clear sprinkler zone",h:false, why:"Heads unobstructed. Good."},
+        {e:"🧯",n:"Extinguisher point",h:false, why:"In place. Good."},
+        {e:"🪧",n:"Clear aisle marking",h:false, why:"Route kept clear. Good."},
+        {e:"🚨",n:"Detector",h:false, why:"Working alarm. Good."},
+      ]},
+      { name:"Loading Bay", time:28, items:[
+        {e:"🚛",n:"Vehicle idling indoors",h:true, why:"Exhaust fumes and an ignition source running inside."},
+        {e:"🛢️",n:"Loose forklift fuel / LPG",h:true, why:"Fuel and gas stored unsecured by the bay."},
+        {e:"🔌",n:"Trailing charge leads",h:true, why:"Damaged or trailing leads across the floor."},
+        {e:"📦",n:"Packaging pile",h:true, why:"Combustible waste building up."},
+        {e:"🧯",n:"Extinguisher",h:false, why:"In place. Good."},
+        {e:"🚪",n:"Clear roller-door exit",h:false, why:"Kept clear. Good."},
+        {e:"🦺",n:"PPE",h:false, why:"Correct kit, no hazard."},
+        {e:"🪧",n:"Signage",h:false, why:"Correctly marked. Good."},
+      ]},
+      { name:"Charging Area", time:26, items:[
+        {e:"🔋",n:"Battery charging, no vent",h:true, why:"Charging traction batteries give off hydrogen — it needs ventilation."},
+        {e:"🔌",n:"Damaged charger lead",h:true, why:"A damaged lead can arc and ignite."},
+        {e:"🧴",n:"Flammables by the chargers",h:true, why:"Flammable liquids beside an ignition source."},
+        {e:"🚪",n:"Fire door wedged",h:true, why:"Opens the charge area to the rest of the building."},
+        {e:"🌬️",n:"Ventilated charge bay",h:false, why:"Correctly ventilated. Good."},
+        {e:"🧯",n:"CO₂ extinguisher",h:false, why:"Right type for electrical risk."},
+        {e:"🚨",n:"Detector",h:false, why:"Working alarm. Good."},
+        {e:"🧹",n:"Clear floor",h:false, why:"Kept tidy. Good."},
+      ]},
+    ]},
+    { id:"hospital", name:"Hospital", icon:"🏥", tagline:"Beds that can't move themselves and oxygen everywhere — progressive evacuation.", rooms:[
+      { name:"Ward", time:30, items:[
+        {e:"💨",n:"Oxygen by a heat source",h:true, why:"An oxygen-enriched atmosphere makes any fire burn ferociously."},
+        {e:"🔌",n:"Overloaded bedside sockets",h:true, why:"Lots of equipment crammed onto limited sockets."},
+        {e:"🚪",n:"Fire door held open",h:true, why:"Compartmentation is what protects bed-bound patients."},
+        {e:"🧴",n:"Alcohol gel by ignition",h:true, why:"Alcohol hand gel is flammable near a spark or flame."},
+        {e:"🚨",n:"Detector",h:false, why:"Working alarm. Good."},
+        {e:"🧯",n:"Extinguisher",h:false, why:"In place. Good."},
+        {e:"📋",n:"Ward evacuation plan",h:false, why:"Progressive-evacuation plan on display. Good."},
+        {e:"🛏️",n:"Bed with brakes on",h:false, why:"Ready to move if needed. Good."},
+      ]},
+      { name:"Store & Utility", time:28, items:[
+        {e:"📦",n:"Corridor store in the route",h:true, why:"Stored items obstructing an escape corridor."},
+        {e:"🧺",n:"Linen by a heat source",h:true, why:"Piled combustible linen against something hot."},
+        {e:"🔌",n:"Overloaded socket",h:true, why:"Too much drawn from one point."},
+        {e:"🛢️",n:"Unsecured gas cylinders",h:true, why:"Medical gas cylinders that can topple and shear a valve."},
+        {e:"🧯",n:"Extinguisher",h:false, why:"In place. Good."},
+        {e:"🚪",n:"Clear exit",h:false, why:"Unobstructed. Good."},
+        {e:"🧷",n:"Tidy store",h:false, why:"Well kept, no hazard."},
+        {e:"🚨",n:"Detector",h:false, why:"Working alarm. Good."},
+      ]},
+      { name:"Theatre & Plant", time:26, items:[
+        {e:"💨",n:"Medical gas leak risk",h:true, why:"Leaking oxygen or anaesthetic gas in an enclosed space."},
+        {e:"⚡",n:"Diathermy by alcohol prep",h:true, why:"An electrosurgical spark next to flammable skin prep."},
+        {e:"🚪",n:"Propped fire door",h:true, why:"Opens the theatre suite to spread."},
+        {e:"🧴",n:"Open flammable prep",h:true, why:"Flammable liquids left uncapped."},
+        {e:"🧯",n:"Correct extinguisher",h:false, why:"Right type present. Good."},
+        {e:"🌬️",n:"Gas scavenging on",h:false, why:"Extracts stray gases. Good."},
+        {e:"🚨",n:"Detector",h:false, why:"Working alarm. Good."},
+        {e:"🦺",n:"PPE",h:false, why:"Correct kit, no hazard."},
+      ]},
+    ]},
   ];
 
   const EXT = {
@@ -668,7 +897,34 @@
     { title:"Office — you smell smoke", steps:["Raise the alarm","Alert people nearby","Leave by the nearest exit","Do not use the lift","Call 999 from outside","Go to the assembly point"] },
     { title:"Care home — night alarm sounds", steps:["Check the fire panel / zone","Move residents past the next fire door","Close doors behind you","Call 999","Account for everyone at the refuge"] },
     { title:"Kitchen — a pan catches fire", steps:["Turn off the heat if safe","Cover it with a fire blanket","Leave it to cool, don't move it","Leave and close the door","Raise the alarm and call 999"] },
+    { title:"Post-incident — everyone's out", steps:["Go to the assembly point","Answer the roll call","Report anyone unaccounted for","Do not re-enter for any reason","Brief the fire service on arrival"] },
+    { title:"Hospital ward — fire in a bay", steps:["Raise the alarm","Move patients past the next fire door","Close the door on the fire","Continue horizontal evacuation","Report to the fire service"] },
   ];
+  const ALARM = [
+    {state:"FAULT", zone:"Zone 3 — detector", led:"amber", desc:"Steady amber fault light, intermittent beep. No alarm sounding.", opts:["Evacuate the building","Log it and call the engineer","Silence it and ignore it","Call 999"], correct:1, why:"An amber fault means the system needs attention, not evacuation. Log it and get it fixed — a fault can mean part of the system won't detect a real fire."},
+    {state:"FIRE", zone:"Zone 2 — Kitchen", led:"red", desc:"Red zone light and the full alarm is sounding.", opts:["Silence and reset","Investigate slowly, no rush","Evacuate now and call 999","Wait for it to stop"], correct:2, why:"A confirmed zone in alarm means evacuate by policy and call 999. Never silence or delay a sounding alarm."},
+    {state:"PRE-ALARM", zone:"Zone 1 — one detector", led:"red-slow", desc:"A single detector has triggered; the staff-investigation timer is running.", opts:["Ignore it until it escalates","Send a trained person to check the zone","Silence it permanently","Evacuate the whole site at once"], correct:1, why:"In a staff-alarm setup, one detector starts an investigation window — check the zone fast and confirm or reset before it escalates to full evacuation."},
+    {state:"POWER FAULT", zone:"Mains / battery", led:"amber", desc:"Amber power fault — the panel is running on backup battery.", opts:["Nothing, it fixes itself","Report it — the system may fail without power","Evacuate now","Disconnect the panel"], correct:1, why:"A power fault means the system may not work when you need it. Report it urgently — but it isn't a fire, so don't evacuate."},
+    {state:"GENERAL ALARM", zone:"All zones", led:"red", desc:"A continuous alarm is sounding across the whole building.", opts:["Finish your task first","Evacuate now by the nearest exit","Go and look for the fire yourself","Silence the panel"], correct:1, why:"A general alarm means get out now by the nearest safe exit and go to the assembly point."},
+    {state:"SILENCED", zone:"Zone 4", led:"red-dim", desc:"Someone has silenced the sounders, but the zone is still in alarm.", opts:["Assume it's been dealt with","Confirm the cause before resetting","Reset it straight away","Go home"], correct:1, why:"Silencing stops the noise, not the event. Never reset until you've confirmed there is no fire."},
+  ];
+  const PEEP = [
+    {who:"♿", need:"Wheelchair user — 3rd-floor office", opts:["Use the passenger lift","Move to a refuge and use an evac chair with trained staff","Tell them to wait at their desk","Carry them down the stairs alone"], correct:1, why:"An upper-floor wheelchair user goes to a protected refuge and is evacuated with an evac chair by trained staff — never a normal lift."},
+    {who:"🦻", need:"Deaf / hard of hearing", opts:["Rely on the sounder","Give a vibrating pager or visual beacon alarm","Just shout louder","No plan needed"], correct:1, why:"They may not hear the alarm — provide a vibrating pager or a flashing visual alarm."},
+    {who:"🧠", need:"Resident living with dementia", opts:["Expect them to self-evacuate","Assign a staff buddy to guide and reassure","Lock them in for safety","Leave a note"], correct:1, why:"Assign a named staff member to guide and reassure with calm, familiar direction."},
+    {who:"🧑‍🦯", need:"Person with a visual impairment", opts:["Point towards the exit","Give a guiding arm and describe the route","Leave them to follow others","Just switch on more lights"], correct:1, why:"Offer a guiding arm and describe the route and any obstacles as you go."},
+    {who:"🛌", need:"Bariatric patient — limited mobility", opts:["A standard evac chair","A planned route with rated equipment and enough trained helpers","Ask them to hurry","Use the lift alone"], correct:1, why:"Needs a pre-planned route, correctly rated equipment and enough trained staff — improvising is unsafe."},
+    {who:"🤰", need:"Late-pregnancy staff — upper floor", opts:["No adjustment needed","A buddy and a manageable route at a sensible pace","Insist on speed","Use the lift during the fire"], correct:1, why:"A personal plan with a buddy and a sensible route and pace; never the lift during a fire."},
+  ];
+  const SIGN = [
+    {ask:"Which sign marks the way OUT?", opts:[{e:"🏃",l:"Fire exit"},{e:"🅿️",l:"Parking"},{e:"🚻",l:"Toilets"},{e:"⛔",l:"No entry"}], correct:0, why:"The green running-person 'fire exit' sign shows the escape route. Green means safe / go this way."},
+    {ask:"Where do people gather after evacuating?", opts:[{e:"🧍",l:"Assembly point"},{e:"🚭",l:"No smoking"},{e:"🧯",l:"Extinguisher"},{e:"🚪",l:"Keep shut"}], correct:0, why:"The green assembly-point sign marks where everyone gathers for the roll call."},
+    {ask:"Which sign means a door must stay closed?", opts:[{e:"🚪",l:"Fire door keep shut"},{e:"🏃",l:"Fire exit"},{e:"📢",l:"Call point"},{e:"♿",l:"Refuge"}], correct:0, why:"The blue mandatory 'Fire door keep shut' sign — the door is part of the building's compartmentation."},
+    {ask:"What do you press to raise the alarm?", opts:[{e:"📢",l:"Call point"},{e:"🧯",l:"Extinguisher"},{e:"💡",l:"Emergency light"},{e:"🅿️",l:"Parking"}], correct:0, why:"The red break-glass call point raises the alarm manually."},
+    {ask:"Which extinguisher band means CO₂?", opts:[{e:"⬛",l:"Black"},{e:"🟥",l:"Red"},{e:"🟦",l:"Blue"},{e:"🟨",l:"Yellow"}], correct:0, why:"A black band means CO₂ — for electrical and flammable-liquid fires. Red body, black label."},
+    {ask:"Which sign marks a place to wait for rescue?", opts:[{e:"♿",l:"Refuge point"},{e:"🚻",l:"Toilets"},{e:"🏃",l:"Fire exit"},{e:"🚭",l:"No smoking"}], correct:0, why:"A refuge is a protected spot where someone who can't use the stairs waits for assisted evacuation."},
+  ];
+
   const RANKS = [
     {min:0,name:"Trainee"},{min:300,name:"Fire Warden"},{min:900,name:"Competent Person"},
     {min:2000,name:"Fire Marshal"},{min:4000,name:"Station Officer"},{min:7000,name:"Fire Chief"},
@@ -1031,6 +1287,56 @@
   }
   function nextEvac(){ ev.i++; if(ev.i>=ev.order.length){ endGame({modeLabel:"Evacuation Sequence",won:true,title:"Evacuation nailed",progLabel:"Drills",progValue:ev.order.length+"/"+ev.order.length}); return; } loadEvac(); }
 
+  /* ---------------- GENERIC QUIZ ENGINE (Alarm / PEEP / Signage) ---------------- */
+  const quiz = { list:[], i:0, answered:false, cfg:null };
+  function startQuiz(cfg){
+    run.mode=cfg.mode; run.score=0; run.lives=3; run.combo=0; run.bestCombo=1;
+    quiz.cfg=cfg; quiz.list=shuffle(cfg.data.slice()); quiz.i=0;
+    renderLives(); updateHUD(); showScreen(cfg.screen, true);
+    $(cfg.totalId).textContent=quiz.list.length; loadQuiz();
+  }
+  function loadQuiz(){
+    const cfg=quiz.cfg, item=quiz.list[quiz.i]; quiz.answered=false; run.locked=false; run.time=cfg.time;
+    $(cfg.numId).textContent=quiz.i+1;
+    if(cfg.timerId){ $(cfg.timerId).textContent=run.time; $(cfg.timerId).classList.remove("low"); }
+    cfg.renderPrompt(item);
+    const wrap=$(cfg.optsId); wrap.innerHTML="";
+    shuffle(cfg.getOptions(item)).forEach(o=>{
+      const b=document.createElement("button"); b.className=cfg.optClass; b.type="button"; b.innerHTML=o.html; b._correct=o.correct;
+      b.addEventListener("click",()=>answerQuiz(b,o,item)); wrap.appendChild(b);
+    });
+    setLog(cfg.logTag,cfg.logText,"idle",null,cfg.hint);
+    stopTimer();
+    if(cfg.timerId){ run.timerId=setInterval(()=>{ run.time--; $(cfg.timerId).textContent=run.time; $(cfg.timerId).classList.toggle("low",run.time<=3);
+      if(run.time<=0){ stopTimer(); if(!quiz.answered) answerQuiz(null,null,quiz.list[quiz.i]); } },1000); }
+  }
+  function answerQuiz(btn,opt,item){
+    if(quiz.answered||run.locked)return; quiz.answered=true; stopTimer(); const cfg=quiz.cfg;
+    if(opt && opt.correct){
+      const bonus=run.time*(cfg.speedBonus||8); const pts=award()+bonus; run.score+=bonus; updateHUD();
+      if(btn)btn.classList.add("right"); setLog(cfg.logTag,cfg.logText,"haz","Correct",item.why+" (+"+pts+")");
+    } else {
+      penalise(); noteMistake(cfg.mistakeLabel(item), item.why, cfg.mode);
+      Array.prototype.forEach.call($(cfg.optsId).children,c=>{ if(c._correct)c.classList.add("right"); });
+      if(btn)btn.classList.add("wrongpick");
+      setLog(cfg.logTag,cfg.logText,"ok", opt?"Not quite":"Too slow", item.why);
+      if(run.lives<=0){ setTimeout(()=>endGame({modeLabel:cfg.modeLabel,won:false,title:"Cut short",reason:"You ran out of lives.",progLabel:cfg.progLabel,progValue:quiz.i+"/"+quiz.list.length}),1100); return; }
+    }
+    Array.prototype.forEach.call($(cfg.optsId).children,c=>{ if(!c.classList.contains("right")&&!c.classList.contains("wrongpick"))c.classList.add("dim"); });
+    setTimeout(nextQuiz,1600);
+  }
+  function nextQuiz(){ const cfg=quiz.cfg; quiz.i++; if(quiz.i>=quiz.list.length){ endGame({modeLabel:cfg.modeLabel,won:true,title:cfg.winTitle,progLabel:cfg.progLabel,progValue:quiz.list.length+"/"+quiz.list.length}); return; } loadQuiz(); }
+
+  function startAlarm(){ startQuiz({ mode:"alarm", modeLabel:"Alarm Panel", screen:"alarm", numId:"alarmNum", totalId:"alarmTotal", timerId:"alarmTimer", optsId:"alarmOpts", optClass:"quiz-opt", logTag:"alarmLogTag", logText:"alarmLogText", hint:"Fire or fault? Choose the right response.", progLabel:"Panels", winTitle:"Panels handled", time:12, speedBonus:8, data:ALARM,
+    renderPrompt:(it)=>{ $("alarmPanel").className="alarm-panel led-"+it.led; $("alarmState").textContent=it.state; $("alarmZone").textContent=it.zone; $("alarmDesc").textContent=it.desc; },
+    getOptions:(it)=>it.opts.map((t,idx)=>({html:t,correct:idx===it.correct})), mistakeLabel:(it)=>"Alarm: "+it.state }); }
+  function startPeep(){ startQuiz({ mode:"peep", modeLabel:"PEEP Builder", screen:"peep", numId:"peepNum", totalId:"peepTotal", timerId:"peepTimer", optsId:"peepOpts", optClass:"quiz-opt", logTag:"peepLogTag", logText:"peepLogText", hint:"Match the evacuation plan to the person.", progLabel:"People", winTitle:"Plans matched", time:15, speedBonus:6, data:PEEP,
+    renderPrompt:(it)=>{ $("peepWho").textContent=it.who; $("peepNeed").textContent=it.need; },
+    getOptions:(it)=>it.opts.map((t,idx)=>({html:t,correct:idx===it.correct})), mistakeLabel:(it)=>"PEEP: "+it.need }); }
+  function startSign(){ startQuiz({ mode:"sign", modeLabel:"Signage", screen:"sign", numId:"signNum", totalId:"signTotal", timerId:"signTimer", optsId:"signOpts", optClass:"sign-opt", logTag:"signLogTag", logText:"signLogText", hint:"Pick the correct fire-safety sign.", progLabel:"Signs", winTitle:"Signs aced", time:10, speedBonus:8, data:SIGN,
+    renderPrompt:(it)=>{ $("signAsk").textContent=it.ask; },
+    getOptions:(it)=>it.opts.map((o,idx)=>({html:'<span class="sign-emoji">'+o.e+'</span><span class="sign-l">'+o.l+'</span>',correct:idx===it.correct})), mistakeLabel:(it)=>"Sign: "+it.ask }); }
+
   /* ---------------- CUSTOM SITE BUILDER ---------------- */
   const ICONS=["🏥","🏢","🔧","🏠","🏬","🏭","🏫","⛪","🏨","🚧"];
   let builderState = { icon:"🏠", rooms:[] };
@@ -1221,6 +1527,9 @@
       else if(m==="door") startDoor();
       else if(m==="myth") startMyth();
       else if(m==="evac") startEvac();
+      else if(m==="alarm") startAlarm();
+      else if(m==="peep") startPeep();
+      else if(m==="sign") startSign();
       else if(m==="builder"){ renderBuilder(); showScreen("builder", false); }
     });
   });
