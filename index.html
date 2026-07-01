@@ -307,6 +307,10 @@
   .cstat{display:inline-block;font:600 11px/1 'Inter';letter-spacing:.02em;border:1px solid var(--muted);color:var(--muted);border-radius:20px;padding:6px 11px;margin:0 0 4px;}
   .sp-head{margin:8px 0 8px;}
   .sp-head h2{font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:22px;margin:0 0 6px;}
+  .sp-levels{display:flex;gap:6px;margin:0 0 6px;}
+  .sp-lvl{font:600 12px/1 'Inter';color:var(--muted);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:6px 12px;cursor:pointer;transition:.15s;}
+  .sp-lvl.on{color:var(--bg);background:var(--ember);border-color:var(--ember);}
+  .sp-sub{font:600 12px/1 'Inter';color:var(--amber);letter-spacing:.04em;text-transform:uppercase;margin:0 0 8px;}
   .sp-stats{display:flex;gap:16px;font-size:13px;color:var(--muted);}
   .sp-stats b{color:var(--text);font-family:'Space Mono';}
   .sp-wrap{display:flex;justify-content:center;margin:6px 0;}
@@ -496,6 +500,8 @@
   <section class="screen" id="screen-spread">
     <div class="sp-head">
       <h2>Fire Spread</h2>
+      <div class="sp-levels" id="spLevels"></div>
+      <div class="sp-sub" id="spLevelName">Office Floor</div>
       <div class="sp-stats"><span>🏃 <b id="spSaved">0</b>/<b id="spTotal">0</b> out</span><span>💀 <b id="spCas">0</b></span><span>🧯 <b id="spCharges">2</b></span></div>
     </div>
     <div class="sp-wrap"><div class="sp-stage" id="spStage"></div></div>
@@ -1389,24 +1395,51 @@
         {a:"p1",b:"p2",type:"fire"},{a:"p2",b:"p3",type:"fire"},
         {a:"p1",b:"sA",type:"fire"},{a:"p2",b:"sB",type:"fire"},{a:"p3",b:"sC",type:"fire"},
         {a:"p1",b:"sD",type:"fire"},{a:"p3",b:"sE",type:"fire"},
+      ] },
+    { name:"Care Wing", cols:4, rows:3, cell:80,
+      rooms:[
+        {id:"exit",name:"Stairwell",x:0,y:1,fuel:0,exit:true},
+        {id:"j",name:"Landing",x:1,y:1,fuel:0.7},
+        {id:"t1",name:"Bay 1",x:1,y:0,fuel:1.1,people:1},
+        {id:"t2",name:"Bay 2",x:2,y:0,fuel:1.1,people:1},
+        {id:"t3",name:"Store",x:3,y:0,fuel:1.5},
+        {id:"e",name:"Kitchen",x:3,y:1,fuel:1.6,origin:true},
+        {id:"b3",name:"Bay 3",x:3,y:2,fuel:1.1,people:1},
+        {id:"b2",name:"Bay 4",x:2,y:2,fuel:1.1,people:1},
+        {id:"b1",name:"Lounge",x:1,y:2,fuel:1.0},
+      ],
+      doors:[
+        {a:"exit",b:"j",type:"open"},
+        {a:"j",b:"t1",type:"fire"},{a:"t1",b:"t2",type:"fire"},{a:"t2",b:"t3",type:"fire"},{a:"t3",b:"e",type:"fire"},
+        {a:"e",b:"b3",type:"fire"},{a:"b3",b:"b2",type:"fire"},{a:"b2",b:"b1",type:"fire"},{a:"b1",b:"j",type:"fire"},
       ] }
   ];
   const SP_SMOKE=35, SP_FIRE=100, SP_SPREAD=30, SP_MAXTICK=70, SP_CHARGES=2;
   const sp = { lvl:null, rooms:{}, doors:[], saved:0, casualties:0, total:0, tick:0, charges:SP_CHARGES, over:false };
 
-  function startSpread(){
+  function renderSpreadPicker(active){
+    const box=$("spLevels"); if(!box)return; box.innerHTML="";
+    SPREAD_LEVELS.forEach((L,i)=>{ const b=document.createElement("button"); b.type="button";
+      b.className="sp-lvl"+(i===active?" on":""); b.textContent="Floor "+(i+1);
+      b.addEventListener("click",()=>{ if(i!==sp.idx||sp.over) startSpread(i); }); box.appendChild(b); });
+  }
+  function startSpread(idx){
+    idx = idx||0; sp.idx = idx;
     run.mode="spread"; run.score=0; run.combo=0; run.bestCombo=1; run.mistakes=[]; run.locked=false;
-    const L=SPREAD_LEVELS[0]; sp.lvl=L; sp.rooms={}; sp.doors=[]; sp.saved=0; sp.casualties=0; sp.tick=0; sp.charges=SP_CHARGES; sp.over=false;
+    const L=SPREAD_LEVELS[idx]; sp.lvl=L; sp.rooms={}; sp.doors=[]; sp.saved=0; sp.casualties=0; sp.tick=0; sp.charges=SP_CHARGES; sp.over=false;
     let total=0;
     L.rooms.forEach(r=>{ sp.rooms[r.id]={ id:r.id,name:r.name,x:r.x,y:r.y,fuel:r.fuel,exit:!!r.exit,origin:!!r.origin,
       people:r.people||0, evac:false, heat:r.origin?120:0, state:r.origin?"fire":"ok", burn:0 }; total+=(r.people||0); });
     sp.total=total;
     L.doors.forEach((d,i)=>sp.doors.push({ id:i, a:d.a, b:d.b, type:d.type, open:true }));
     showScreen("spread", false);
+    const nm=$("spLevelName"); if(nm) nm.textContent=L.name;
+    renderSpreadPicker(idx);
     buildSpreadDOM(); updateSpread();
-    setLog("spLogTag","spLogText","haz","Fire in the "+sp.rooms.sC.name,"Get people out (tap a room), close the door on the fire, knock down anything small.");
+    setLog("spLogTag","spLogText","haz","Fire in the "+originName(),"Get people out (tap a room), close the door(s) on the fire, knock down anything small.");
     stopTimer(); run.timerId=setInterval(spreadTick, 1000);
   }
+  function originName(){ const o=Object.values(sp.rooms).find(r=>r.origin); return o?o.name:"building"; }
   function buildSpreadDOM(){
     const L=sp.lvl, cell=L.cell, stage=$("spStage");
     stage.innerHTML=""; stage.style.width=(L.cols*cell)+"px"; stage.style.height=(L.rows*cell)+"px";
