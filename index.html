@@ -238,6 +238,41 @@
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;}}
   @media (max-width:380px){.grid{grid-template-columns:repeat(auto-fill,minmax(92px,1fr));}.card .emoji{font-size:30px;}.ext-grid{gap:7px;}}
 </style>
+<style>
+  .profile-strip{background:linear-gradient(180deg,var(--panel-2),#15171f);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:16px;}
+  .ps-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .ps-rank{font-family:'Oswald';font-weight:600;text-transform:uppercase;letter-spacing:.03em;color:var(--amber);font-size:16px;}
+  .ps-xp{font-family:'Space Mono';font-weight:700;font-size:13px;color:var(--muted);}
+  .ps-bar{height:7px;border-radius:6px;background:#0c0d12;border:1px solid var(--line);overflow:hidden;}
+  .ps-fill{height:100%;background:linear-gradient(90deg,var(--ember),var(--amber));border-radius:6px;}
+  .ps-meta{display:flex;justify-content:space-between;gap:10px;font-size:11.5px;color:var(--muted);margin-top:7px;}
+  .ps-trouble{margin-top:7px;font-size:11.5px;color:var(--ember);border-top:1px solid var(--line);padding-top:7px;}
+  .myth-card{border:1px solid var(--line);border-radius:18px;padding:30px 22px;text-align:center;min-height:150px;display:flex;align-items:center;justify-content:center;margin-top:6px;background:radial-gradient(120% 100% at 50% 0%, rgba(255,176,46,.12), transparent 60%),linear-gradient(180deg,var(--panel-2),#15171f);}
+  .myth-claim{font-family:'Oswald';font-weight:500;font-size:23px;line-height:1.32;}
+  .myth-btns{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:16px;}
+  .myth-btn{font-family:'Oswald';font-weight:600;text-transform:uppercase;letter-spacing:.04em;font-size:21px;padding:22px 10px;border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel-2),#15171f);color:var(--text);cursor:pointer;transition:transform .12s,border-color .2s;}
+  .myth-btn:hover{transform:translateY(-2px);}
+  #mythTrue{border-color:rgba(54,211,153,.35);} #mythFalse{border-color:rgba(255,77,77,.35);}
+  .myth-btn.right{border-color:var(--green);background:linear-gradient(180deg,rgba(54,211,153,.18),rgba(54,211,153,.04));color:var(--green);}
+  .myth-btn.wrongpick{border-color:var(--red);background:linear-gradient(180deg,rgba(255,77,77,.16),rgba(255,77,77,.03));color:var(--red);animation:shake .4s;}
+  .evac-slots{display:flex;flex-direction:column;gap:7px;margin-top:6px;}
+  .evac-slot{display:flex;align-items:center;gap:11px;border:1px dashed var(--line);border-radius:11px;padding:11px 13px;min-height:44px;color:var(--muted);}
+  .evac-slot.filled{border-style:solid;border-color:var(--green);background:rgba(54,211,153,.06);color:var(--text);}
+  .es-n{font-family:'Space Mono';font-weight:700;color:var(--amber);width:18px;flex-shrink:0;}
+  .es-t{font-size:13.5px;line-height:1.3;}
+  .evac-opts{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+  .evac-opt{text-align:left;font:500 14px 'Inter';padding:13px 14px;border-radius:11px;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel-2),#15171f);color:var(--text);cursor:pointer;transition:transform .12s,border-color .2s;position:relative;}
+  .evac-opt:hover{transform:translateY(-1px);border-color:#3a3f52;}
+  .evac-opt.used{opacity:.4;pointer-events:none;border-color:var(--green);}
+  .evac-opt.wrongpick{border-color:var(--red);animation:shake .4s;}
+  .end-progress{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin:2px 0 14px;font-size:12.5px;color:var(--muted);}
+  .end-progress .nb{color:var(--amber);font-weight:700;width:100%;}
+  .debrief{text-align:left;border-top:1px solid var(--line);padding-top:14px;margin-bottom:6px;}
+  .debrief-h{font:600 10px/1 'Inter';letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .debrief-row{display:flex;gap:9px;font-size:12.5px;line-height:1.45;margin-bottom:9px;}
+  .debrief-row .db-x{color:var(--red);flex-shrink:0;font-weight:700;}
+  .debrief-clean{color:var(--green);font-size:13px;font-weight:600;text-align:center;}
+</style>
 <div id="app">
 
   <div class="topbar hidden" id="topbar">
@@ -264,11 +299,14 @@
       <h1>Hazard<br>Hunt</h1>
       <p>Pick a drill. Learn by doing, not by slides.</p>
     </div>
+    <div id="profileStrip" class="profile-strip hidden"></div>
     <div class="menu" id="menu">
       <button class="mode-card" data-mode="daily"><span class="mi">📅</span><span><span class="mt">Daily Drill</span><span class="md" id="dailyDesc">Today's challenge — same for everyone</span></span><span class="badge">Daily</span></button>
       <button class="mode-card" data-mode="hazard"><span class="mi">🔍</span><span><span class="mt">Hazard Hunt</span><span class="md">Spot the fire hazards, room by room</span></span></button>
       <button class="mode-card" data-mode="ext"><span class="mi">🧯</span><span><span class="mt">Extinguisher Match</span><span class="md">Pick the right one before it spreads</span></span></button>
       <button class="mode-card" data-mode="door"><span class="mi">🚪</span><span><span class="mt">Fire Door Check</span><span class="md">Inspect a door, find every fault</span></span></button>
+      <button class="mode-card" data-mode="myth"><span class="mi">⚡</span><span><span class="mt">Myth-Buster</span><span class="md">True or false, against the clock</span></span></button>
+      <button class="mode-card" data-mode="evac"><span class="mi">🏃</span><span><span class="mt">Evacuation Sequence</span><span class="md">Put the steps in the right order</span></span></button>
       <button class="mode-card alt" data-mode="builder"><span class="mi">🏗️</span><span><span class="mt">Build Your Site</span><span class="md">Create your own building to drill on</span></span><span class="badge">New</span></button>
     </div>
     <button class="btn ghost" id="openSettings">⚙&nbsp; Sound &amp; haptics</button>
@@ -335,6 +373,32 @@
       <button class="btn" id="saveBldBtn">Save building</button>
     </div>
   </section>
+
+  <!-- MYTH-BUSTER -->
+  <section class="screen" id="screen-myth">
+    <div class="ext-head">
+      <div class="n">Myth <b id="mythNum">1</b>/<b id="mythTotal">8</b></div>
+      <div class="et" id="mythTimer">7</div>
+    </div>
+    <div class="myth-card"><div class="myth-claim" id="mythClaim">—</div></div>
+    <div class="myth-btns">
+      <button class="myth-btn" id="mythTrue">✓ True</button>
+      <button class="myth-btn" id="mythFalse">✕ False</button>
+    </div>
+    <div class="log" id="mythLog"><span class="tag idle" id="mythLogTag">Ready</span><p id="mythLogText">True or false?</p></div>
+  </section>
+
+  <!-- EVACUATION SEQUENCE -->
+  <section class="screen" id="screen-evac">
+    <div class="door-head">
+      <h2>Evacuation Sequence</h2>
+      <p>Drill <b id="evacNum">1</b>/<b id="evacTotal">3</b> · <span id="evacTitle">—</span></p>
+    </div>
+    <div class="evac-slots" id="evacSlots"></div>
+    <div class="ext-prompt">Tap the steps in order</div>
+    <div class="evac-opts" id="evacOpts"></div>
+    <div class="log" id="evacLog"><span class="tag idle" id="evacLogTag">Ready</span><p id="evacLogText">Tap the steps in the correct order.</p></div>
+  </section>
 </div>
 
 <!-- Building picker -->
@@ -373,6 +437,8 @@
       <div class="stat"><span class="n" id="endProg">0</span><span class="l" id="endProgL">Rooms</span></div>
       <div class="stat"><span class="n" id="endBest">×1</span><span class="l">Best combo</span></div>
     </div>
+    <div id="endProgress" class="end-progress"></div>
+    <div id="endDebrief" class="debrief"></div>
     <div class="cert-box">
       <input id="certName" placeholder="Your name for the certificate" maxlength="40">
       <button class="btn" id="shareBtn" style="margin-bottom:10px;">📲 Share my score</button>
@@ -584,6 +650,32 @@
     {x:7, y:48, fault:false, n:"Three rated hinges", why:"Three correctly-fitted fire-rated hinges. Good."},
   ];
 
+  const MYTH = [
+    {q:"Wedging a fire door open helps people escape faster.", a:false, why:"Fire doors must stay shut. Held open, they let smoke fill the escape route."},
+    {q:"You should use the lift to evacuate if it's quicker.", a:false, why:"Never use a normal lift in a fire — it can fail or open onto the fire floor."},
+    {q:"A fire blanket is a good way to tackle a small pan fire.", a:true, why:"Smother it with a fire blanket and turn off the heat. Never use water on cooking oil."},
+    {q:"Water extinguishers are safe on electrical fires.", a:false, why:"Water conducts electricity — use CO₂ or dry powder on electrical fires."},
+    {q:"A smoke alarm should be tested about once a month.", a:true, why:"Press the test button monthly and change batteries when it warns you."},
+    {q:"It's fine to charge an e-scooter in a hallway overnight.", a:false, why:"Lithium batteries can fail violently; charging in an escape route blocks everyone's way out."},
+    {q:"On discovering a fire, you should raise the alarm first.", a:true, why:"Raise the alarm so everyone can start evacuating, then get out."},
+    {q:"Storing tidy stock in the corridor is fine.", a:false, why:"Escape routes must be kept clear — any obstruction slows evacuation."},
+    {q:"Once out, you can go back inside for belongings.", a:false, why:"Never re-enter a burning building. Belongings can be replaced."},
+    {q:"Overloading one socket with adaptors is a fire risk.", a:true, why:"Daisy-chained high-draw plugs overheat the wiring — a common cause of fires."},
+    {q:"Emollient (moisturiser) cream can make bedding flammable.", a:true, why:"Paraffin-based emollients soak into fabric and ignite easily near a flame or cigarette."},
+    {q:"A CO₂ extinguisher is a good choice for burning cooking oil.", a:false, why:"CO₂ can blast burning oil out of the pan. Cooking oil needs wet chemical or a fire blanket."},
+  ];
+  const EVAC = [
+    { title:"Office — you smell smoke", steps:["Raise the alarm","Alert people nearby","Leave by the nearest exit","Do not use the lift","Call 999 from outside","Go to the assembly point"] },
+    { title:"Care home — night alarm sounds", steps:["Check the fire panel / zone","Move residents past the next fire door","Close doors behind you","Call 999","Account for everyone at the refuge"] },
+    { title:"Kitchen — a pan catches fire", steps:["Turn off the heat if safe","Cover it with a fire blanket","Leave it to cool, don't move it","Leave and close the door","Raise the alarm and call 999"] },
+  ];
+  const RANKS = [
+    {min:0,name:"Trainee"},{min:300,name:"Fire Warden"},{min:900,name:"Competent Person"},
+    {min:2000,name:"Fire Marshal"},{min:4000,name:"Station Officer"},{min:7000,name:"Fire Chief"},
+  ];
+  function rankFor(xp){ let r=RANKS[0]; for(const t of RANKS) if(xp>=t.min) r=t; return r; }
+  function nextRankOf(xp){ for(const t of RANKS) if(xp<t.min) return t; return null; }
+
   const RATINGS = [
     {min:0,    name:"Trainee",          blurb:"A few slipped past. Every inspector starts here — go again."},
     {min:1200, name:"Competent Person", blurb:"Solid eye for risk. You'd pass a basic walkthrough."},
@@ -642,6 +734,8 @@
     $("screen-"+id).classList.add("active");
     $("hud").classList.toggle("hidden", !hud);
     $("topbar").classList.toggle("hidden", id==="home");
+    if(hud) run.mistakes=[];
+    if(id==="home") renderProfileStrip();
     window.scrollTo(0,0);
   }
   function stopTimer(){ clearInterval(run.timerId); run.timerId=null; }
@@ -649,6 +743,37 @@
   // award helpers (shared)
   function award(){ const mult=Math.max(1,run.combo+1), pts=100*mult; run.score+=pts; run.combo++; run.bestCombo=Math.max(run.bestCombo,run.combo); Sound.correct(); Sound.combo(run.combo); buzz(15); updateHUD(); return pts; }
   function penalise(){ run.combo=0; run.lives--; Sound.wrong(); buzz([35,30,45]); renderLives(); updateHUD(); }
+
+  /* ---------------- PROFILE (local progression) ---------------- */
+  function esc2(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+  function noteMistake(label,why,kind){ if(!run.mistakes) run.mistakes=[]; run.mistakes.push({label:label,why:why,kind:kind||""}); }
+  function loadProfile(){ try{ const p=JSON.parse(store.get("hh_profile")||"{}");
+    return { xp:p.xp||0, plays:p.plays||0, bests:p.bests||{}, streak:p.streak||{count:0,last:""}, trouble:p.trouble||{} }; }
+    catch(e){ return {xp:0,plays:0,bests:{},streak:{count:0,last:""},trouble:{}}; } }
+  function saveProfile(p){ store.set("hh_profile",JSON.stringify(p)); }
+  function dstr(offset){ const d=new Date(Date.now()-(offset||0)*86400000); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+  function commitProfile(mode,score,won){
+    const p=loadProfile();
+    const gained=Math.max(0,Math.round(score/10))+(won?50:0); p.xp+=gained; p.plays++;
+    const prev=p.bests[mode]||0; const newBest=score>prev; if(newBest)p.bests[mode]=score;
+    const today=dstr(0); if(p.streak.last!==today){ p.streak.count=(p.streak.last===dstr(1))?(p.streak.count+1):1; p.streak.last=today; }
+    (run.mistakes||[]).forEach(m=>{ p.trouble[m.label]=Math.min(99,(p.trouble[m.label]||0)+1); });
+    saveProfile(p);
+    return { gained:gained, newBest:newBest, xp:p.xp, streak:p.streak.count, rank:rankFor(p.xp), next:nextRankOf(p.xp) };
+  }
+  function topTrouble(n){ const t=loadProfile().trouble; return Object.keys(t).sort((a,b)=>t[b]-t[a]).slice(0,n); }
+  function renderProfileStrip(){
+    const el=$("profileStrip"); if(!el)return; const p=loadProfile();
+    if(!p.plays){ el.classList.add("hidden"); return; }
+    el.classList.remove("hidden"); const rk=rankFor(p.xp), nx=nextRankOf(p.xp);
+    const prog = nx ? Math.min(100,Math.round(((p.xp-rk.min)/(nx.min-rk.min))*100)) : 100;
+    const tr=topTrouble(2);
+    el.innerHTML =
+      '<div class="ps-top"><span class="ps-rank">'+esc2(rk.name)+'</span><span class="ps-xp">'+p.xp+' XP</span></div>'+
+      '<div class="ps-bar"><div class="ps-fill" style="width:'+prog+'%"></div></div>'+
+      '<div class="ps-meta"><span>🔥 '+p.streak.count+'-day streak</span>'+(nx?('<span>'+(nx.min-p.xp)+' XP to '+esc2(nx.name)+'</span>'):'<span>Top rank reached</span>')+'</div>'+
+      (tr.length?('<div class="ps-trouble">Keeps catching you: '+tr.map(esc2).join(", ")+'</div>'):'');
+  }
 
   /* ---------------- RATING + END ---------------- */
   function ratingFor(s){ let r=RATINGS[0]; for(const t of RATINGS) if(s>=t.min) r=t; return r; }
@@ -669,6 +794,18 @@
     $("endProg").textContent = opts.progValue;
     $("endProgL").textContent = opts.progLabel;
     $("endBest").textContent = "×"+run.bestCombo;
+    const prof = commitProfile(run.mode, run.score, !!opts.won);
+    $("endProgress").innerHTML =
+      (prof.newBest?'<span class="nb">★ New personal best!</span>':'')+
+      '<span>+'+prof.gained+' XP · '+esc2(prof.rank.name)+'</span>'+
+      '<span>🔥 '+prof.streak+'-day streak</span>';
+    const ms=(run.mistakes||[]);
+    if(ms.length){
+      $("endDebrief").innerHTML='<div class="debrief-h">Debrief — what to remember</div>'+
+        ms.slice(0,6).map(m=>'<div class="debrief-row"><span class="db-x">✕</span><div><b>'+esc2(m.label)+'</b> — '+esc2(m.why)+'</div></div>').join("");
+    } else {
+      $("endDebrief").innerHTML='<div class="debrief-clean">✓ Clean run — no mistakes.</div>';
+    }
     Sound.clear();
     $("endOverlay").classList.remove("hidden");
   }
@@ -712,6 +849,7 @@
     } else {
       penalise(); card.classList.add("wrong","safe-rev"); card.querySelector(".stamp").textContent="✓";
       floatPop(card,"−1 life","bad"); setLog("hazLogTag","hazLogText","ok",item.n,item.why);
+      noteMistake(item.n+" (safe, not a hazard)", item.why, "hazard");
       setTimeout(()=>card.classList.remove("wrong"),420);
       if(run.lives<=0) endGame({modeLabel:"Hazard Hunt",won:false,title:"Cut short",reason:"You ran out of lives.",progLabel:"Rooms",progValue:hz.roomsCleared+"/"+hz.building.rooms.length});
       else toast("That one's safe — "+run.lives+" lives left");
@@ -770,6 +908,7 @@
     } else {
       penalise(); btn.classList.add("wrongpick"); $("fireCard").classList.add("bad"); setTimeout(()=>$("fireCard").classList.remove("bad"),500);
       const deadly = s.deadly[id];
+      noteMistake(s.t+" → "+EXT[id].n, s.win, "ext");
       setLog("extLogTag","extLogText","ok", deadly?"It gets worse":"Not the right choice", (deadly?deadly+" ":"")+s.win);
       // highlight a correct option
       const right=document.querySelector('.ext-opt[data-id="'+s.correct[0]+'"]'); if(right)right.classList.add("right");
@@ -778,7 +917,7 @@
     document.querySelectorAll(".ext-opt").forEach(o=>{ if(!o.classList.contains("right")&&!o.classList.contains("wrongpick"))o.classList.add("dim"); });
     setTimeout(nextScenario,1500);
   }
-  function extTimeout(){ ex.answered=true; penalise(); setLog("extLogTag","extLogText","ok","Too slow","On a real fire, hesitation lets it grow. "+ex.order[ex.i].win);
+  function extTimeout(){ ex.answered=true; penalise(); noteMistake(ex.order[ex.i].t+" (too slow)", ex.order[ex.i].win, "ext"); setLog("extLogTag","extLogText","ok","Too slow","On a real fire, hesitation lets it grow. "+ex.order[ex.i].win);
     const right=document.querySelector('.ext-opt[data-id="'+ex.order[ex.i].correct[0]+'"]'); if(right)right.classList.add("right");
     if(run.lives<=0){ setTimeout(()=>endGame({modeLabel:"Extinguisher Match",won:false,title:"Cut short",reason:"You ran out of lives.",progLabel:"Fires",progValue:ex.i+"/"+ex.order.length}),900); return; }
     setTimeout(nextScenario,1500);
@@ -817,10 +956,80 @@
     } else {
       penalise(); pin.classList.add("okrev"); pin.textContent="✓";
       setLog("doorLogTag","doorLogText","okp",p.n,p.why);
+      noteMistake(p.n+" (actually compliant)", p.why, "door");
       if(run.lives<=0) endGame({modeLabel:"Fire Door Check",won:false,title:"Cut short",reason:"You ran out of lives.",progLabel:"Faults",progValue:dr.found+"/"+dr.total});
       else toast("That part's compliant — "+run.lives+" lives left");
     }
   }
+
+  /* ---------------- MYTH-BUSTER ---------------- */
+  const my = { order:[], i:0, answered:false };
+  function startMyth(){
+    run.mode="myth"; run.score=0; run.lives=3; run.combo=0; run.bestCombo=1; my.order=shuffle(MYTH.slice()).slice(0,8); my.i=0;
+    renderLives(); updateHUD(); showScreen("myth", true); $("mythTotal").textContent=my.order.length; loadMyth();
+  }
+  function loadMyth(){
+    my.answered=false; run.locked=false; run.time=7; const m=my.order[my.i];
+    $("mythNum").textContent=my.i+1; $("mythTimer").textContent=run.time; $("mythTimer").classList.remove("low");
+    $("mythClaim").textContent="“"+m.q+"”";
+    document.querySelectorAll(".myth-btn").forEach(b=>b.classList.remove("right","wrongpick"));
+    setLog("mythLogTag","mythLogText","idle",null,"True or false? Answer fast for bonus points.");
+    stopTimer();
+    run.timerId=setInterval(()=>{ run.time--; $("mythTimer").textContent=run.time; $("mythTimer").classList.toggle("low",run.time<=3);
+      if(run.time<=0){ stopTimer(); if(!my.answered) answerMyth(null); } },1000);
+  }
+  function answerMyth(val){
+    if(my.answered||run.locked)return; my.answered=true; stopTimer(); const m=my.order[my.i];
+    if(val!==null && val===m.a){
+      const bonus=run.time*8; const pts=award()+bonus; run.score+=bonus; updateHUD();
+      const b=$(m.a?"mythTrue":"mythFalse"); if(b)b.classList.add("right");
+      setLog("mythLogTag","mythLogText","haz","Correct",m.why+" (+"+pts+")");
+    } else {
+      penalise(); noteMistake("Myth: "+m.q, m.why, "myth");
+      const rb=$(m.a?"mythTrue":"mythFalse"); if(rb)rb.classList.add("right");
+      if(val!==null){ const wb=$(val?"mythTrue":"mythFalse"); if(wb)wb.classList.add("wrongpick"); }
+      setLog("mythLogTag","mythLogText","ok", val===null?"Too slow":"Not quite", m.why);
+      if(run.lives<=0){ setTimeout(()=>endGame({modeLabel:"Myth-Buster",won:false,title:"Cut short",reason:"You ran out of lives.",progLabel:"Myths",progValue:my.i+"/"+my.order.length}),1000); return; }
+    }
+    setTimeout(nextMyth,1500);
+  }
+  function nextMyth(){ my.i++; if(my.i>=my.order.length){ endGame({modeLabel:"Myth-Buster",won:true,title:"Myths busted",progLabel:"Myths",progValue:my.order.length+"/"+my.order.length}); return; } loadMyth(); }
+
+  /* ---------------- EVACUATION SEQUENCE ---------------- */
+  const ev = { order:[], i:0, step:0 };
+  function startEvac(){
+    run.mode="evac"; run.score=0; run.lives=3; run.combo=0; run.bestCombo=1; ev.order=shuffle(EVAC.slice()); ev.i=0;
+    renderLives(); updateHUD(); showScreen("evac", true); $("evacTotal").textContent=ev.order.length;
+    run.time=0; $("timeVal").textContent="—"; loadEvac();
+  }
+  function loadEvac(){
+    run.locked=false; ev.step=0; const sc=ev.order[ev.i];
+    $("evacNum").textContent=ev.i+1; $("evacTitle").textContent=sc.title;
+    setLog("evacLogTag","evacLogText","idle",null,"Tap the steps in the correct order.");
+    const slots=$("evacSlots"); slots.innerHTML="";
+    sc.steps.forEach((s,idx)=>{ const d=document.createElement("div"); d.className="evac-slot"; d.innerHTML='<span class="es-n">'+(idx+1)+'</span><span class="es-t"></span>'; slots.appendChild(d); });
+    const opts=$("evacOpts"); opts.innerHTML="";
+    shuffle(sc.steps.map((s,idx)=>({s:s,idx:idx}))).forEach(o=>{
+      const b=document.createElement("button"); b.className="evac-opt"; b.type="button"; b.textContent=o.s;
+      b.addEventListener("click",()=>tapEvac(b,o.idx,sc)); opts.appendChild(b);
+    });
+  }
+  function tapEvac(btn,idx,sc){
+    if(run.locked||btn.disabled)return;
+    if(idx===ev.step){
+      const pts=award(); btn.disabled=true; btn.classList.add("used");
+      const slot=$("evacSlots").children[ev.step]; if(slot){ slot.classList.add("filled"); slot.querySelector(".es-t").textContent=sc.steps[ev.step]; }
+      floatPop(btn,"+"+pts,"good"); ev.step++;
+      if(ev.step>=sc.steps.length){ run.locked=true; setLog("evacLogTag","evacLogText","fault","Sequence correct","That's the order that keeps people safe."); setTimeout(nextEvac,1000); }
+      else setLog("evacLogTag","evacLogText","haz","Good","Next step?");
+    } else {
+      penalise(); btn.classList.add("wrongpick"); setTimeout(()=>btn.classList.remove("wrongpick"),420);
+      noteMistake("Order — "+sc.title, "The next step should be: "+sc.steps[ev.step]+".", "evac");
+      setLog("evacLogTag","evacLogText","ok","Wrong order","The next step should be: "+sc.steps[ev.step]+".");
+      if(run.lives<=0) endGame({modeLabel:"Evacuation Sequence",won:false,title:"Cut short",reason:"You ran out of lives.",progLabel:"Drills",progValue:ev.i+"/"+ev.order.length});
+    }
+  }
+  function nextEvac(){ ev.i++; if(ev.i>=ev.order.length){ endGame({modeLabel:"Evacuation Sequence",won:true,title:"Evacuation nailed",progLabel:"Drills",progValue:ev.order.length+"/"+ev.order.length}); return; } loadEvac(); }
 
   /* ---------------- CUSTOM SITE BUILDER ---------------- */
   const ICONS=["🏥","🏢","🔧","🏠","🏬","🏭","🏫","⛪","🏨","🚧"];
@@ -1010,9 +1219,13 @@
       if(m==="hazard") openPicker();
       else if(m==="ext") startExt();
       else if(m==="door") startDoor();
+      else if(m==="myth") startMyth();
+      else if(m==="evac") startEvac();
       else if(m==="builder"){ renderBuilder(); showScreen("builder", false); }
     });
   });
+  $("mythTrue").addEventListener("click",()=>answerMyth(true));
+  $("mythFalse").addEventListener("click",()=>answerMyth(false));
   function goHome(){ stopTimer(); run.locked=true; showScreen("home", false); }
   $("backBtn").addEventListener("click",goHome);
   $("nextBtn").addEventListener("click",nextRoom);
@@ -1023,7 +1236,7 @@
   $("saveBldBtn").addEventListener("click",saveBuilding);
   document.addEventListener("pointerdown",function once(){ Sound.resume(); document.removeEventListener("pointerdown",once); });
 
-  renderLives(); syncSwitches(); setDailyDesc(); showScreen("home", false);
+  renderLives(); syncSwitches(); setDailyDesc(); renderProfileStrip(); showScreen("home", false);
 })();
 </script>
 
