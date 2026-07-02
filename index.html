@@ -3,7 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Hazard Hunt — Fire Safety Training</title>
+<title>Hazard Hunt — Fire Safety Training Game</title>
+
+<!-- ============================================================= -->
+<!-- SET YOUR DOMAIN: replace every https://hazardhunt.app below   -->
+<!-- with your live URL before launch (canonical + og:url + image) -->
+<!-- ============================================================= -->
+<meta name="description" content="A free fire-safety training game. Spot workplace hazards, match the right extinguisher, run evacuation and fire-spread drills, and earn your fire marshal rank. Built for UK fire wardens, care homes, offices and facilities teams.">
+<meta name="keywords" content="fire safety training game, fire warden training, fire marshal training, fire safety quiz, evacuation drill, extinguisher training, fire door check, PEEP, workplace fire safety, care home fire safety">
+<meta name="author" content="The 36th Company">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0E0F13">
+<link rel="canonical" href="https://hazardhunt.app/">
+
+<!-- Mobile / PWA feel -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hazard Hunt">
+<meta name="mobile-web-app-capable" content="yes">
+
+<!-- Favicon (inline SVG flame) -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E0F13'/%3E%3Cpath d='M16 5c1 4-3 5-3 9a3 3 0 0 0 6 .3c1.4 1 2 2.4 2 4.2a5 5 0 1 1-10 0c0-4.6 4-6.5 5-13.5z' fill='%23FF5A1F'/%3E%3Cpath d='M16 14c.5 2-1.5 2.6-1.5 4.6a1.6 1.6 0 0 0 3.2 0c0-1 .3-1.6-.2-2.4.9.4 1.3 1.2 1.3 2.3a2.9 2.9 0 1 1-5.8 0c0-2.4 2.3-3.2 3-4.5z' fill='%23FFB02E'/%3E%3C/svg%3E">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Hazard Hunt">
+<meta property="og:title" content="Hazard Hunt — Fire Safety Training Game">
+<meta property="og:description" content="Spot the hazards, run the drills, earn your fire marshal rank. A free, hands-on fire-safety trainer for wardens, care homes, offices and facilities teams.">
+<meta property="og:url" content="https://hazardhunt.app/">
+<meta property="og:image" content="https://hazardhunt.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Hazard Hunt — a fire safety training game">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Hazard Hunt — Fire Safety Training Game">
+<meta name="twitter:description" content="Spot the hazards, run the drills, earn your fire marshal rank. A free, hands-on fire-safety trainer.">
+<meta name="twitter:image" content="https://hazardhunt.app/og-image.png">
+
+<!-- Structured data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Hazard Hunt",
+  "description": "A free fire-safety training game with hazard-spotting, extinguisher matching, fire-door checks, evacuation and fire-spread drills, and a fire marshal ranking system.",
+  "url": "https://hazardhunt.app/",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Any (web browser)",
+  "browserRequirements": "Requires JavaScript. Works offline.",
+  "inLanguage": "en-GB",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "GBP" },
+  "author": { "@type": "Organization", "name": "The 36th Company" }
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -171,6 +227,13 @@
 <style>
   /* overlays + modal */
   .overlay{position:fixed;inset:0;background:rgba(8,9,12,.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:40;overflow-y:auto;}
+  .intro-modal{text-align:center;max-width:440px;}
+  .intro-flame{font-size:44px;line-height:1;margin-bottom:4px;filter:drop-shadow(0 0 16px rgba(255,90,31,.5));}
+  .intro-lead{color:var(--muted);font-size:15px;line-height:1.5;margin:8px 0 18px;}
+  .intro-steps{text-align:left;display:flex;flex-direction:column;gap:12px;margin:0 0 20px;}
+  .intro-step{display:flex;gap:12px;align-items:flex-start;font-size:14px;line-height:1.45;color:var(--text);}
+  .intro-step .is-ico{font-size:22px;line-height:1.2;flex:0 0 auto;}
+  .intro-step b{color:var(--amber);font-weight:600;}
   .modal{width:100%;max-width:460px;background:linear-gradient(180deg,var(--panel),#111219);border:1px solid var(--line);border-radius:20px;padding:24px 22px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.6);margin:auto;}
   .modal h1{font-family:'Oswald';font-weight:700;text-transform:uppercase;letter-spacing:.02em;font-size:clamp(28px,8vw,42px);line-height:.95;margin:0 0 6px;}
   .modal h2{font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:26px;margin:0 0 10px;}
@@ -325,6 +388,7 @@
   .sp-room.st-fire{border-color:var(--red);background:linear-gradient(180deg,rgba(255,77,77,.28),rgba(255,90,31,.1));animation:spfire .8s ease-in-out infinite;}
   .sp-room.st-burnt{border-color:#333;background:#0b0b0d;color:#555;}
   .sp-room.evac{box-shadow:inset 0 0 0 2px rgba(54,211,153,.5);}
+  .sp-room.assist{outline:2px solid rgba(96,165,250,.75);outline-offset:-2px;}
   @keyframes spfire{50%{box-shadow:0 0 14px rgba(255,90,31,.55);}}
   .sp-door{position:absolute;width:26px;height:26px;border-radius:7px;border:2px solid #4a3f52;background:#241d29;cursor:pointer;z-index:4;padding:0;transition:.2s;}
   .sp-door.open{background:#12241c;border-color:var(--green);}
@@ -554,6 +618,23 @@
       <p class="cert-note">A training engagement record — not a formal accredited qualification.</p>
     </div>
     <button class="btn ghost" id="againBtn" style="margin-top:12px;">Back to menu</button>
+  </div>
+</div>
+
+<!-- First-run intro -->
+<div class="overlay hidden" id="introOverlay">
+  <div class="modal intro-modal">
+    <div class="intro-flame">🔥</div>
+    <div class="eyebrow">Fire safety, as a game</div>
+    <h1 style="font-size:clamp(24px,7vw,36px)">Hazard Hunt</h1>
+    <p class="intro-lead">Train the instincts a real fire needs — in a couple of minutes, on your phone. For fire wardens, care teams, offices and anyone responsible for a building.</p>
+    <div class="intro-steps">
+      <div class="intro-step"><span class="is-ico">🔍</span><span><b>Spot the hazards.</b> Tap what's wrong in each room before it's too late.</span></div>
+      <div class="intro-step"><span class="is-ico">🧯</span><span><b>Run the drills.</b> Match extinguishers, check fire doors, sequence an evacuation.</span></div>
+      <div class="intro-step"><span class="is-ico">🎖️</span><span><b>Earn your rank.</b> Climb from Trainee to Fire Chief and share your score.</span></div>
+    </div>
+    <button class="btn" id="introStart">Start training</button>
+    <button class="btn ghost" id="introSkip" style="margin-top:10px;">Skip — just show me the menu</button>
   </div>
 </div>
 
@@ -1412,6 +1493,23 @@
         {a:"exit",b:"j",type:"open"},
         {a:"j",b:"t1",type:"fire"},{a:"t1",b:"t2",type:"fire"},{a:"t2",b:"t3",type:"fire"},{a:"t3",b:"e",type:"fire"},
         {a:"e",b:"b3",type:"fire"},{a:"b3",b:"b2",type:"fire"},{a:"b2",b:"b1",type:"fire"},{a:"b1",b:"j",type:"fire"},
+      ] },
+    { name:"Assisted Evac", cols:4, rows:3, cell:80, rate:1.35,
+      hint:"♿ in the Bedroom can't self-evacuate — they move slowly. Contain the fire and start them first.",
+      rooms:[
+        {id:"exit",name:"Stairwell",x:0,y:1,fuel:0,exit:true},
+        {id:"p1",name:"Corridor",x:1,y:1,fuel:0.7},
+        {id:"p2",name:"Corridor",x:2,y:1,fuel:0.8},
+        {id:"p3",name:"Corridor",x:3,y:1,fuel:0.8},
+        {id:"sA",name:"Office",x:1,y:0,fuel:1.1,people:2},
+        {id:"sK",name:"Kitchen",x:2,y:0,fuel:1.6,origin:true},
+        {id:"sR",name:"Bedroom",x:3,y:0,fuel:1.2,people:1,assist:true},
+        {id:"sB",name:"Lounge",x:1,y:2,fuel:1.0,people:1},
+      ],
+      doors:[
+        {a:"exit",b:"p1",type:"open"},
+        {a:"p1",b:"p2",type:"fire"},{a:"p2",b:"p3",type:"fire"},
+        {a:"p1",b:"sA",type:"fire"},{a:"p2",b:"sK",type:"fire"},{a:"p3",b:"sR",type:"fire"},{a:"p1",b:"sB",type:"fire"},
       ] }
   ];
   const SP_SMOKE=35, SP_FIRE=100, SP_SPREAD=30, SP_MAXTICK=70, SP_CHARGES=2;
@@ -1429,14 +1527,14 @@
     const L=SPREAD_LEVELS[idx]; sp.lvl=L; sp.rooms={}; sp.doors=[]; sp.saved=0; sp.casualties=0; sp.tick=0; sp.charges=SP_CHARGES; sp.over=false;
     let total=0;
     L.rooms.forEach(r=>{ sp.rooms[r.id]={ id:r.id,name:r.name,x:r.x,y:r.y,fuel:r.fuel,exit:!!r.exit,origin:!!r.origin,
-      people:r.people||0, evac:false, heat:r.origin?120:0, state:r.origin?"fire":"ok", burn:0 }; total+=(r.people||0); });
+      people:r.people||0, assist:!!r.assist, evac:false, heat:r.origin?120:0, state:r.origin?"fire":"ok", burn:0 }; total+=(r.people||0); });
     sp.total=total;
     L.doors.forEach((d,i)=>sp.doors.push({ id:i, a:d.a, b:d.b, type:d.type, open:true }));
     showScreen("spread", false);
     const nm=$("spLevelName"); if(nm) nm.textContent=L.name;
     renderSpreadPicker(idx);
     buildSpreadDOM(); updateSpread();
-    setLog("spLogTag","spLogText","haz","Fire in the "+originName(),"Get people out (tap a room), close the door(s) on the fire, knock down anything small.");
+    setLog("spLogTag","spLogText","haz","Fire in the "+originName(), L.hint || "Get people out (tap a room), close the door(s) on the fire, knock down anything small.");
     stopTimer(); run.timerId=setInterval(spreadTick, 1000);
   }
   function originName(){ const o=Object.values(sp.rooms).find(r=>r.origin); return o?o.name:"building"; }
@@ -1461,9 +1559,10 @@
   function updateSpread(){
     $("spSaved").textContent=sp.saved; $("spTotal").textContent=sp.total; $("spCas").textContent=sp.casualties; $("spCharges").textContent=sp.charges;
     Object.values(sp.rooms).forEach(r=>{ const el=$("sp-room-"+r.id); if(!el)return;
-      el.className="sp-room "+(r.exit?"exit ":"")+"st-"+r.state+(r.people>0&&r.evac?" evac":"");
+      el.className="sp-room "+(r.exit?"exit ":"")+"st-"+r.state+(r.people>0&&r.evac?" evac":"")+(r.people>0&&r.assist?" assist":"");
       el.querySelector(".sp-icon").textContent = r.exit?"🚪": r.state==="fire"?"🔥": r.state==="smoke"?"💨": r.state==="burnt"?"⬛":"";
-      el.querySelector(".sp-people").textContent = r.people>0?((r.evac?"🏃":"🧍")+(r.people>1?("×"+r.people):"")):"";
+      const face = r.assist?"♿":(r.evac?"🏃":"🧍");
+      el.querySelector(".sp-people").textContent = r.people>0?(face+(r.people>1?("×"+r.people):"")):"";
     });
     sp.doors.forEach(d=>{ const el=$("sp-door-"+d.id); if(!el)return; el.className="sp-door "+(d.type==="open"?"perm ":"")+(d.open?"open":"closed"); });
   }
@@ -1487,16 +1586,21 @@
   function spreadTick(){
     if(sp.over)return; sp.tick++;
     const add={};
-    Object.values(sp.rooms).forEach(r=>{ if(r.state==="fire"){ openNeighbors(r.id).forEach(nid=>{ const n=sp.rooms[nid]; if(n.state==="burnt")return; add[nid]=(add[nid]||0)+SP_SPREAD*(n.fuel||1); }); } });
+    const rate=(sp.lvl&&sp.lvl.rate)||1;
+    Object.values(sp.rooms).forEach(r=>{ if(r.state==="fire"){ openNeighbors(r.id).forEach(nid=>{ const n=sp.rooms[nid]; if(n.state==="burnt")return; add[nid]=(add[nid]||0)+SP_SPREAD*(n.fuel||1)*rate; }); } });
     for(const nid in add){ const n=sp.rooms[nid]; n.heat=Math.min(240,(n.heat||0)+add[nid]); }
     Object.values(sp.rooms).forEach(r=>{ if(r.state!=="fire"&&r.state!=="burnt"){ r.state=r.heat>=SP_FIRE?"fire":r.heat>=SP_SMOKE?"smoke":"ok"; } else if(r.state==="fire"){ r.burn++; if(r.burn>16)r.state="burnt"; } });
     const dist=bfsDist(), moves=[];
     Object.values(sp.rooms).forEach(r=>{ if(r.exit||r.people<=0||!r.evac)return;
+      if(r.assist && (sp.tick%2!==0)) return; // people needing assistance move at half speed
       let best=null, bd=dist[r.id]==null?Infinity:dist[r.id];
       openNeighbors(r.id).forEach(nid=>{ const n=sp.rooms[nid]; if(n.state==="fire"||n.state==="burnt")return; const nd=dist[nid]; if(nd!=null&&nd<bd){bd=nd;best=nid;} });
-      if(best!=null) moves.push({from:r.id,to:best,n:r.people}); });
-    moves.forEach(m=>{ sp.rooms[m.from].people-=m.n; const to=sp.rooms[m.to]; if(to.exit){ sp.saved+=m.n; Sound.correct(); } else { to.people+=m.n; to.evac=true; } });
-    Object.values(sp.rooms).forEach(r=>{ if(!r.exit && r.people>0 && (r.state==="fire"||r.state==="burnt")){ sp.casualties+=r.people; noteMistake("Lost "+r.people+" in the "+r.name, "They were caught before getting out — evacuate rooms near the fire first and keep a route open.", "spread"); r.people=0; } });
+      if(best!=null) moves.push({from:r.id,to:best,n:r.people,assist:r.assist}); });
+    moves.forEach(m=>{ sp.rooms[m.from].people-=m.n; const to=sp.rooms[m.to]; if(to.exit){ sp.saved+=m.n; Sound.correct(); } else { to.people+=m.n; to.evac=true; if(m.assist) to.assist=true; } });
+    Object.values(sp.rooms).forEach(r=>{ if(!r.exit && r.people<=0) r.assist=false; });
+    Object.values(sp.rooms).forEach(r=>{ if(!r.exit && r.people>0 && (r.state==="fire"||r.state==="burnt")){ sp.casualties+=r.people;
+      noteMistake( r.assist?("Lost someone needing assistance in the "+r.name):("Lost "+r.people+" in the "+r.name),
+        r.assist?"People who can't self-evacuate move slowly — start them first and contain the fire to buy them time.":"They were caught before getting out — evacuate rooms near the fire first and keep a route open.", "spread"); r.people=0; } });
     updateSpread();
     const exit=sp.rooms.exit;
     if(exit.state==="fire"||exit.state==="burnt"){ Object.values(sp.rooms).forEach(r=>{ if(!r.exit&&r.people>0){ sp.casualties+=r.people; r.people=0; } }); return endSpread(); }
@@ -1721,7 +1825,21 @@
   $("saveBldBtn").addEventListener("click",saveBuilding);
   document.addEventListener("pointerdown",function once(){ Sound.resume(); document.removeEventListener("pointerdown",once); });
 
+  /* ---------- first-run intro ---------- */
+  function showIntro(){
+    $("introOverlay").classList.remove("hidden");
+    if(window.hhTrack) window.hhTrack("intro_shown",{});
+  }
+  function closeIntro(started){
+    store.set("hh_seen_intro","1");
+    $("introOverlay").classList.add("hidden");
+    if(window.hhTrack) window.hhTrack("intro_start",{ started:!!started });
+  }
+  $("introStart").addEventListener("click",()=>{ closeIntro(true); startDaily(); });
+  $("introSkip").addEventListener("click",()=>{ closeIntro(false); });
+
   renderLives(); syncSwitches(); setDailyDesc(); renderProfileStrip(); showScreen("home", false);
+  if(!store.get("hh_seen_intro")) setTimeout(showIntro,0);
 })();
 </script>
 
