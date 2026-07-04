@@ -131,9 +131,10 @@
   .mode-card .mt{font-family:'Oswald';font-weight:600;text-transform:uppercase;font-size:20px;letter-spacing:.02em;line-height:1;display:block;}
   .mode-card .md{font-size:12.5px;color:var(--muted);line-height:1.4;margin-top:4px;display:block;}
   .mode-card.alt{border-style:dashed;}
-  .blog-card{text-decoration:none;}
-  .blog-card .mt{color:var(--amber);}
-  .blog-card:hover{border-color:var(--amber);}
+  .home-tabs{display:flex;gap:8px;margin:0 0 14px;}
+  .ht-tab{flex:1;text-align:center;font:600 13px/1 'Inter';color:var(--muted);background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px 10px;text-decoration:none;cursor:pointer;transition:background .15s,color .15s,border-color .15s;}
+  .ht-tab.on{color:var(--bg);background:var(--ember);border-color:var(--ember);}
+  .ht-tab:not(.on):hover{color:var(--text);border-color:var(--ember);}
   .mode-card .badge{margin-left:auto;font:600 9px/1 'Inter';letter-spacing:.1em;text-transform:uppercase;color:var(--amber);background:rgba(255,176,46,.12);border:1px solid rgba(255,176,46,.35);padding:4px 7px;border-radius:20px;flex-shrink:0;}
 
   /* buttons */
@@ -440,6 +441,10 @@
 
   <!-- HOME -->
   <section class="screen active" id="screen-home">
+    <div class="home-tabs">
+      <span class="ht-tab on">🎮 Game</span>
+      <a class="ht-tab" href="/blog/">📖 Fire Safety Blog</a>
+    </div>
     <div class="home-hero">
       <div class="eyebrow">Fire Safety Training</div>
       <h1>Hazard<br>Hunt</h1>
@@ -460,8 +465,6 @@
       <button class="mode-card" data-mode="alarm"><span class="mi">🚨</span><span><span class="mt">Alarm Panel</span><span class="md">Fire or fault? Choose the response</span></span><span class="badge">New</span></button>
       <button class="mode-card" data-mode="peep"><span class="mi">♿</span><span><span class="mt">PEEP Builder</span><span class="md">Match the evacuation plan to the person</span></span><span class="badge">New</span></button>
       <button class="mode-card" data-mode="spread"><span class="mi">🔥</span><span><span class="mt">Fire Spread</span><span class="md">Contain it and get everyone out</span></span><span class="badge">New</span></button>
-      <div class="menu-label">Learn</div>
-      <a class="mode-card blog-card" href="/blog/"><span class="mi">📖</span><span><span class="mt">Fire Safety Blog</span><span class="md">Guides on extinguishers, fire doors, PEEPs &amp; more</span></span><span class="badge">Read</span></a>
       <div class="menu-label">Your sites</div>
       <button class="mode-card alt" data-mode="builder"><span class="mi">🏗️</span><span><span class="mt">Build Your Site</span><span class="md">Create your own building to drill on</span></span></button>
     </div>
