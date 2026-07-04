@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="ory-verify" content="orynth-6f1d6445f2f94605984123d71d55ba98">
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-BL8EN6VRZX"></script>
@@ -465,6 +466,7 @@
       <button class="mode-card" data-mode="myth"><span class="mi">⚡</span><span><span class="mt">Myth-Buster</span><span class="md">True or false, against the clock</span></span></button>
       <button class="mode-card" data-mode="evac"><span class="mi">🏃</span><span><span class="mt">Evacuation Sequence</span><span class="md">Put the steps in the right order</span></span></button>
       <button class="mode-card" data-mode="alarm"><span class="mi">🚨</span><span><span class="mt">Alarm Panel</span><span class="md">Fire or fault? Choose the response</span></span><span class="badge">New</span></button>
+      <button class="mode-card" data-mode="smoke"><span class="mi">🏠</span><span><span class="mt">Smoke Alarms</span><span class="md">Home fire safety — get the basics right</span></span><span class="badge">New</span></button>
       <button class="mode-card" data-mode="peep"><span class="mi">♿</span><span><span class="mt">PEEP Builder</span><span class="md">Match the evacuation plan to the person</span></span><span class="badge">New</span></button>
       <button class="mode-card" data-mode="spread"><span class="mi">🔥</span><span><span class="mt">Fire Spread</span><span class="md">Contain it and get everyone out</span></span><span class="badge">New</span></button>
       <div class="menu-label">Your sites</div>
@@ -589,6 +591,14 @@
     <div class="sign-ask" id="signAsk">—</div>
     <div class="sign-grid" id="signOpts"></div>
     <div class="log" id="signLog"><span class="tag idle" id="signLogTag">Ready</span><p id="signLogText">Pick the correct sign.</p></div>
+  </section>
+
+  <!-- SMOKE ALARMS -->
+  <section class="screen" id="screen-smoke">
+    <div class="ext-head"><div class="n">Q <b id="smokeNum">1</b>/<b id="smokeTotal">6</b></div><div class="et" id="smokeTimer">12</div></div>
+    <div class="sign-ask" id="smokeAsk">—</div>
+    <div class="sign-grid" id="smokeOpts"></div>
+    <div class="log" id="smokeLog"><span class="tag idle" id="smokeLogTag">Ready</span><p id="smokeLogText">Home smoke alarms — pick the right answer.</p></div>
   </section>
 
   <!-- FIRE SPREAD -->
@@ -992,6 +1002,43 @@
         {e:"🦺",n:"PPE",h:false, why:"Correct kit, no hazard."},
       ]},
     ]},
+    { id:"home", name:"Your Home", icon:"🏠", tagline:"Most fire deaths happen at home, at night. Learn to spot the everyday risks.", rooms:[
+      { name:"Kitchen", time:28, items:[
+        {e:"🍳",n:"Chip pan left on the hob",h:true, why:"Unattended cooking is the UK's number-one cause of house fires. Never leave a hot pan — especially oil."},
+        {e:"🧻",n:"Tea towel on the cooker",h:true, why:"Fabric draped over a warm hob or toaster catches light in seconds."},
+        {e:"🔌",n:"Adaptor stacked with plugs",h:true, why:"Daisy-chained high-power plugs on one socket overheat the wiring behind the wall."},
+        {e:"🍞",n:"Toaster full of crumbs",h:true, why:"Built-up crumbs smoulder and ignite — empty the crumb tray."},
+        {e:"🧯",n:"Fire blanket by the door",h:false, why:"Mounted within reach of the cooker — exactly right for a pan fire."},
+        {e:"🌡️",n:"Heat alarm fitted",h:false, why:"A heat alarm (not a smoke alarm) is the right detector for a kitchen — it won't false-alarm on steam."},
+        {e:"🫙",n:"Clean, clear worktop",h:false, why:"Nothing flammable near the hob. Good habit."},
+      ]},
+      { name:"Living Room", time:28, items:[
+        {e:"🕯️",n:"Candles by the curtains",h:true, why:"Naked flames next to hanging fabric — a classic ignition. Never leave candles unattended."},
+        {e:"📱",n:"Phone charging on the sofa",h:true, why:"Charging buried in soft furnishings traps heat; a faulty charger can set the cushions alight."},
+        {e:"🔥",n:"Halogen heater by the armchair",h:true, why:"Portable heaters need a clear metre from anything that burns — curtains, furniture, washing."},
+        {e:"🚬",n:"Cigarette in the bin",h:true, why:"A not-quite-out cigarette smouldering among paper waste."},
+        {e:"🚨",n:"Smoke alarm on the ceiling",h:false, why:"Fitted and tested — your single best protection. Keep it."},
+        {e:"🛡️",n:"Fireguard at the hearth",h:false, why:"A guard in front of the open fire stops sparks reaching the rug. Correct."},
+        {e:"📺",n:"Television",h:false, why:"A normal appliance — no hazard here."},
+      ]},
+      { name:"Bedroom", time:28, items:[
+        {e:"📱",n:"Phone charging under the pillow",h:true, why:"Charging under a pillow or duvet traps heat and can start a fire while you sleep."},
+        {e:"♨️",n:"Old electric blanket left on",h:true, why:"An ageing electric blanket left switched on can overheat. Check for wear and never leave it on all night."},
+        {e:"💇",n:"Hair straighteners left on",h:true, why:"Left face-down on the bed or carpet, they reach hundreds of degrees and scorch fabric."},
+        {e:"🕯️",n:"Candle burning at bedside",h:true, why:"A candle left alight as you drift off — one of the most common causes of fatal bedroom fires."},
+        {e:"🚪",n:"Door closed for the night",h:false, why:"A closed door holds back smoke and fire while you sleep — a simple habit that saves lives."},
+        {e:"🔔",n:"Alarm you can hear from bed",h:false, why:"An alarm loud enough to wake you is the whole point. Good."},
+        {e:"🧦",n:"Tidy floor, clear exit",h:false, why:"Nothing to trip over on the way out in the dark. Good."},
+      ]},
+      { name:"Hallway & Stairs", time:26, items:[
+        {e:"🛴",n:"E-scooter charging in the hall",h:true, why:"A lithium e-scooter battery on charge across your only escape route — if it fails it burns fiercely and blocks the way out."},
+        {e:"🚲",n:"E-bike battery charging overnight",h:true, why:"Lithium batteries can fail violently. Never charge them while asleep or on an escape route, and use the correct charger."},
+        {e:"📦",n:"Clutter on the stairs",h:true, why:"Boxes on the stairs trip you in the dark and feed a fire on the way down."},
+        {e:"🔑",n:"Key kept in the door",h:false, why:"A key left in the night-latch means you can get out fast in the dark — good escape planning."},
+        {e:"🚨",n:"Alarm on every level",h:false, why:"At least one working alarm on each storey — correct placement."},
+        {e:"🔦",n:"Torch by the front door",h:false, why:"Light to find your way out in a power cut. Sensible."},
+      ]},
+    ]},
   ];
 
   const EXT = {
@@ -1062,6 +1109,8 @@
     { title:"Kitchen — a pan catches fire", steps:["Turn off the heat if safe","Cover it with a fire blanket","Leave it to cool, don't move it","Leave and close the door","Raise the alarm and call 999"] },
     { title:"Post-incident — everyone's out", steps:["Go to the assembly point","Answer the roll call","Report anyone unaccounted for","Do not re-enter for any reason","Brief the fire service on arrival"] },
     { title:"Hospital ward — fire in a bay", steps:["Raise the alarm","Move patients past the next fire door","Close the door on the fire","Continue horizontal evacuation","Report to the fire service"] },
+    { title:"Home — smoke alarm wakes you at night", steps:["Wake everyone in the home","Get everyone out by your planned route","Don't stop for belongings","Close doors behind you as you go","Call 999 from outside","Stay out — never go back in"] },
+    { title:"Home — fire is blocking your way out", steps:["Close the door to the room you're in","Block the gap under the door with bedding","Go to the window and stay low for air","Call 999 and tell them exactly where you are","Wait at the window to be rescued"] },
   ];
   const ALARM = [
     {state:"FAULT", zone:"Zone 3 — detector", led:"amber", desc:"Steady amber fault light, intermittent beep. No alarm sounding.", opts:["Evacuate the building","Log it and call the engineer","Silence it and ignore it","Call 999"], correct:1, why:"An amber fault means the system needs attention, not evacuation. Log it and get it fixed — a fault can mean part of the system won't detect a real fire."},
@@ -1086,6 +1135,15 @@
     {ask:"What do you press to raise the alarm?", opts:[{e:"📢",l:"Call point"},{e:"🧯",l:"Extinguisher"},{e:"💡",l:"Emergency light"},{e:"🅿️",l:"Parking"}], correct:0, why:"The red break-glass call point raises the alarm manually."},
     {ask:"Which extinguisher band means CO₂?", opts:[{e:"⬛",l:"Black"},{e:"🟥",l:"Red"},{e:"🟦",l:"Blue"},{e:"🟨",l:"Yellow"}], correct:0, why:"A black band means CO₂ — for electrical and flammable-liquid fires. Red body, black label."},
     {ask:"Which sign marks a place to wait for rescue?", opts:[{e:"♿",l:"Refuge point"},{e:"🚻",l:"Toilets"},{e:"🏃",l:"Fire exit"},{e:"🚭",l:"No smoking"}], correct:0, why:"A refuge is a protected spot where someone who can't use the stairs waits for assisted evacuation."},
+  ];
+
+  const SMOKE = [
+    {ask:"How often should you test a smoke alarm?", opts:[{e:"🗓️",l:"Every week"},{e:"📅",l:"Once a year"},{e:"🎄",l:"At Christmas"},{e:"❌",l:"Never"}], correct:0, why:"Press the test button weekly (monthly at the very least). A silent or flat alarm protects no one."},
+    {ask:"Where should smoke alarms be fitted?", opts:[{e:"🏠",l:"On every floor"},{e:"🍳",l:"In the kitchen"},{e:"🚿",l:"In the bathroom"},{e:"🚪",l:"By the front door only"}], correct:0, why:"At least one on every storey, on the ceiling, near sleeping areas. Keep them out of kitchens and bathrooms where steam causes false alarms — use a heat alarm in the kitchen."},
+    {ask:"How often should a smoke alarm be replaced?", opts:[{e:"🔟",l:"About every 10 years"},{e:"♾️",l:"Never — they last forever"},{e:"1️⃣",l:"Every year"},{e:"🔋",l:"Only when the battery dies"}], correct:0, why:"The whole unit wears out — even hard-wired and 10-year sealed alarms. Replace them roughly every 10 years."},
+    {ask:"Your alarm keeps going off while you cook. What now?", opts:[{e:"↔️",l:"Move it away from the kitchen"},{e:"🔇",l:"Take the battery out"},{e:"🔨",l:"Take it down"},{e:"🙉",l:"Ignore it"}], correct:0, why:"Never disable an alarm — a disconnected alarm is a leading reason people die in fires. Relocate it, or fit a heat alarm in the kitchen instead."},
+    {ask:"Which detector belongs in the kitchen?", opts:[{e:"🌡️",l:"A heat alarm"},{e:"💨",l:"A standard smoke alarm"},{e:"🔔",l:"A doorbell"},{e:"🚫",l:"Nothing needed"}], correct:0, why:"A heat alarm triggers on a rise in temperature, not smoke or steam — so it won't sound every time you fry an egg."},
+    {ask:"What actually wakes most people in a house fire?", opts:[{e:"🔔",l:"A working smoke alarm"},{e:"👃",l:"The smell of smoke"},{e:"🔥",l:"The heat"},{e:"🐕",l:"The dog"}], correct:0, why:"You can't smell smoke while asleep — it can send you into a deeper sleep. A working alarm is what wakes you, and roughly doubles your chance of surviving."},
   ];
 
   const RANKS = [
@@ -1219,7 +1277,9 @@
     BS5839:{c:"BS 5839-1", n:"Fire detection & alarm systems"},
     BS8214:{c:"BS 8214", n:"Fire door assemblies"},
     ISO7010:{c:"BS EN ISO 7010 / BS 5499", n:"Safety sign design"},
-    PAS79: {c:"PAS 79", n:"Fire risk assessment method"}
+    PAS79: {c:"PAS 79", n:"Fire risk assessment method"},
+    BS58396:{c:"BS 5839-6", n:"Fire alarms in homes"},
+    SCA2015:{c:"Smoke & CO Alarm Regs 2015", n:"Alarms in rented homes"}
   };
   const MODE_REGS = {
     hazard: [ {r:"FSO9", w:"Every round is a mini risk assessment — spot the hazard, judge the risk, act."},
@@ -1246,7 +1306,9 @@
               {r:"FSO14", w:"Escape routes and exits must be signed and illuminated."} ],
     spread: [ {r:"FSO17", w:"Compartmentation only works if fire doors are shut and maintained — that's what contained the fire."},
               {r:"FSO15", w:"Triage and assisted evacuation are the procedures behind getting everyone out."},
-              {r:"EQ2010", w:"The resident who can't self-evacuate is exactly why a PEEP exists."} ]
+              {r:"EQ2010", w:"The resident who can't self-evacuate is exactly why a PEEP exists."} ],
+    smoke:  [ {r:"BS58396", w:"The standard for fire alarms in homes — at least one working alarm on every storey."},
+              {r:"SCA2015", w:"In rented homes the law requires a smoke alarm on every storey, and a CO alarm where there's a fuel-burning appliance."} ]
   };
   const MODE_ARTICLE = {
     hazard: {u:"/blog/fire-risk-assessment-small-business.html", t:"Fire risk assessment: a simple guide"},
@@ -1569,6 +1631,9 @@
   function startSign(){ startQuiz({ mode:"sign", modeLabel:"Signage", screen:"sign", numId:"signNum", totalId:"signTotal", timerId:"signTimer", optsId:"signOpts", optClass:"sign-opt", logTag:"signLogTag", logText:"signLogText", hint:"Pick the correct fire-safety sign.", progLabel:"Signs", winTitle:"Signs aced", time:10, speedBonus:8, data:SIGN,
     renderPrompt:(it)=>{ $("signAsk").textContent=it.ask; },
     getOptions:(it)=>it.opts.map((o,idx)=>({html:'<span class="sign-emoji">'+o.e+'</span><span class="sign-l">'+o.l+'</span>',correct:idx===it.correct})), mistakeLabel:(it)=>"Sign: "+it.ask }); }
+  function startSmoke(){ startQuiz({ mode:"smoke", modeLabel:"Smoke Alarms", screen:"smoke", numId:"smokeNum", totalId:"smokeTotal", timerId:"smokeTimer", optsId:"smokeOpts", optClass:"sign-opt", logTag:"smokeLogTag", logText:"smokeLogText", hint:"Home smoke alarms — pick the right answer.", progLabel:"Alarms", winTitle:"Smoke alarms aced", time:12, speedBonus:7, data:SMOKE,
+    renderPrompt:(it)=>{ $("smokeAsk").textContent=it.ask; },
+    getOptions:(it)=>it.opts.map((o,idx)=>({html:'<span class="sign-emoji">'+o.e+'</span><span class="sign-l">'+o.l+'</span>',correct:idx===it.correct})), mistakeLabel:(it)=>"Smoke alarm: "+it.ask }); }
 
   /* ---------------- SPREAD SIMULATION ---------------- */
   const SPREAD_LEVELS = [
@@ -1942,6 +2007,7 @@
       else if(m==="alarm") startAlarm();
       else if(m==="peep") startPeep();
       else if(m==="sign") startSign();
+      else if(m==="smoke") startSmoke();
       else if(m==="spread") startSpread();
       else if(m==="builder"){ renderBuilder(); showScreen("builder", false); }
     });
