@@ -329,6 +329,8 @@
   .ps-fill{height:100%;background:linear-gradient(90deg,var(--ember),var(--amber));border-radius:6px;}
   .ps-meta{display:flex;justify-content:space-between;gap:10px;font-size:11.5px;color:var(--muted);margin-top:7px;}
   .ps-trouble{margin-top:7px;font-size:11.5px;color:var(--ember);border-top:1px solid var(--line);padding-top:7px;}
+  .ps-nudge{margin-top:7px;font-size:11.5px;color:var(--amber);border-top:1px solid var(--line);padding-top:7px;}
+  .ps-nudge a{color:var(--amber);text-decoration:underline;}
   .myth-card{border:1px solid var(--line);border-radius:18px;padding:30px 22px;text-align:center;min-height:150px;display:flex;align-items:center;justify-content:center;margin-top:6px;background:radial-gradient(120% 100% at 50% 0%, rgba(255,176,46,.12), transparent 60%),linear-gradient(180deg,var(--panel-2),#15171f);}
   .myth-claim{font-family:'Oswald';font-weight:500;font-size:23px;line-height:1.32;}
   .myth-btns{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:16px;}
@@ -457,6 +459,7 @@
     <div class="menu" id="menu">
       <div class="menu-label">Today</div>
       <button class="mode-card" data-mode="daily"><span class="mi">📅</span><span><span class="mt">Daily Drill</span><span class="md" id="dailyDesc">Today's challenge — same for everyone</span></span><span class="badge">Daily</span></button>
+      <button class="mode-card hidden" id="weakCard" data-mode="weak"><span class="mi">🎯</span><span><span class="mt">Weak Spots</span><span class="md" id="weakDesc">Replay what keeps catching you</span></span><span class="badge">New</span></button>
       <div class="menu-label">Spot &amp; act</div>
       <button class="mode-card" data-mode="hazard"><span class="mi">🔍</span><span><span class="mt">Hazard Hunt</span><span class="md">Spot the fire hazards, room by room</span></span></button>
       <button class="mode-card" data-mode="ext"><span class="mi">🧯</span><span><span class="mt">Extinguisher Match</span><span class="md">Pick the right one before it spreads</span></span></button>
@@ -608,6 +611,15 @@
     <div class="sign-ask" id="checksAsk">—</div>
     <div class="sign-grid" id="checksOpts"></div>
     <div class="log" id="checksLog"><span class="tag idle" id="checksLogTag">Ready</span><p id="checksLogText">How often is this check due?</p></div>
+  </section>
+
+  <!-- WEAK SPOTS -->
+  <section class="screen" id="screen-weak">
+    <div class="ext-head"><div class="n">Q <b id="weakNum">1</b>/<b id="weakTotal">8</b></div><div class="et" id="weakTimer">15</div></div>
+    <div class="ext-prompt" id="weakKind">—</div>
+    <div class="sign-ask" id="weakAsk" style="font-size:19px">—</div>
+    <div class="quiz-opts" id="weakOpts"></div>
+    <div class="log" id="weakLog"><span class="tag idle" id="weakLogTag">Ready</span><p id="weakLogText">These tripped you up before. Take your time.</p></div>
   </section>
 
   <!-- FIRE SPREAD -->
@@ -1260,7 +1272,15 @@
     return { gained:gained, newBest:newBest, xp:p.xp, streak:p.streak.count, rank:rankFor(p.xp), next:nextRankOf(p.xp) };
   }
   function topTrouble(n){ const t=loadProfile().trouble; return Object.keys(t).sort((a,b)=>t[b]-t[a]).slice(0,n); }
+  function refresherNudge(p){
+    const m=/^(\d+)-(\d+)-(\d+)$/.exec((p.streak&&p.streak.last)||""); if(!m) return "";
+    const days=Math.floor((Date.now()-new Date(+m[1],+m[2]-1,+m[3]).getTime())/86400000);
+    if(days>=335) return '<div class="ps-nudge">⏰ Annual refresher due. You last trained '+(days>=365?'over a year':Math.round(days/30)+' months')+' ago. <a href="/blog/fire-safety-training-how-often.html">Why annual?</a></div>';
+    if(days>=30) return '<div class="ps-nudge">⏰ Last trained '+(days<60?days+" days":Math.round(days/30)+" months")+' ago. Short, regular practice beats once a year.</div>';
+    return "";
+  }
   function renderProfileStrip(){
+    renderWeakCard();
     const el=$("profileStrip"); if(!el)return; const p=loadProfile();
     if(!p.plays){ el.classList.add("hidden"); return; }
     el.classList.remove("hidden"); const rk=rankFor(p.xp), nx=nextRankOf(p.xp);
@@ -1270,6 +1290,7 @@
       '<div class="ps-top"><span class="ps-rank">'+esc2(rk.name)+'</span><span class="ps-xp">'+p.xp+' XP</span></div>'+
       '<div class="ps-bar"><div class="ps-fill" style="width:'+prog+'%"></div></div>'+
       '<div class="ps-meta"><span>🔥 '+p.streak.count+'-day streak</span>'+(nx?('<span>'+(nx.min-p.xp)+' XP to '+esc2(nx.name)+'</span>'):'<span>Top rank reached</span>')+'</div>'+
+      refresherNudge(p)+
       (tr.length?('<div class="ps-trouble">Keeps catching you: '+tr.map(esc2).join(", ")+'</div>'):'');
   }
 
@@ -1637,7 +1658,7 @@
     if(quiz.answered||run.locked)return; quiz.answered=true; stopTimer(); const cfg=quiz.cfg;
     if(opt && opt.correct){
       const bonus=run.time*(cfg.speedBonus||8); const pts=award()+bonus; run.score+=bonus; updateHUD();
-      if(btn)btn.classList.add("right"); setLog(cfg.logTag,cfg.logText,"haz","Correct",item.why+" (+"+pts+")");
+      const extra=cfg.onCorrect?(cfg.onCorrect(item)||""):""; if(btn)btn.classList.add("right"); setLog(cfg.logTag,cfg.logText,"haz","Correct",item.why+" (+"+pts+")"+extra);
     } else {
       penalise(); noteMistake(cfg.mistakeLabel(item), item.why, cfg.mode);
       Array.prototype.forEach.call($(cfg.optsId).children,c=>{ if(c._correct)c.classList.add("right"); });
@@ -1665,6 +1686,40 @@
   function startChecks(){ startQuiz({ mode:"checks", modeLabel:"Check Rota", screen:"checks", numId:"checksNum", totalId:"checksTotal", timerId:"checksTimer", optsId:"checksOpts", optClass:"sign-opt", logTag:"checksLogTag", logText:"checksLogText", hint:"How often is this check due?", progLabel:"Checks", winTitle:"Rota nailed", time:12, speedBonus:7, data:CHECKS,
     renderPrompt:(it)=>{ $("checksAsk").textContent=it.ask; },
     getOptions:(it)=>it.opts.map((o,idx)=>({html:'<span class="sign-emoji">'+o.e+'</span><span class="sign-l">'+o.l+'</span>',correct:idx===it.correct})), mistakeLabel:(it)=>"Check: "+it.ask }); }
+
+  /* ---------------- WEAK SPOTS ---------------- */
+  function weakIndex(){
+    const idx={}, ot=o=>(o.e?o.e+" ":"")+o.l;
+    ALARM.forEach(it=>{ idx["Alarm: "+it.state]={kind:"Alarm Panel", ask:it.state+" — "+it.zone+". "+it.desc, opts:it.opts.map((t,i)=>({html:t,correct:i===it.correct})), why:it.why}; });
+    PEEP.forEach(it=>{ idx["PEEP: "+it.need]={kind:"PEEP Builder", ask:it.who+" "+it.need+". What's the right plan?", opts:it.opts.map((t,i)=>({html:t,correct:i===it.correct})), why:it.why}; });
+    SIGN.forEach(it=>{ idx["Sign: "+it.ask]={kind:"Signage", ask:it.ask, opts:it.opts.map((o,i)=>({html:ot(o),correct:i===it.correct})), why:it.why}; });
+    SMOKE.forEach(it=>{ idx["Smoke alarm: "+it.ask]={kind:"Smoke Alarms", ask:it.ask, opts:it.opts.map((o,i)=>({html:ot(o),correct:i===it.correct})), why:it.why}; });
+    CHECKS.forEach(it=>{ idx["Check: "+it.ask]={kind:"Check Rota", ask:it.ask, opts:it.opts.map((o,i)=>({html:ot(o),correct:i===it.correct})), why:it.why}; });
+    MYTH.forEach(it=>{ idx["Myth: "+it.q]={kind:"Myth-Buster", ask:"True or false? “"+it.q+"”", opts:[{html:"✅ True",correct:it.a===true},{html:"❌ False",correct:it.a===false}], why:it.why}; });
+    Object.keys(idx).forEach(k=>{ idx[k].label=k; });
+    return idx;
+  }
+  function weakItems(){
+    const t=loadProfile().trouble, idx=weakIndex();
+    return Object.keys(t).filter(l=>t[l]>0 && idx[l]).sort((a,b)=>t[b]-t[a]).slice(0,8).map(l=>idx[l]);
+  }
+  function renderWeakCard(){
+    const c=$("weakCard"); if(!c) return; const n=weakItems().length;
+    c.classList.toggle("hidden", n===0);
+    if(n) $("weakDesc").textContent="Replay the "+(n===1?"1 thing":n+" things")+" that keep catching you";
+  }
+  function weakCleared(item){
+    const p=loadProfile(); const n=(p.trouble[item.label]||0)-1;
+    if(n<=0){ delete p.trouble[item.label]; saveProfile(p); return " Weak spot cleared."; }
+    p.trouble[item.label]=n; saveProfile(p); return " Getting there: "+n+" more right "+(n===1?"answer":"answers")+" to clear it.";
+  }
+  function startWeak(){
+    const items=weakItems();
+    if(!items.length){ toast("No weak spots yet. Play a few drills first."); return; }
+    startQuiz({ mode:"weak", modeLabel:"Weak Spots", screen:"weak", numId:"weakNum", totalId:"weakTotal", timerId:"weakTimer", optsId:"weakOpts", optClass:"quiz-opt", logTag:"weakLogTag", logText:"weakLogText", hint:"These tripped you up before. Take your time.", progLabel:"Spots", winTitle:"Weak spots tackled", time:15, speedBonus:6, data:items,
+      renderPrompt:(it)=>{ $("weakKind").textContent=it.kind; $("weakAsk").textContent=it.ask; },
+      getOptions:(it)=>it.opts, mistakeLabel:(it)=>it.label, onCorrect:weakCleared });
+  }
 
   /* ---------------- SPREAD SIMULATION ---------------- */
   const SPREAD_LEVELS = [
@@ -1986,9 +2041,19 @@
   const DAILY = [
     {kind:"hazard", b:"care",     label:"Care Home hazard sweep"},
     {kind:"ext",                  label:"Extinguisher match"},
+    {kind:"checks",               label:"Check Rota"},
     {kind:"hazard", b:"office",   label:"Office hazard sweep"},
     {kind:"door",                 label:"Fire door inspection"},
+    {kind:"alarm",                label:"Alarm panel"},
     {kind:"hazard", b:"workshop", label:"Workshop hazard sweep"},
+    {kind:"myth",                 label:"Myth-Buster"},
+    {kind:"hazard", b:"kitchen",  label:"Commercial kitchen sweep"},
+    {kind:"evac",                 label:"Evacuation sequence"},
+    {kind:"sign",                 label:"Signage"},
+    {kind:"hazard", b:"school",   label:"School hazard sweep"},
+    {kind:"peep",                 label:"PEEP builder"},
+    {kind:"smoke",                label:"Smoke alarms"},
+    {kind:"hazard", b:"hospital", label:"Hospital hazard sweep"},
   ];
   function dateSeed(){ const d=new Date(); return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate(); }
   function todaysDaily(){ return DAILY[ dateSeed() % DAILY.length ]; }
@@ -1997,9 +2062,9 @@
   function startDaily(){
     isDaily=true; if(window.hhTrack) window.hhTrack("daily_start",{});
     const d=todaysDaily();
-    if(d.kind==="hazard"){ const b=BUILDINGS.find(x=>x.id===d.b)||BUILDINGS[0]; startHazard(b); }
-    else if(d.kind==="ext"){ startExt(); }
-    else { startDoor(); }
+    if(d.kind==="hazard"){ const b=BUILDINGS.find(x=>x.id===d.b)||BUILDINGS[0]; startHazard(b); return; }
+    const go={ext:startExt,door:startDoor,alarm:startAlarm,checks:startChecks,myth:startMyth,evac:startEvac,sign:startSign,peep:startPeep,smoke:startSmoke}[d.kind]||startDoor;
+    go();
   }
 
   /* ---------------- SHARE CARD ---------------- */
@@ -2040,6 +2105,7 @@
       else if(m==="sign") startSign();
       else if(m==="smoke") startSmoke();
       else if(m==="checks") startChecks();
+      else if(m==="weak") startWeak();
       else if(m==="spread") startSpread();
       else if(m==="builder"){ renderBuilder(); showScreen("builder", false); }
     });
