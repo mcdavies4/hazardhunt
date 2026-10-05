@@ -2459,6 +2459,21 @@
     }
     dash.classList.remove("hidden"); renderDash();
   }
+  function csvCellC(v){ v=String(v==null?"":v); if(/^[=+\-@\t\r]/.test(v)) v="'"+v; return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
+  async function exportDashCsv(rows){
+    if(!rows.length){ toastC("No results to export yet"); return; }
+    const two=n=>String(n).padStart(2,"0");
+    const out=[["Player","Drill","Rating","Progress","Score","Date","Time"]];
+    rows.forEach(r=>{ const d=new Date(r.created_at), ok=!isNaN(d);
+      out.push([r.player_name, r.mode, r.rating||"", r.progress||"", r.score|0, ok?(d.getFullYear()+"-"+two(d.getMonth()+1)+"-"+two(d.getDate())):"", ok?(two(d.getHours())+":"+two(d.getMinutes())):""]); });
+    const text="\ufeff"+out.map(r=>r.map(csvCellC).join(",")).join("\r\n");
+    const slug=(team.name||team.code||"team").replace(/[^a-z0-9]+/gi,"-").toLowerCase().replace(/^-|-$/g,"")||"team";
+    const fname="hazard-hunt-team-results-"+slug+".csv", blob=new Blob([text],{type:"text/csv;charset=utf-8"});
+    try{ if(navigator.canShare){ const f=new File([blob],fname,{type:"text/csv"}); if(navigator.canShare({files:[f]})){ await navigator.share({files:[f],title:"Hazard Hunt team results"}); return; } } }
+    catch(e){ if(e && e.name==="AbortError") return; }
+    try{ const u=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=u; a.download=fname; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(()=>URL.revokeObjectURL(u),4000); toastC("Exported "+rows.length+" results"); }
+    catch(e){ toastC("Couldn't export the file"); }
+  }
   async function renderDash(){
     const b=$("cDashBody"); b.innerHTML='<p style="color:var(--muted)">Loading…</p>';
     let rows=[];
@@ -2476,15 +2491,16 @@
       : '<p style="color:var(--muted);font-size:13px">No cloud sites yet. Build one in “Build Your Site”, then Save — it syncs here.</p>';
 
     b.innerHTML =
-      '<div class="pick-label" style="text-align:left;margin:2px 0 6px">Completions ('+rows.length+')</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin:2px 0 6px"><div class="pick-label" style="text-align:left;margin:0">Completions ('+rows.length+')</div><button class="btn ghost" id="cExportBtn" style="width:auto;padding:7px 12px;font-size:12px;margin:0">⬇ Export CSV</button></div>'+
       '<div style="max-height:230px;overflow:auto;margin-bottom:16px">'+list+'</div>'+
       '<div class="pick-label" style="text-align:left;margin:2px 0 8px">Set an assignment</div>'+
       '<div class="field"><input id="cAsgTitle" placeholder="e.g. Complete the Care Home drill this week" maxlength="80"></div>'+
-      '<div class="field" style="display:flex;gap:8px"><select id="cAsgMode" style="flex:1;background:#0d0e13;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:11px 10px;font:500 14px Inter"><option value="">Any drill</option><option>Hazard Hunt</option><option>Extinguisher Match</option><option>Fire Door Check</option></select><input id="cAsgDue" type="date" style="flex:1;background:#0d0e13;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px;font:500 13px Inter"></div>'+
+      '<div class="field" style="display:flex;gap:8px"><select id="cAsgMode" style="flex:1;background:#0d0e13;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:11px 10px;font:500 14px Inter"><option value="">Any drill</option><option>Hazard Hunt</option><option>Extinguisher Match</option><option>Fire Door Check</option><option>Evacuation Sequence</option><option>Myth-Buster</option><option>Alarm Panel</option><option>Smoke Alarms</option><option>PEEP Builder</option><option>Signage</option><option>Spread Sim</option><option>Check Rota</option><option>Marshal Call</option></select><input id="cAsgDue" type="date" style="flex:1;background:#0d0e13;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px;font:500 13px Inter"></div>'+
       '<button class="btn" id="cAsgBtn">Add assignment</button>'+
       '<div class="pick-label" style="text-align:left;margin:18px 0 6px">Team cloud sites</div>'+sites+
       '<div style="margin-top:14px;font-size:11px;color:var(--muted);text-align:left">Team code <b style="font-family:Space Mono">'+esc(team.code)+'</b> — share it with staff to join.</div>';
 
+    $("cExportBtn").addEventListener("click",()=>exportDashCsv(rows));
     $("cAsgBtn").addEventListener("click",async()=>{
       const t=($("cAsgTitle").value||"").trim(); if(!t){ toastC("Enter an assignment"); return; }
       const md=$("cAsgMode").value||null; const due=$("cAsgDue").value||null;
