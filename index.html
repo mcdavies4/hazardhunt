@@ -331,6 +331,31 @@
   .ps-trouble{margin-top:7px;font-size:11.5px;color:var(--ember);border-top:1px solid var(--line);padding-top:7px;}
   .ps-nudge{margin-top:7px;font-size:11.5px;color:var(--amber);border-top:1px solid var(--line);padding-top:7px;}
   .ps-nudge a{color:var(--amber);text-decoration:underline;}
+  .rec-eyebrow{font:600 10px/1 'Space Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--ember);margin:6px 0 8px;}
+  .rec-name{width:100%;background:#0d0e13;border:1px solid var(--line);border-radius:10px;color:var(--text);font:500 15px 'Inter';padding:12px 13px;margin:10px 0;}
+  .rec-name:focus{outline:2px solid var(--amber);border-color:var(--amber);}
+  .rec-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:4px 0 14px;}
+  .rec-stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;}
+  .rec-stat b{display:block;font:700 20px 'Space Mono',monospace;color:var(--text);}
+  .rec-stat span{font-size:11px;color:var(--muted);}
+  .rec-due{grid-column:1 / -1;font-size:12.5px;color:var(--amber);background:rgba(255,176,46,.08);border:1px solid rgba(255,176,46,.3);}
+  .rec-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+  .rec-row{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:12.5px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
+  .rec-row .d{color:var(--muted);font-family:'Space Mono',monospace;font-size:11px;white-space:nowrap;}
+  .rec-row .m{flex:1;color:var(--text);}
+  .rec-row .r{font-family:'Space Mono',monospace;color:var(--green);white-space:nowrap;}
+  .rec-row.no .r{color:var(--red);}
+  .rec-empty{font-size:13px;color:var(--muted);text-align:center;padding:18px 10px;border:1px dashed var(--line);border-radius:12px;}
+  .rec-actions{display:flex;flex-direction:column;gap:10px;}
+  @media print{
+    body{background:#fff!important;color:#000!important;}
+    body *{visibility:hidden!important;}
+    #screen-record,#screen-record *{visibility:visible!important;color:#000!important;background:transparent!important;border-color:#999!important;}
+    #screen-record{position:absolute;left:0;top:0;width:100%;padding:24px;display:block!important;}
+    .rec-actions{display:none!important;}
+    .rec-name{border:none!important;border-bottom:1px solid #000!important;border-radius:0;font-weight:700;padding-left:0;}
+    .rec-due{border-color:#999!important;}
+  }
   .myth-card{border:1px solid var(--line);border-radius:18px;padding:30px 22px;text-align:center;min-height:150px;display:flex;align-items:center;justify-content:center;margin-top:6px;background:radial-gradient(120% 100% at 50% 0%, rgba(255,176,46,.12), transparent 60%),linear-gradient(180deg,var(--panel-2),#15171f);}
   .myth-claim{font-family:'Oswald';font-weight:500;font-size:23px;line-height:1.32;}
   .myth-btns{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:16px;}
@@ -473,6 +498,8 @@
       <button class="mode-card" data-mode="checks"><span class="mi">📋</span><span><span class="mt">Check Rota</span><span class="md">Daily, weekly, monthly — when is each check due?</span></span><span class="badge">New</span></button>
       <button class="mode-card" data-mode="peep"><span class="mi">♿</span><span><span class="mt">PEEP Builder</span><span class="md">Match the evacuation plan to the person</span></span><span class="badge">New</span></button>
       <button class="mode-card" data-mode="spread"><span class="mi">🔥</span><span><span class="mt">Fire Spread</span><span class="md">Contain it and get everyone out</span></span><span class="badge">New</span></button>
+      <div class="menu-label hidden" id="recordLabel">Records</div>
+      <button class="mode-card alt hidden" id="recordCard" data-mode="record"><span class="mi">🗂️</span><span><span class="mt">My Training Record</span><span class="md">Download or print your sessions as evidence</span></span><span class="badge">New</span></button>
       <div class="menu-label">Your sites</div>
       <button class="mode-card alt" data-mode="builder"><span class="mi">🏗️</span><span><span class="mt">Build Your Site</span><span class="md">Create your own building to drill on</span></span></button>
     </div>
@@ -613,6 +640,20 @@
     <div class="log" id="checksLog"><span class="tag idle" id="checksLogTag">Ready</span><p id="checksLogText">How often is this check due?</p></div>
   </section>
 
+  <!-- TRAINING RECORD -->
+  <section class="screen" id="screen-record">
+    <div class="rec-eyebrow">Hazard Hunt · Fire safety training</div>
+    <h2>Training record</h2>
+    <input id="recName" class="rec-name" placeholder="Your name" maxlength="40" autocomplete="name">
+    <div class="rec-stats" id="recStats"></div>
+    <div class="rec-list" id="recList"></div>
+    <div class="rec-actions">
+      <button class="btn" id="recCsv">⬇ Download CSV</button>
+      <button class="btn ghost" id="recPrint">🖨 Print or save as PDF</button>
+    </div>
+    <p class="cert-note">A training engagement record from this device, not a formal accredited qualification. Keep it with your fire safety training log.</p>
+  </section>
+
   <!-- WEAK SPOTS -->
   <section class="screen" id="screen-weak">
     <div class="ext-head"><div class="n">Q <b id="weakNum">1</b>/<b id="weakTotal">8</b></div><div class="et" id="weakTimer">15</div></div>
@@ -678,6 +719,7 @@
       <input id="certName" placeholder="Your name for the certificate" maxlength="40">
       <button class="btn" id="shareBtn" style="margin-bottom:10px;">📲 Share my score</button>
       <button class="btn ghost" id="certBtn">📄 Download certificate</button>
+      <button class="btn ghost" id="recBtn" style="margin-top:10px;">🗂️ My training record</button>
       <p class="cert-note">A training engagement record — not a formal accredited qualification.</p>
     </div>
     <button class="btn ghost" id="againBtn" style="margin-top:12px;">Back to menu</button>
@@ -1258,13 +1300,14 @@
   function esc2(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
   function noteMistake(label,why,kind){ if(!run.mistakes) run.mistakes=[]; run.mistakes.push({label:label,why:why,kind:kind||""}); }
   function loadProfile(){ try{ const p=JSON.parse(store.get("hh_profile")||"{}");
-    return { xp:p.xp||0, plays:p.plays||0, bests:p.bests||{}, streak:p.streak||{count:0,last:""}, trouble:p.trouble||{} }; }
-    catch(e){ return {xp:0,plays:0,bests:{},streak:{count:0,last:""},trouble:{}}; } }
+    return { xp:p.xp||0, plays:p.plays||0, bests:p.bests||{}, streak:p.streak||{count:0,last:""}, trouble:p.trouble||{}, history:Array.isArray(p.history)?p.history:[], name:p.name||"" }; }
+    catch(e){ return {xp:0,plays:0,bests:{},streak:{count:0,last:""},trouble:{},history:[],name:""}; } }
   function saveProfile(p){ store.set("hh_profile",JSON.stringify(p)); }
   function dstr(offset){ const d=new Date(Date.now()-(offset||0)*86400000); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
   function commitProfile(mode,score,won){
     const p=loadProfile();
     const gained=Math.max(0,Math.round(score/10))+(won?50:0); p.xp+=gained; p.plays++;
+    p.history.push({t:Date.now(), m:lastResult.mode||mode, s:score, r:lastResult.rating||"", w:!!won}); if(p.history.length>300) p.history=p.history.slice(-300);
     const prev=p.bests[mode]||0; const newBest=score>prev; if(newBest)p.bests[mode]=score;
     const today=dstr(0); if(p.streak.last!==today){ p.streak.count=(p.streak.last===dstr(1))?(p.streak.count+1):1; p.streak.last=today; }
     (run.mistakes||[]).forEach(m=>{ p.trouble[m.label]=Math.min(99,(p.trouble[m.label]||0)+1); });
@@ -1282,6 +1325,7 @@
   function renderProfileStrip(){
     renderWeakCard();
     const el=$("profileStrip"); if(!el)return; const p=loadProfile();
+    { const show=!!(p.plays||p.history.length); const rc=$("recordCard"), rl=$("recordLabel"); if(rc) rc.classList.toggle("hidden",!show); if(rl) rl.classList.toggle("hidden",!show); }
     if(!p.plays){ el.classList.add("hidden"); return; }
     el.classList.remove("hidden"); const rk=rankFor(p.xp), nx=nextRankOf(p.xp);
     const prog = nx ? Math.min(100,Math.round(((p.xp-rk.min)/(nx.min-rk.min))*100)) : 100;
@@ -1406,6 +1450,7 @@
       $("endDebrief").innerHTML='<div class="debrief-clean">✓ Clean run — no mistakes.</div>';
     }
     $("endRegs").innerHTML = renderRegs(run.mode);
+    { const nm=loadProfile().name; if(nm && !$("certName").value) $("certName").value=nm; }
     Sound.clear();
     $("endOverlay").classList.remove("hidden");
   }
@@ -1686,6 +1731,48 @@
   function startChecks(){ startQuiz({ mode:"checks", modeLabel:"Check Rota", screen:"checks", numId:"checksNum", totalId:"checksTotal", timerId:"checksTimer", optsId:"checksOpts", optClass:"sign-opt", logTag:"checksLogTag", logText:"checksLogText", hint:"How often is this check due?", progLabel:"Checks", winTitle:"Rota nailed", time:12, speedBonus:7, data:CHECKS,
     renderPrompt:(it)=>{ $("checksAsk").textContent=it.ask; },
     getOptions:(it)=>it.opts.map((o,idx)=>({html:'<span class="sign-emoji">'+o.e+'</span><span class="sign-l">'+o.l+'</span>',correct:idx===it.correct})), mistakeLabel:(it)=>"Check: "+it.ask }); }
+
+  /* ---------------- TRAINING RECORD ---------------- */
+  const fmtDate = t => new Date(t).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+  const fmtTime = t => { const d=new Date(t); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); };
+  const isoDate = t => { const d=new Date(t); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+  function openRecord(){ showScreen("record", false); renderRecord(); }
+  function renderRecord(){
+    const p=loadProfile(), h=p.history;
+    $("recName").value=p.name||"";
+    const done=h.filter(x=>x.w).length, days=new Set(h.map(x=>isoDate(x.t))).size;
+    let stats='<div class="rec-stat"><b>'+h.length+'</b><span>sessions recorded</span></div>'+
+              '<div class="rec-stat"><b>'+days+'</b><span>days trained</span></div>'+
+              '<div class="rec-stat"><b>'+done+'</b><span>completed</span></div>'+
+              '<div class="rec-stat"><b>'+(h.length?fmtDate(h[h.length-1].t):"—")+'</b><span>last session</span></div>';
+    if(h.length){ const due=new Date(h[h.length-1].t); due.setFullYear(due.getFullYear()+1);
+      stats+='<div class="rec-stat rec-due">⏰ Annual refresher suggested by '+fmtDate(due.getTime())+'. Government guidance says no less often than once a year.</div>'; }
+    $("recStats").innerHTML=stats;
+    $("recList").innerHTML = h.length
+      ? h.slice(-15).reverse().map(x=>'<div class="rec-row'+(x.w?'':' no')+'"><span class="d">'+esc2(fmtDate(x.t))+'</span><span class="m">'+esc2(x.m)+'</span><span class="r">'+(x.w?'✓ ':'✕ ')+x.s+'</span></div>').join("")
+      : '<div class="rec-empty">No sessions recorded yet. Sessions you finish from now on will appear here.</div>';
+  }
+  function csvCell(v){ v=String(v==null?"":v); if(/^[=+\-@]/.test(v)) v="'"+v; return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; }
+  function buildRecordCsv(){
+    const p=loadProfile(), name=p.name||"";
+    const rows=[["Name","Date","Time","Drill","Result","Score","Rating"]];
+    p.history.forEach(x=>rows.push([name,isoDate(x.t),fmtTime(x.t),x.m,x.w?"Completed":"Not completed",x.s,x.r]));
+    return "\ufeff"+rows.map(r=>r.map(csvCell).join(",")).join("\r\n");
+  }
+  async function saveText(filename,text,mime){
+    const blob=new Blob([text],{type:mime});
+    try{ if(navigator.canShare){ const f=new File([blob],filename,{type:mime}); if(navigator.canShare({files:[f]})){ await navigator.share({files:[f],title:"Hazard Hunt training record"}); return; } } }
+    catch(e){ if(e && e.name==="AbortError") return; }
+    try{ const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download=filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(()=>URL.revokeObjectURL(url),4000); toast("Saved"); }
+    catch(e){ toast("Couldn't save the file"); }
+  }
+  function downloadRecordCsv(){
+    const p=loadProfile(); if(!p.history.length){ toast("Nothing to download yet"); return; }
+    const slug=(p.name||"trainee").replace(/[^a-z0-9]+/gi,"-").toLowerCase().replace(/^-|-$/g,"")||"trainee";
+    saveText("hazard-hunt-training-record-"+slug+".csv", buildRecordCsv(), "text/csv;charset=utf-8");
+    if(window.hhTrack) window.hhTrack("record_csv",{sessions:p.history.length});
+  }
 
   /* ---------------- WEAK SPOTS ---------------- */
   function weakIndex(){
@@ -1990,6 +2077,7 @@
 
   function makeCertificate(){
     const name=($("certName").value.trim())||"Trainee";
+    if(name!=="Trainee"){ const pr=loadProfile(); pr.name=name.slice(0,40); saveProfile(pr); }
     const cv=document.createElement("canvas"); cv.width=1200; cv.height=850; const x=cv.getContext("2d");
     x.fillStyle="#0E0F13"; x.fillRect(0,0,1200,850);
     const grd=x.createRadialGradient(600,80,40,600,80,700); grd.addColorStop(0,"rgba(255,90,31,0.16)"); grd.addColorStop(1,"rgba(255,90,31,0)");
@@ -2093,6 +2181,7 @@
     card.addEventListener("click",()=>{
       Sound.resume(); const m=card.dataset.mode;
       if(m==="daily"){ startDaily(); return; }
+      if(m==="record"){ openRecord(); return; }
       isDaily=false;
       if(window.hhTrack && m!=="builder") window.hhTrack("drill_start",{mode:m});
       if(m==="hazard") openPicker();
@@ -2120,6 +2209,10 @@
   $("imgSave").addEventListener("click",saveImage);
   $("imgClose").addEventListener("click",()=>{ $("imgOverlay").classList.add("hidden"); if(_imgUrl){URL.revokeObjectURL(_imgUrl); _imgUrl=null;} });
   $("againBtn").addEventListener("click",()=>{ $("endOverlay").classList.add("hidden"); goHome(); });
+  $("recBtn").addEventListener("click",()=>{ $("endOverlay").classList.add("hidden"); openRecord(); });
+  $("recCsv").addEventListener("click",downloadRecordCsv);
+  $("recPrint").addEventListener("click",()=>{ if(!loadProfile().history.length){ toast("Nothing to print yet"); return; } window.print(); });
+  $("recName").addEventListener("input",()=>{ const pr=loadProfile(); pr.name=$("recName").value.trim().slice(0,40); saveProfile(pr); });
   $("addRoomBtn").addEventListener("click",()=>{ builderState.rooms.push(blankRoom()); renderRoomsEdit(); });
   $("saveBldBtn").addEventListener("click",saveBuilding);
   document.addEventListener("pointerdown",function once(){ Sound.resume(); document.removeEventListener("pointerdown",once); });
