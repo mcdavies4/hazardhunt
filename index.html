@@ -467,6 +467,7 @@
       <button class="mode-card" data-mode="evac"><span class="mi">🏃</span><span><span class="mt">Evacuation Sequence</span><span class="md">Put the steps in the right order</span></span></button>
       <button class="mode-card" data-mode="alarm"><span class="mi">🚨</span><span><span class="mt">Alarm Panel</span><span class="md">Fire or fault? Choose the response</span></span><span class="badge">New</span></button>
       <button class="mode-card" data-mode="smoke"><span class="mi">🏠</span><span><span class="mt">Smoke Alarms</span><span class="md">Home fire safety — get the basics right</span></span><span class="badge">New</span></button>
+      <button class="mode-card" data-mode="checks"><span class="mi">📋</span><span><span class="mt">Check Rota</span><span class="md">Daily, weekly, monthly — when is each check due?</span></span><span class="badge">New</span></button>
       <button class="mode-card" data-mode="peep"><span class="mi">♿</span><span><span class="mt">PEEP Builder</span><span class="md">Match the evacuation plan to the person</span></span><span class="badge">New</span></button>
       <button class="mode-card" data-mode="spread"><span class="mi">🔥</span><span><span class="mt">Fire Spread</span><span class="md">Contain it and get everyone out</span></span><span class="badge">New</span></button>
       <div class="menu-label">Your sites</div>
@@ -599,6 +600,14 @@
     <div class="sign-ask" id="smokeAsk">—</div>
     <div class="sign-grid" id="smokeOpts"></div>
     <div class="log" id="smokeLog"><span class="tag idle" id="smokeLogTag">Ready</span><p id="smokeLogText">Home smoke alarms — pick the right answer.</p></div>
+  </section>
+
+  <!-- CHECK ROTA -->
+  <section class="screen" id="screen-checks">
+    <div class="ext-head"><div class="n">Q <b id="checksNum">1</b>/<b id="checksTotal">8</b></div><div class="et" id="checksTimer">12</div></div>
+    <div class="sign-ask" id="checksAsk">—</div>
+    <div class="sign-grid" id="checksOpts"></div>
+    <div class="log" id="checksLog"><span class="tag idle" id="checksLogTag">Ready</span><p id="checksLogText">How often is this check due?</p></div>
   </section>
 
   <!-- FIRE SPREAD -->
@@ -1146,6 +1155,18 @@
     {ask:"What actually wakes most people in a house fire?", opts:[{e:"🔔",l:"A working smoke alarm"},{e:"👃",l:"The smell of smoke"},{e:"🔥",l:"The heat"},{e:"🐕",l:"The dog"}], correct:0, why:"You can't smell smoke while asleep — it can send you into a deeper sleep. A working alarm is what wakes you, and roughly doubles your chance of surviving."},
   ];
 
+  const FREQ = {d:{e:"🌅",l:"Every day"}, w:{e:"🗓️",l:"Every week"}, m:{e:"📅",l:"Every month"}, s:{e:"🔧",l:"Every 6 months"}, y:{e:"📋",l:"Every year"}};
+  const CHECKS = [
+    {ask:"Check escape routes are clear and fire exits unlocked", opts:[FREQ.d,FREQ.w,FREQ.m,FREQ.y], correct:0, why:"Daily. Locked exits, bolts and clutter can appear overnight, so the routes are checked every day the building is used. It takes minutes and matters most."},
+    {ask:"Look at the fire alarm panel to confirm it is healthy", opts:[FREQ.d,FREQ.w,FREQ.m,FREQ.s], correct:0, why:"Daily. A quick look that the panel is active and shows no faults. A fault light that nobody reports can mean part of the system won't detect a fire."},
+    {ask:"Test the alarm by operating a manual call point", opts:[FREQ.w,FREQ.m,FREQ.s,FREQ.y], correct:0, why:"Weekly, following the installer's instructions. It proves the alarm sounds. It is a user test and does not replace the engineer's service."},
+    {ask:"Function-test the emergency lighting", opts:[FREQ.w,FREQ.m,FREQ.s,FREQ.y], correct:1, why:"Monthly, at a time when the building won't need the lights straight afterwards. The longer annual test is done by a competent person."},
+    {ask:"Check fire doors close properly and frames and seals are intact", opts:[FREQ.d,FREQ.w,FREQ.m,FREQ.y], correct:2, why:"Monthly. Each fire door should close fully, with an intact frame and seals. Day to day you only need to see that doors on escape routes swing freely and close."},
+    {ask:"A competent engineer services the fire alarm system", opts:[FREQ.w,FREQ.m,FREQ.s,FREQ.y], correct:2, why:"Every six months. Your weekly test shows it sounds. The engineer's visit properly tests and maintains the whole system."},
+    {ask:"A competent person services emergency lighting and extinguishers", opts:[FREQ.m,FREQ.s,FREQ.y,FREQ.d], correct:2, why:"Every year. Alongside your own checks, a competent person tests and maintains emergency lighting, extinguishers and other installed systems annually, and you keep the records."},
+    {ask:"Inspect fire-resisting walls, floors and fire-stopping", opts:[FREQ.w,FREQ.m,FREQ.s,FREQ.y], correct:3, why:"At least yearly, and after any building work that could have breached them. Compartmentation only protects people if it is intact."},
+  ];
+
   const RANKS = [
     {min:0,name:"Trainee"},{min:300,name:"Fire Warden"},{min:900,name:"Competent Person"},
     {min:2000,name:"Fire Marshal"},{min:4000,name:"Station Officer"},{min:7000,name:"Fire Chief"},
@@ -1279,7 +1300,8 @@
     ISO7010:{c:"BS EN ISO 7010 / BS 5499", n:"Safety sign design"},
     PAS79: {c:"PAS 79", n:"Fire risk assessment method"},
     BS58396:{c:"BS 5839-6", n:"Fire alarms in homes"},
-    SCA2015:{c:"Smoke & CO Alarm Regs 2015", n:"Alarms in rented homes"}
+    SCA2015:{c:"Smoke & CO Alarm Regs 2015", n:"Alarms in rented homes"},
+    HOOS:  {c:"Home Office — Fire safety risk assessment: offices and shops (s.3.4.6)", n:"Example fire safety checks"}
   };
   const MODE_REGS = {
     hazard: [ {r:"FSO9", w:"Every round is a mini risk assessment — spot the hazard, judge the risk, act."},
@@ -1307,6 +1329,9 @@
     spread: [ {r:"FSO17", w:"Compartmentation only works if fire doors are shut and maintained — that's what contained the fire."},
               {r:"FSO15", w:"Triage and assisted evacuation are the procedures behind getting everyone out."},
               {r:"EQ2010", w:"The resident who can't self-evacuate is exactly why a PEEP exists."} ],
+    checks: [ {r:"FSO17", w:"Fire safety measures must be kept in efficient working order and good repair. Regular checks are how you prove it."},
+              {r:"HOOS", w:"The example daily, weekly, monthly, six-monthly and annual schedule these questions follow. It is guidance, not a legal timetable, and your fire risk assessment decides."},
+              {r:"BS5839", w:"The standard behind fire alarm testing, servicing and record keeping."} ],
     smoke:  [ {r:"BS58396", w:"The standard for fire alarms in homes — at least one working alarm on every storey."},
               {r:"SCA2015", w:"In rented homes the law requires a smoke alarm on every storey, and a CO alarm where there's a fuel-burning appliance."} ]
   };
@@ -1319,7 +1344,8 @@
     sign:   {u:"/blog/fire-safety-signs-meaning.html", t:"Fire safety signs and what they mean"},
     alarm:  {u:"/blog/fire-alarm-systems-bs5839-guide.html", t:"Fire detection & alarm systems: a guide"},
     spread: {u:"/blog/what-is-a-peep.html", t:"What is a PEEP? Assisted evacuation explained"},
-    myth:   {u:"/blog/fire-safety-training-how-often.html", t:"How often is fire safety training required?"}
+    myth:   {u:"/blog/fire-safety-training-how-often.html", t:"How often is fire safety training required?"},
+    checks: {u:"/blog/fire-safety-checks-weekly-monthly-annual.html", t:"Fire safety checks: the daily, weekly, monthly and annual schedule"}
   };
   function renderRegs(mode){
     const list = MODE_REGS[mode]; if(!list) return "";
@@ -1636,6 +1662,9 @@
   function startSmoke(){ startQuiz({ mode:"smoke", modeLabel:"Smoke Alarms", screen:"smoke", numId:"smokeNum", totalId:"smokeTotal", timerId:"smokeTimer", optsId:"smokeOpts", optClass:"sign-opt", logTag:"smokeLogTag", logText:"smokeLogText", hint:"Home smoke alarms — pick the right answer.", progLabel:"Alarms", winTitle:"Smoke alarms aced", time:12, speedBonus:7, data:SMOKE,
     renderPrompt:(it)=>{ $("smokeAsk").textContent=it.ask; },
     getOptions:(it)=>it.opts.map((o,idx)=>({html:'<span class="sign-emoji">'+o.e+'</span><span class="sign-l">'+o.l+'</span>',correct:idx===it.correct})), mistakeLabel:(it)=>"Smoke alarm: "+it.ask }); }
+  function startChecks(){ startQuiz({ mode:"checks", modeLabel:"Check Rota", screen:"checks", numId:"checksNum", totalId:"checksTotal", timerId:"checksTimer", optsId:"checksOpts", optClass:"sign-opt", logTag:"checksLogTag", logText:"checksLogText", hint:"How often is this check due?", progLabel:"Checks", winTitle:"Rota nailed", time:12, speedBonus:7, data:CHECKS,
+    renderPrompt:(it)=>{ $("checksAsk").textContent=it.ask; },
+    getOptions:(it)=>it.opts.map((o,idx)=>({html:'<span class="sign-emoji">'+o.e+'</span><span class="sign-l">'+o.l+'</span>',correct:idx===it.correct})), mistakeLabel:(it)=>"Check: "+it.ask }); }
 
   /* ---------------- SPREAD SIMULATION ---------------- */
   const SPREAD_LEVELS = [
@@ -2010,6 +2039,7 @@
       else if(m==="peep") startPeep();
       else if(m==="sign") startSign();
       else if(m==="smoke") startSmoke();
+      else if(m==="checks") startChecks();
       else if(m==="spread") startSpread();
       else if(m==="builder"){ renderBuilder(); showScreen("builder", false); }
     });
