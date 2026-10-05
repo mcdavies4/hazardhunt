@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BL8EN6VRZX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BL8EN6VRZX');</script>
+<title>Fire Assembly Points and Roll Call: How to Plan and Run Them | Hazard Hunt</title>
+<meta name="description" content="Where a fire assembly point should be, who runs the roll call, what to tell the fire service and when people can go back in. A UK guide for employers.">
+<link rel="canonical" href="https://hazardhunt.online/blog/fire-assembly-point-roll-call.html">
+<meta name="theme-color" content="#0E0F13">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E0F13'/%3E%3Cpath d='M16 5c1 4-3 5-3 9a3 3 0 0 0 6 .3c1.4 1 2 2.4 2 4.2a5 5 0 1 1-10 0c0-4.6 4-6.5 5-13.5z' fill='%23FF5A1F'/%3E%3C/svg%3E">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fire Assembly Points and Roll Call: How to Plan and Run Them">
+<meta property="og:description" content="Where to put your assembly point, who counts, what the fire service needs to hear and when people can go back in.">
+<meta property="og:url" content="https://hazardhunt.online/blog/fire-assembly-point-roll-call.html">
+<meta property="og:image" content="https://hazardhunt.online/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Hazard Hunt — blog styles. Extends the game's ember/instrument-panel brand. */
+:root{
+  --bg:#0E0F13; --panel:#171922; --panel-2:#1B1E28; --line:#2A2E3D;
+  --ember:#FF5A1F; --amber:#FFB02E; --green:#36D399;
+  --text:#E7E9F0; --muted:#8B90A3; --faint:#6B7080;
+  --wrap:720px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font:400 17px/1.7 'Inter',system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+a{color:var(--amber); text-decoration:none;}
+a:hover{text-decoration:underline;}
+img{max-width:100%; display:block;}
+
+/* ambient ember glow, fixed, subtle */
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:radial-gradient(120% 60% at 50% -10%, rgba(255,90,31,.10), rgba(255,90,31,0) 60%);
+}
+.wrap{position:relative; z-index:1; width:100%; max-width:var(--wrap); margin:0 auto; padding:0 22px;}
+
+/* ---- top bar ---- */
+.top{position:sticky; top:0; z-index:5; background:rgba(14,15,19,.82); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
+.top .wrap{display:flex; align-items:center; justify-content:space-between; height:58px;}
+.brand{display:flex; align-items:center; gap:9px; font-family:'Oswald',sans-serif; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text); font-size:18px;}
+.brand:hover{text-decoration:none;}
+.brand .fl{font-size:18px; filter:drop-shadow(0 0 8px rgba(255,90,31,.5));}
+.top nav a{font:600 13px/1 'Inter',sans-serif; color:var(--muted); margin-left:18px;}
+.top nav a:hover{color:var(--text); text-decoration:none;}
+.top .play{color:var(--bg); background:var(--ember); padding:8px 14px; border-radius:20px;}
+.top .play:hover{background:#ff6d38;}
+
+/* ---- eyebrow + meta (Space Mono signature) ---- */
+.eyebrow{font:600 11px/1 'Space Mono',monospace; letter-spacing:.18em; text-transform:uppercase; color:var(--ember);}
+.meta{font:400 12.5px/1 'Space Mono',monospace; color:var(--muted); display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center;}
+.meta .dot{color:var(--line);}
+
+/* ---- headings ---- */
+h1,h2,h3{font-family:'Oswald',sans-serif; font-weight:600; line-height:1.12; color:var(--text); letter-spacing:.01em;}
+.article h1{font-size:clamp(30px,7vw,50px); text-transform:uppercase; margin:14px 0 14px;}
+.article h2{font-size:clamp(21px,4.5vw,27px); text-transform:uppercase; letter-spacing:.02em; margin:42px 0 12px; padding-top:8px;}
+.article h3{font-size:19px; margin:28px 0 8px; color:var(--amber);}
+
+/* ---- article body ---- */
+.article{padding:34px 0 60px;}
+.article p{margin:0 0 18px; color:#D7DAE4;}
+.article strong{color:var(--text); font-weight:600;}
+.article ul,.article ol{margin:0 0 20px; padding-left:22px;}
+.article li{margin:0 0 9px; color:#D7DAE4;}
+.article li::marker{color:var(--ember);}
+.lead{font-size:20px; line-height:1.55; color:var(--text)!important; border-left:3px solid var(--ember); padding-left:16px; margin:0 0 26px;}
+.article blockquote{margin:24px 0; padding:14px 18px; background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--amber); border-radius:0 10px 10px 0; color:var(--text); font-size:16px;}
+.divider{border:0; border-top:1px solid var(--line); margin:40px 0;}
+
+/* ---- regulation chips (the signature) ---- */
+.regbar{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 8px;}
+.regchip{font:600 11.5px/1 'Space Mono',monospace; color:var(--amber); background:rgba(255,176,46,.08); border:1px solid rgba(255,176,46,.32); border-radius:6px; padding:7px 10px; letter-spacing:.01em;}
+.reglabel{font:600 10px/1 'Space Mono',monospace; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-bottom:8px;}
+
+/* ---- callout / key facts ---- */
+.callout{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:18px 20px; margin:24px 0;}
+.callout .h{font:600 10px/1 'Space Mono',monospace; letter-spacing:.16em; text-transform:uppercase; color:var(--ember); margin-bottom:10px;}
+.callout p:last-child{margin-bottom:0;}
+
+/* ---- CTA to game ---- */
+.cta{position:relative; overflow:hidden; background:linear-gradient(180deg,#191b25,#131520); border:1px solid var(--line); border-radius:16px; padding:26px 24px; margin:40px 0 8px; text-align:center;}
+.cta::before{content:""; position:absolute; inset:0; background:radial-gradient(90% 120% at 50% 0%, rgba(255,90,31,.18), transparent 60%); pointer-events:none;}
+.cta h3{position:relative; font-size:23px; text-transform:uppercase; margin:0 0 6px; color:var(--text);}
+.cta p{position:relative; color:var(--muted); font-size:15px; margin:0 0 16px;}
+.cta a.btn{position:relative; display:inline-block; background:var(--ember); color:var(--bg); font:600 15px/1 'Inter',sans-serif; padding:13px 22px; border-radius:24px;}
+.cta a.btn:hover{background:#ff6d38; text-decoration:none;}
+
+/* ---- index hero ---- */
+.hero{padding:52px 0 20px;}
+.hero h1{font-size:clamp(34px,9vw,62px); text-transform:uppercase; margin:14px 0 14px; line-height:1.04;}
+.hero p{font-size:18px; color:var(--muted); max-width:560px; margin:0;}
+.hero .amber{color:var(--amber);}
+
+/* ---- article cards ---- */
+.cards{display:grid; grid-template-columns:1fr; gap:16px; padding:24px 0 64px;}
+.card{display:block; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:22px; transition:border-color .18s, transform .18s;}
+.card:hover{border-color:#3a3f52; transform:translateY(-2px); text-decoration:none;}
+.card .cat{font:600 10px/1 'Space Mono',monospace; letter-spacing:.14em; text-transform:uppercase; color:var(--ember);}
+.card h2{font-size:22px; text-transform:none; letter-spacing:0; margin:10px 0 8px; color:var(--text);}
+.card p{color:var(--muted); font-size:15px; margin:0 0 14px;}
+.card .rt{font:400 12px/1 'Space Mono',monospace; color:var(--faint);}
+
+/* ---- footer ---- */
+.foot{border-top:1px solid var(--line); padding:30px 0 44px; margin-top:20px;}
+.foot .wrap{display:flex; flex-wrap:wrap; gap:6px 18px; align-items:center; justify-content:space-between;}
+.foot p{font-size:12.5px; color:var(--faint); margin:0; line-height:1.5;}
+.foot a{color:var(--muted);}
+.backlink{display:inline-block; font:600 13px/1 'Inter',sans-serif; color:var(--muted); margin:0 0 4px;}
+
+@media (max-width:600px){
+  body{font-size:16px;}
+  .top nav a.hidephone{display:none;}
+}
+@media (prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto!important; transition:none!important;}
+}
+:focus-visible{outline:2px solid var(--amber); outline-offset:2px; border-radius:4px;}
+
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","headline":"Fire Assembly Points and Roll Call: How to Plan and Run Them","description":"Where to put your assembly point, who counts, what the fire service needs to hear and when people can go back in.","datePublished":"2026-10-05","dateModified":"2026-10-05","author":{"@type":"Organization","name":"The 36th Company"},"publisher":{"@type":"Organization","name":"The 36th Company"},"image":"https://hazardhunt.online/og-image.png","mainEntityOfPage":"https://hazardhunt.online/blog/fire-assembly-point-roll-call.html"}
+</script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/"><span class="fl">🔥</span> Hazard Hunt</a>
+    <nav><a href="/blog/" class="hidephone">Blog</a><a class="play" href="/">Play the game</a></nav>
+  </div>
+</header>
+<main class="wrap">
+  <article class="article">
+    <a class="backlink" href="/blog/">← All notes</a>
+    <span class="eyebrow">Evacuation</span>
+    <h1>Fire assembly points and roll call: how to plan and run them</h1>
+    <div class="meta"><span>The 36th Company</span><span class="dot">·</span><span>6 min read</span><span class="dot">·</span><span>Updated Oct 2026</span></div>
+    <p class="lead">Getting everyone out is half the job. The other half is knowing everyone is out. That is what the assembly point and the roll call are for, and they only work if someone planned them before the alarm sounded.</p>
+    <div class="reglabel">The rules behind this</div>
+    <div class="regbar"><span class="regchip">Fire Safety Order 2005 · Art. 15</span><span class="regchip">Home Office Art. 50 guide · s.14</span><span class="regchip">Home Office offices &amp; shops guide</span></div>
+    <div class="callout"><div class="h">The short answer</div><p><strong>Choose a safe place outside, clear of the building and of fire service access. Sign it and tell everyone, including new starters and contractors. Name the person who counts and the person who talks to the fire service. And nobody goes back in until the fire and rescue service or the person in charge says so.</strong></p></div>
+    <h2>What the rules say</h2>
+    <p>The Regulatory Reform (Fire Safety) Order 2005 never uses the words "assembly point". <strong>Article 15</strong> requires the responsible person to establish procedures to follow in an emergency, including safety drills, and to nominate enough competent people to carry out the evacuation side of them. The Home Office guidance fills in the detail: the evacuation procedure should get everyone to an assembly point at a place of total safety, and your staff should be trained in it.</p>
+    <p>The Home Office guide to the Order adds three points that matter here. The procedures must include how the fire and rescue service are called and <strong>who will meet them on arrival</strong>. They must be such that <strong>people do not go back into the building</strong> until the fire and rescue service or those in charge of the building say they may. And in staffed premises you must nominate enough competent people to put the procedures into effect, which usually means fire wardens who help people out and check that their area has been cleared. Our guide to <a href="/blog/fire-warden-training.html">fire warden training</a> covers the role.</p>
+    <h2>Choosing the assembly point</h2>
+    <p>The Order doesn't set distances or sizes, so this is a matter for your fire risk assessment. These are the points guidance and good practice most often make:</p>
+    <ul>
+    <li><strong>Far enough from the building.</strong> People shouldn't be exposed to heat, smoke or falling glass, and they shouldn't be gathered close to the fire.</li>
+    <li><strong>Clear of fire service access.</strong> A crowd on the access road or at the main gate slows the people you need to reach the building.</li>
+    <li><strong>Reachable without walking past the fire.</strong> Check the route from every exit, not just the main one.</li>
+    <li><strong>Big enough for everyone</strong> likely to be on site, including visitors and contractors, and not an area that is risky in its own right, such as a busy loading yard.</li>
+    <li><strong>Signed and known.</strong> Use the green assembly point sign (see <a href="/blog/fire-safety-signs-meaning.html">fire safety signs and what they mean</a>) and show the location on your fire action notice and in induction.</li>
+    <li><strong>A back-up point</strong> in case the first one is blocked or unsafe, and a plan for what happens if the weather is bad.</li>
+    </ul>
+    <p>In a building shared with other organisations, the Home Office guide expects a single coherent fire procedure that all occupants know and follow. Agree one assembly arrangement with your neighbours, or at least make sure yours doesn't clash with theirs.</p>
+    <h2>Who does what</h2>
+    <p>Write the roles into your emergency plan, name a deputy for each, and make sure every shift is covered.</p>
+    <ul>
+    <li><strong>Wardens</strong> help people out, check their area as far as it is safe, and report to the roll call lead on arrival.</li>
+    <li><strong>The roll call lead</strong> holds the list, collects the reports and works out who is unaccounted for.</li>
+    <li><strong>The fire service contact</strong> meets the fire and rescue service, and is passed the roll call result.</li>
+    </ul>
+    <h2>Running the roll call</h2>
+    <p>The best list is the one that is current. Combine your staff rota, a visitor sign-in book, a contractor log and any agency staff booked on that day, and keep it somewhere you can reach from outside the building, such as a grab sheet by the exit or on a phone. Each warden reports who they have and who they couldn't find. The roll call lead then works out the gaps and passes them to the fire service contact: <strong>who is missing and where they were last seen</strong>.</p>
+    <p>Never send anyone back in to look. Searching is the fire and rescue service's job, and their best help is a clear name and a last known location.</p>
+    <h2>When people can go back in</h2>
+    <p>Not when the alarm stops. The Home Office guidance is that people don't re-enter until the fire and rescue service, or those in charge of the building, say so. Brief wardens to hold that line politely and firmly. Forgotten bags and ringing phones are the usual pressure.</p>
+    <h2>Care homes, hospitals and blocks of flats are different</h2>
+    <p>The same guide notes that in care homes and hospitals, <strong>progressive horizontal evacuation</strong> is normally used: people in the area of the fire are first moved sideways to an adjacent safe area on the same storey, not straight outside. In purpose-built blocks of flats a <strong>stay-put</strong> strategy may be adopted, where only the flat on fire evacuates. Your assembly arrangements need to match your evacuation strategy, and for people who can't leave unaided they need to link to a <a href="/blog/what-is-a-peep.html">PEEP</a>.</p>
+    <h2>Mistakes to avoid</h2>
+    <ul>
+    <li>An assembly point chosen for convenience, such as the doorway or the car park next to the building.</li>
+    <li>A roll call list that is out of date or that doesn't include visitors, contractors and agency staff.</li>
+    <li>Nobody nominated to meet the fire service, so the first arrivals find a crowd and no information.</li>
+    <li>New starters and contractors never told where to go. See <a href="/blog/fire-safety-training-how-often.html">how often fire safety training is required</a>.</li>
+    <li>Never practising it. A drill is where you find out the point is too small or the list is wrong.</li>
+    </ul>
+    <h2>Test it in your drills</h2>
+    <p>The Home Office guide says drills reinforce staff training and show how people will behave, whether they use the right routes, and how long it takes to evacuate. Time the roll call as well as the evacuation, and record both. See <a href="/blog/fire-drills-how-often.html">how often fire drills should be carried out</a>.</p>
+    <h2>Frequently asked questions</h2>
+    <h3>Does the assembly point have to be outside?</h3>
+    <p>Normally yes, away from the building. The exception is where your evacuation strategy moves people to a safe area inside first, as in progressive horizontal evacuation in care homes and hospitals. Your fire risk assessment decides.</p>
+    <h3>How many assembly points do we need?</h3>
+    <p>There is no legal number. Small premises usually need one plus a back-up. Larger sites often use several, each with its own roll call lead, so that people can reach the nearest one from any exit.</p>
+    <h3>Who takes the roll call?</h3>
+    <p>Whoever your emergency plan nominates, usually a warden or manager with a deputy. What matters is that it is written down and practised.</p>
+    <div class="cta">
+      <h3>Make the call yourself</h3>
+      <p>Marshal Call puts you in the warden's shoes: the sweep, the refuge, the missing person at roll call, the request to go back in. Eight decisions, a few seconds each.</p>
+      <a class="btn" href="/">Play Hazard Hunt →</a>
+    </div>
+    <h2>Sources</h2>
+    <ul>
+    <li><a href="https://www.gov.uk/government/collections/fire-safety-legislation-guidance-for-those-with-legal-duties" rel="noopener">A guide for persons with duties under the Fire Safety Order, sections 14 and 15 (Home Office, GOV.UK)</a></li>
+    <li><a href="https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/422175/9449_Offices_and_Shops_v2.pdf" rel="noopener">Fire safety risk assessment: offices and shops (Home Office)</a></li>
+    <li><a href="https://www.legislation.gov.uk/uksi/2005/1541/article/15" rel="noopener">Regulatory Reform (Fire Safety) Order 2005, Article 15: Procedures for serious and imminent danger</a> (legislation.gov.uk)</li>
+    </ul>
+    <hr class="divider">
+    <p style="font-size:13px;color:var(--faint)">This guide is for learning and applies to England &amp; Wales. Always work from the current regulations and your own fire risk assessment; Scotland and Northern Ireland have equivalent regimes.</p>
+  </article>
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <p>Hazard Hunt · a fire-safety training game by The&nbsp;36th&nbsp;Company.</p>
+    <a href="/blog/">← More fire safety notes</a>
+  </div>
+</footer>
+</body>
+</html>
