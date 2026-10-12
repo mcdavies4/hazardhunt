@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/blog/fire-extinguisher-colour-chart.html",
+      "destination": "/blog/fire-extinguisher-colours-uk.html",
+      "permanent": true
+    }
+  ]
+}
