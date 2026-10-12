@@ -286,6 +286,10 @@
   .set-row .sl{text-align:left;}
   .set-row .sl .t{font:600 15px 'Inter';}
   .set-row .sl .d{font-size:12px;color:var(--muted);margin-top:2px;}
+  .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex-shrink:0;}
+  .seg button{background:#0d0e13;color:var(--muted);border:0;padding:9px 15px;font:600 13px 'Inter';cursor:pointer;}
+  .seg button.on{background:rgba(255,90,31,.25);color:var(--text);}
+  .seg button:focus-visible{outline:3px solid var(--amber);outline-offset:-3px;}
   .switch{position:relative;width:52px;height:30px;border-radius:30px;background:#0d0e13;border:1px solid var(--line);cursor:pointer;flex-shrink:0;transition:.2s;}
   .switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--muted);transition:.2s;}
   .switch.on{background:rgba(255,90,31,.25);border-color:var(--ember);}
@@ -783,7 +787,7 @@
 <div class="overlay hidden" id="setOverlay">
   <div class="modal">
     <div class="eyebrow">Settings</div>
-    <h2>Sound &amp; Haptics</h2>
+    <h2>Sound, Haptics &amp; Region</h2>
     <div class="set-row">
       <div class="sl"><div class="t">Sound effects</div><div class="d">Beeps, alarms and chimes</div></div>
       <div class="switch" id="swSound"></div>
@@ -791,6 +795,10 @@
     <div class="set-row">
       <div class="sl"><div class="t">Haptics</div><div class="d">Vibration on phones</div></div>
       <div class="switch" id="swHaptics"></div>
+    </div>
+    <div class="set-row">
+      <div class="sl"><div class="t">Region</div><div class="d">UK or US rules in Extinguisher Match and the rules panel</div></div>
+      <div class="seg" id="regionSeg" role="group" aria-label="Region"><button type="button" data-r="uk">UK</button><button type="button" data-r="us">US</button></div>
     </div>
     <button class="btn" id="setClose" style="margin-top:18px;">Done</button>
   </div>
@@ -1166,6 +1174,34 @@
      deadly:{co2:"CO₂ on bare skin causes cold burns.",powder:"Powder in the face and airways is dangerous to a person."}},
   ];
 
+
+  /* ---------------- REGION (UK / US) ---------------- */
+  const EXT_UK = JSON.parse(JSON.stringify(EXT));
+  const SCEN_UK = JSON.parse(JSON.stringify(SCEN));
+  const EXT_US = {
+    water:  {n:"Water (A)",           band:"#B3261E"},
+    foam:   {n:"Foam AFFF (A·B)",     band:"#B3261E"},
+    co2:    {n:"CO₂ (B·C)",           band:"#B3261E"},
+    powder: {n:"ABC Dry Chemical",    band:"#B3261E"},
+    wet:    {n:"Wet Chemical (K)",    band:"#B3261E"},
+    blanket:{n:"Fire Blanket",        band:"#7F1D1D"}
+  };
+  const SCEN_US = [
+    {cls:"Class A · ordinary combustibles", correct:["water","foam","powder"], win:"Class A — ordinary combustibles. Water, foam or an ABC dry chemical unit."},
+    {cls:"Class K · cooking oil", win:"Class K — cooking oils and fats. A K-rated wet chemical extinguisher, or smother it with a fire blanket."},
+    {cls:"Class B · flammable liquid", win:"Class B — flammable liquid. Foam, CO₂ or dry chemical. Never water."},
+    {cls:"Class C · energized electrical", win:"Class C — energized electrical equipment. CO₂ or dry chemical. De-energize it first if you safely can."},
+    {cls:"Class C · energized electrical", win:"Class C — energized electrical. CO₂ or dry chemical doesn't conduct. Dry chemical leaves a residue."},
+    {cls:"Class B · flammable liquid", win:"Class B — flammable liquid. Foam, dry chemical or CO₂."},
+    {cls:"Class A · ordinary combustibles", correct:["water","foam","powder"], win:"Class A — ordinary combustibles. Water, foam or dry chemical."},
+    {}
+  ];
+  function applyRegion(){
+    const us = settings.region==="us";
+    Object.keys(EXT_UK).forEach(k=>{ Object.assign(EXT[k], EXT_UK[k], us?EXT_US[k]:{}); });
+    SCEN.forEach((sc,i)=>{ Object.assign(sc, JSON.parse(JSON.stringify(SCEN_UK[i])), us?(SCEN_US[i]||{}):{}); });
+  }
+
   const DOOR_POINTS = [
     {x:78,y:9,  fault:true,  n:"Damaged door closer", why:"The self-closing device is broken, so the door won't shut on its own. A fire door that doesn't close isn't doing its job."},
     {x:90,y:20, fault:true,  n:"Missing intumescent strip", why:"The seal in the frame that expands in heat is missing. Without it, smoke and fire pass straight through the gap."},
@@ -1279,8 +1315,9 @@
     };
   })();
 
-  const settings = { sound:true, haptics:true };
-  try{ const s=JSON.parse(store.get("hh_set")||"{}"); if(typeof s.sound==="boolean")settings.sound=s.sound; if(typeof s.haptics==="boolean")settings.haptics=s.haptics; }catch(e){}
+  const settings = { sound:true, haptics:true, region:"uk" };
+  try{ const s=JSON.parse(store.get("hh_set")||"{}"); if(typeof s.sound==="boolean")settings.sound=s.sound; if(typeof s.haptics==="boolean")settings.haptics=s.haptics; if(s.region==="us"||s.region==="uk")settings.region=s.region; }catch(e){}
+  applyRegion();
   function saveSettings(){ store.set("hh_set",JSON.stringify(settings)); }
 
   const Sound = (()=>{ let ctx=null;
@@ -1439,6 +1476,25 @@
     smoke:  [ {r:"BS58396", w:"The standard for fire alarms in homes — at least one working alarm on every storey."},
               {r:"SCA2015", w:"In rented homes the law requires a smoke alarm on every storey, and a CO alarm where there's a fuel-burning appliance."} ]
   };
+
+  const REGS_US = {
+    OSHA157:{c:"29 CFR 1910.157", n:"Portable fire extinguishers"},
+    NFPA10: {c:"NFPA 10", n:"Portable fire extinguishers standard"},
+    OSHA38: {c:"29 CFR 1910.38", n:"Emergency action plans"},
+    OSHA37: {c:"29 CFR 1910.37", n:"Exit routes"},
+    OSHA39: {c:"29 CFR 1910.39", n:"Fire prevention plans"}
+  };
+  const MODE_REGS_US = {
+    hazard: [ {r:"OSHA39", w:"A fire prevention plan lists the major fire hazards, ignition sources and the controls for them. Hazard spotting is that in practice."} ],
+    ext:    [ {r:"OSHA157", w:"Extinguishers provided for employees must be accessible, inspected visually every month, maintained every year, and staff trained when hired and at least annually."},
+              {r:"NFPA10", w:"The classes are A, B, C, D and K. Electrical is Class C. Most US extinguishers are red whatever they contain, so read the label and pictogram, not the colour."} ],
+    evac:   [ {r:"OSHA38", w:"The plan covers reporting a fire, evacuation and exit assignments, and accounting for everyone afterwards."},
+              {r:"OSHA37", w:"Exit routes must be kept free and unobstructed, and exits marked."} ],
+    myth:   [ {r:"OSHA157", w:"Employees expected to use extinguishers need training when hired and at least annually."} ],
+    marshal:[ {r:"OSHA38", w:"Employers must designate and train employees to help others evacuate safely and in an orderly way."},
+              {r:"OSHA157", w:"Anyone designated to use extinguishers needs training on assignment and at least annually."} ],
+    checks: [ {r:"OSHA157", w:"Extinguishers get a visual inspection every month and an annual maintenance check, with the annual date recorded."} ]
+  };
   const MODE_ARTICLE = {
     hazard: {u:"/blog/fire-risk-assessment-small-business.html", t:"Fire risk assessment: a simple guide"},
     ext:    {u:"/blog/fire-extinguisher-colours-uk.html", t:"Fire extinguisher colours & types"},
@@ -1453,13 +1509,16 @@
     marshal:{u:"/blog/fire-assembly-point-roll-call.html", t:"Fire assembly points and roll call: how to plan and run them"}
   };
   function renderRegs(mode){
-    const list = MODE_REGS[mode]; if(!list) return "";
-    const rows = list.map(x=>{ const g=REGS[x.r]; if(!g) return "";
+    const us = settings.region==="us" && MODE_REGS_US[mode];
+    const list = us ? MODE_REGS_US[mode] : MODE_REGS[mode]; if(!list) return "";
+    const rows = list.map(x=>{ const g=(us?REGS_US:REGS)[x.r]; if(!g) return "";
       return '<div class="reg-row"><span class="reg-code">'+esc2(g.c)+'</span><span class="reg-note"><b>'+esc2(g.n)+'</b> — '+esc2(x.w)+'</span></div>'; }).join("");
-    const art = MODE_ARTICLE[mode];
+    const art = (us && mode==="ext") ? {u:"/blog/fire-extinguisher-classes-us.html", t:"Fire extinguisher classes (A, B, C, D, K): the US guide"} : MODE_ARTICLE[mode];
     const link = art ? '<a class="regs-read" href="'+art.u+'">📖 Read: '+esc2(art.t)+' →</a>' : '';
-    return '<div class="regs-h">The rules behind this drill</div>'+rows+link+
-      '<div class="regs-foot">Learning references for England &amp; Wales — always work from the current regulation or standard. Scotland &amp; Northern Ireland have equivalent regimes.</div>';
+    const foot = us ? 'Learning references for the United States (federal OSHA and NFPA). State and local fire codes may add requirements — always work from the current regulation or standard.'
+      : (settings.region==="us" ? 'US references for this drill are not added yet, so these are UK (England &amp; Wales) references. Always work from your own local regulation.'
+      : 'Learning references for England &amp; Wales — always work from the current regulation or standard. Scotland &amp; Northern Ireland have equivalent regimes.');
+    return '<div class="regs-h">The rules behind this drill</div>'+rows+link+'<div class="regs-foot">'+foot+'</div>';
   }
 
   function endGame(opts){
@@ -2151,8 +2210,10 @@
   function syncSwitches(){ $("swSound").classList.toggle("on",settings.sound); $("swHaptics").classList.toggle("on",settings.haptics); }
   $("swSound").addEventListener("click",()=>{ settings.sound=!settings.sound; saveSettings(); syncSwitches(); if(settings.sound)Sound.correct(); });
   $("swHaptics").addEventListener("click",()=>{ settings.haptics=!settings.haptics; saveSettings(); syncSwitches(); if(settings.haptics)buzz(20); });
-  $("openSettings").addEventListener("click",()=>{ syncSwitches(); $("setOverlay").classList.remove("hidden"); });
-  $("gearBtn").addEventListener("click",()=>{ syncSwitches(); $("setOverlay").classList.remove("hidden"); });
+  function syncRegion(){ document.querySelectorAll("#regionSeg button").forEach(b=>b.classList.toggle("on",b.dataset.r===settings.region)); }
+  document.querySelectorAll("#regionSeg button").forEach(b=>b.addEventListener("click",()=>{ settings.region=b.dataset.r; saveSettings(); applyRegion(); syncRegion(); if(settings.haptics)buzz(12); }));
+  $("openSettings").addEventListener("click",()=>{ syncSwitches(); syncRegion(); $("setOverlay").classList.remove("hidden"); });
+  $("gearBtn").addEventListener("click",()=>{ syncSwitches(); syncRegion(); $("setOverlay").classList.remove("hidden"); });
   $("setClose").addEventListener("click",()=>$("setOverlay").classList.add("hidden"));
 
   /* ---------------- BUILDING PICKER ---------------- */
