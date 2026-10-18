@@ -1,7 +1,10 @@
-Round 3: US region + US article.
-- index.html: NEW Region setting (UK/US) in Settings. US mode changes Extinguisher Match (classes A/B/C/K, ABC dry chemical, labels instead of colour bands) and the "rules behind this drill" panel (OSHA / NFPA). Other drills stay UK for now.
-  NOTE: this index.html is built on your latest upload (it includes the homepage guide links from round 1).
-- blog/fire-extinguisher-classes-us.html: new US guide (OSHA 1910.157 / 1910.38, classes A B C D K, UK vs US).
-- blog/index.html, fire-triangle..., which-fire-extinguisher...: links to the new guide.
-- sitemap.xml: includes the new page (replaces round 2 version).
-Deploy: copy over repo, commit, push. Then request indexing for /blog/fire-extinguisher-classes-us.html.
+Round 4: Fire Awareness course + certificate verification.
+- courses/fire-awareness/index.html + course-data.js: NEW paid-course page (6 modules, knowledge checks, 15-question
+  final assessment marked server-side, 80% pass, certificate PNG/print with number, valid 12 months).
+  If the learner has joined a team in the game, a pass is logged to that team's manager dashboard.
+  Config at the top of the script: ISSUER, SIGNATORY, CPD_LINE (fill in once CPD accredited).
+- verify/index.html: NEW public certificate lookup (/verify/?code=HH-XXXXX-XXXXX).
+- sitemap.xml: adds /courses/fire-awareness/.
+Setup: run hh-course-migration.sql in the Supabase SQL editor FIRST (kept outside this repo: it holds the answer key).
+Deploy: copy over repo, commit, push. Then request indexing for /courses/fire-awareness/.
+Not in yet: payment gate (Stripe), employer seats. Course is currently open to anyone with the link.

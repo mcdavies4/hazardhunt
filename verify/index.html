@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BL8EN6VRZX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-BL8EN6VRZX');</script>
+<title>Verify a Certificate | Hazard Hunt</title>
+<meta name="description" content="Check that a Hazard Hunt training certificate is genuine and still valid. Enter the certificate number printed on it.">
+<link rel="canonical" href="https://hazardhunt.online/verify/">
+<meta name="theme-color" content="#0E0F13">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230E0F13'/%3E%3Cpath d='M16 5c1 4-3 5-3 9a3 3 0 0 0 6 .3c1.4 1 2 2.4 2 4.2a5 5 0 1 1-10 0c0-4.6 4-6.4 5-13.5z' fill='%23FF5A1F'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0E0F13;--panel:#171922;--panel-2:#1F2230;--line:#2A2E3D;--ember:#FF5A1F;--amber:#FFB02E;--green:#36D399;--red:#FF4D4D;--text:#E7E9F0;--muted:#8B90A3;--faint:#6B7080;}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16.5px/1.6 'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(120% 60% at 50% -10%,rgba(255,90,31,.10),rgba(255,90,31,0) 60%);}
+a{color:var(--amber);}
+.wrap{position:relative;max-width:560px;margin:0 auto;padding:0 18px;}
+.top{position:sticky;top:0;z-index:5;background:rgba(14,15,19,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+.top .wrap{max-width:760px;display:flex;align-items:center;justify-content:space-between;height:56px;}
+.brand{display:flex;align-items:center;gap:8px;font:600 17px/1 'Oswald',sans-serif;text-transform:uppercase;letter-spacing:.04em;color:var(--text);text-decoration:none;}
+.top nav a{font:600 13px/1 'Inter';color:var(--muted);text-decoration:none;margin-left:16px;}
+.eyebrow{font:600 11px/1 'Space Mono',monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--ember);}
+h1{font:600 clamp(32px,8vw,46px)/1.1 'Oswald',sans-serif;text-transform:uppercase;margin:12px 0 10px;}
+.lede{color:var(--muted);margin:0 0 20px;}
+form{display:flex;gap:10px;}
+input{flex:1;min-width:0;background:#0d0e13;border:1px solid var(--line);border-radius:12px;color:var(--text);padding:14px;font:700 17px 'Space Mono',monospace;letter-spacing:.05em;text-transform:uppercase;}
+input:focus{outline:none;border-color:var(--amber);}
+button{font:600 16px 'Inter';color:#0E0F13;background:var(--ember);border:0;border-radius:12px;padding:0 20px;cursor:pointer;}
+button:disabled{opacity:.5;}
+.result{margin-top:22px;border-radius:16px;padding:20px;border:1px solid var(--line);background:linear-gradient(180deg,var(--panel-2),#15171f);}
+.status{display:inline-block;font:700 13px 'Space Mono',monospace;letter-spacing:.08em;padding:7px 12px;border-radius:20px;margin-bottom:12px;}
+.valid{color:#0E0F13;background:var(--green);} .expired{color:#0E0F13;background:var(--amber);} .bad{color:#fff;background:var(--red);}
+.name{font:600 30px/1.15 'Oswald',sans-serif;margin:4px 0 2px;}
+dl{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:16px 0 0;font-size:15px;}
+dt{color:var(--muted);} dd{margin:0;font-weight:600;}
+.note{font-size:13px;color:var(--muted);margin-top:16px;}
+footer{color:var(--faint);font-size:12.5px;text-align:center;padding:50px 0 30px;}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="brand" href="/">🔥 Hazard Hunt</a><nav><a href="/courses/fire-awareness/">Courses</a><a href="/">Play</a></nav></div></header>
+<main class="wrap">
+  <div style="padding-top:34px"></div>
+  <div class="eyebrow">Certificate check</div>
+  <h1>Verify a certificate</h1>
+  <p class="lede">Enter the certificate number printed on a Hazard Hunt certificate, for example <span style="font-family:'Space Mono'">HH-ABCDE-23456</span>.</p>
+  <form id="f"><input id="code" placeholder="HH-XXXXX-XXXXX" maxlength="20" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Certificate number"><button id="go">Check</button></form>
+  <div id="out"></div>
+  <p class="note">Employers, inspectors and insurers can use this page to confirm training records. Certificates are valid for 12 months from issue, after which refresher training is due.</p>
+</main>
+<footer class="wrap">Hazard Hunt · The 36th Company</footer>
+<script>
+(function(){
+  const SB_URL = "https://dovgayzvytwffmwmnvry.supabase.co";
+  const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvdmdheXp2eXR3ZmZtd21udnJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MTY4MjgsImV4cCI6MjA5ODQ5MjgyOH0.EiMGC2gn64DOqpmXTg9ctfJtZyrQDvx1ECZ6TpieE5Q";
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s==null?"":s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+  const fmt = d => new Date(d).toLocaleDateString("en-GB", {day:"numeric", month:"long", year:"numeric"});
+
+  async function check(code){
+    code = (code||"").trim(); if(!code) return;
+    $("go").disabled = true; $("out").innerHTML = '<p class="note">Checking…</p>';
+    try{
+      const r = await fetch(SB_URL + "/rest/v1/rpc/hh_course_verify", { method:"POST",
+        headers:{ apikey:SB_KEY, Authorization:"Bearer "+SB_KEY, "Content-Type":"application/json" },
+        body: JSON.stringify({ p_code: code }) });
+      if(!r.ok) throw new Error();
+      const d = await r.json();
+      if(!d || !d.found){
+        $("out").innerHTML = '<div class="result"><span class="status bad">NOT FOUND</span><p style="margin:0">No certificate matches <b style="font-family:Space Mono">'+esc(code.toUpperCase())+'</b>. Check the number and try again.</p></div>';
+      } else {
+        const st = d.status, label = {valid:"VALID", expired:"EXPIRED", revoked:"REVOKED"}[st] || st.toUpperCase();
+        const cls = st==="valid" ? "valid" : (st==="expired" ? "expired" : "bad");
+        $("out").innerHTML = '<div class="result"><span class="status '+cls+'">✓ '+label+'</span>'+
+          '<div class="eyebrow" style="color:var(--muted)">Awarded to</div><div class="name">'+esc(d.name)+'</div>'+
+          '<dl><dt>Course</dt><dd>'+esc(d.course)+'</dd><dt>Score</dt><dd>'+esc(d.pct)+'%</dd>'+
+          '<dt>Issued</dt><dd>'+fmt(d.issued_at)+'</dd><dt>'+(st==="expired"?"Expired":"Valid until")+'</dt><dd>'+fmt(d.expires_at)+'</dd>'+
+          '<dt>Certificate no.</dt><dd style="font-family:Space Mono">'+esc(d.code)+'</dd></dl>'+
+          (st==="expired" ? '<p class="note">This certificate was genuine but has expired. Refresher training is due.</p>' : '')+'</div>';
+        if(st==="valid"){ $("out").querySelector(".status").textContent = "✓ VALID"; } else { $("out").querySelector(".status").textContent = label; }
+        history.replaceState(null, "", "?code=" + encodeURIComponent(d.code));
+      }
+      try{ gtag("event","certificate_verify",{found:!!(d&&d.found)}); }catch(e){}
+    }catch(e){
+      $("out").innerHTML = '<div class="result"><span class="status bad">ERROR</span><p style="margin:0">Couldn\'t reach the certificate register. Check your connection and try again.</p></div>';
+    }
+    $("go").disabled = false;
+  }
+  $("f").addEventListener("submit", e => { e.preventDefault(); check($("code").value); });
+  const q = new URLSearchParams(location.search).get("code");
+  if(q){ $("code").value = q; check(q); }
+})();
+</script>
+</body>
+</html>
